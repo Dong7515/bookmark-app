@@ -360,76 +360,6 @@
   .hot-trend-error { text-align: center; padding: 12px; color: rgba(0,0,0,0.3); font-size: 12px; }
   .hot-trend-error a { color: rgba(0,0,0,0.45); text-decoration: underline; }
 
-  /* AI Tools Section */
-  .ai-tools-section { margin-bottom: 24px; }
-  .ai-tools-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .ai-tools-header h2 { font-size: 16px; color: #1a1a2e; font-weight: 700; }
-  .ai-tools-header span { font-size: 11px; color: rgba(0,0,0,0.3); }
-  .ai-tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-    gap: 14px;
-  }
-  .ai-tool-card {
-    background: rgba(255,255,255,0.55);
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 20px;
-    padding: 14px 12px;
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer; transition: all 0.3s ease;
-    text-decoration: none; color: inherit;
-    position: relative;
-  }
-  .ai-tool-card:hover { background: rgba(255,255,255,0.8); transform: translateY(-3px); border-color: rgba(0,0,0,0.12); }
-  .ai-tool-card .icon-wrap { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; overflow: hidden; color: #fff; font-weight: 700; }
-  .ai-tool-card .icon-wrap img { width: 24px; height: 24px; object-fit: contain; }
-  .ai-tool-card .info { flex: 1; min-width: 0; }
-  .ai-tool-card .info .name { font-size: 13px; font-weight: 700; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ai-tool-card .info .desc { font-size: 11px; color: rgba(0,0,0,0.35); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ai-tool-card .del-tool {
-    position: absolute; top: 6px; right: 8px;
-    width: 20px; height: 20px; border-radius: 50%;
-    border: none; background: rgba(244,63,94,0.7); color: #fff;
-    font-size: 11px; line-height: 20px; text-align: center;
-    cursor: pointer; opacity: 0; transition: opacity 0.15s;
-    display: flex; align-items: center; justify-content: center;
-    z-index: 2;
-  }
-  .ai-tool-card:hover .del-tool { opacity: 1; }
-  .add-tool-card {
-    background: rgba(255,255,255,0.4);
-    border: 1px dashed rgba(0,0,0,0.15);
-    border-radius: 20px;
-    padding: 14px 12px;
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; cursor: pointer; transition: all 0.3s ease;
-    text-decoration: none; color: rgba(0,0,0,0.35);
-    min-height: 68px;
-  }
-  .add-tool-card:hover { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.3); color: #1a1a2e; }
-  /* 书签选择列表 */
-  .pin-bm-row {
-    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
-    border-radius: 12px; cursor: pointer; transition: background 0.15s;
-    border: 1px solid transparent;
-  }
-  .pin-bm-row:hover { background: rgba(0,0,0,0.04); }
-  .pin-bm-row.checked { background: rgba(124,111,247,0.08); border-color: rgba(124,111,247,0.2); }
-  .pin-checkbox {
-    width: 20px; height: 20px; border-radius: 6px; border: 2px solid rgba(0,0,0,0.2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; color: #fff; flex-shrink: 0; transition: all 0.15s;
-  }
-  .pin-bm-row.checked .pin-checkbox { background: #7c6ff7; border-color: #7c6ff7; }
-  .pin-icon {
-    width: 30px; height: 30px; border-radius: 8px; display: flex;
-    align-items: center; justify-content: center; font-size: 14px; color: #fff; flex-shrink: 0;
-    font-weight: 700;
-  }
-  .pin-icon img { width: 18px; height: 18px; object-fit: contain; }
-  .pin-name { font-size: 13px; color: rgba(0,0,0,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 768px) {
     .sidebar { width: 60px; padding: 16px 6px; }
     .sidebar-header { font-size: 0; padding: 0 0 10px; justify-content: center; }
@@ -441,13 +371,11 @@
     .group-tab .tab-icon { margin: 0; }
     .add-group-btn { font-size: 14px; }
     .hot-trends-grid { grid-template-columns: repeat(2, 1fr); }
-    .ai-tools-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
   }
   @media (max-width: 480px) {
     .sidebar { width: 50px; padding: 12px 4px; }
     .group-tab { padding: 6px; border-radius: 8px; font-size: 11px; }
     .hot-trends-grid { grid-template-columns: 1fr; }
-    .ai-tools-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   /* ====== Bookmark Grid ====== */
@@ -782,14 +710,6 @@
     <div class="hot-trends-grid" id="hotTrendsGrid"></div>
   </div>
 
-  <!-- AI Tools Section -->
-  <div class="ai-tools-section" id="aiToolsSection" style="display:none;">
-    <div class="ai-tools-header">
-      <h2>🔥 常用工具</h2>
-    </div>
-    <div class="ai-tools-grid" id="aiToolsGrid"></div>
-  </div>
-
   <div class="bookmark-grid" id="bookmarkGrid"></div>
   <div class="empty-state" id="emptyState" style="display:none;">
     <div class="icon">&#128209;</div>
@@ -867,19 +787,6 @@
     <div class="modal-actions">
       <button class="btn" id="groupModalCancel">取消</button>
       <button class="btn btn-primary" id="groupModalConfirm">确认</button>
-    </div>
-  </div>
-</div>
-
-<!-- Quick Tool Picker Modal -->
-<div class="modal-overlay" id="quickToolModalOverlay" style="display:none;">
-  <div class="modal" style="max-width:560px;">
-    <h3>选择常用工具</h3>
-    <p style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:14px;">从已有书签中勾选，将在首页常用工具区显示</p>
-    <div id="quickToolBmList" style="max-height:350px;overflow-y:auto;"></div>
-    <div class="modal-actions" style="margin-top:16px;">
-      <button class="btn" onclick="closeQuickToolModal()">取消</button>
-      <button class="btn btn-primary" onclick="confirmPinBookmarks()">确认</button>
     </div>
   </div>
 </div>
@@ -1031,7 +938,7 @@ async function saveDeleteBookmark(id) { if (useApi) await apiCall(`${API}/${id}`
 
 
 // === Render ===
-function renderAll() { renderGroupTabs(); renderAITools(); renderBookmarks(); }
+function renderAll() { renderGroupTabs(); renderBookmarks(); }
 function getIconHtml(bm) {
   if (bm.icon && bm.icon.startsWith('http')) return `<img src="${bm.icon}" alt="" draggable="false" onerror="this.style.display='none';this.parentElement.textContent='${bm.title.charAt(0).toUpperCase()}';" crossorigin="anonymous">`;
   return bm.title.charAt(0).toUpperCase();
@@ -1205,18 +1112,15 @@ function renderBookmarks() {
   const empty = document.getElementById('emptyState');
   const countEl = document.getElementById('bookmarkCount');
   const hotSection = document.getElementById('hotTrendsSection');
-  const aiSection = document.getElementById('aiToolsSection');
 
-  // Toggle hot trends & AI tools visibility based on selection state
+  // Toggle hot trends visibility based on selection state
   if (!selectedGroup && !filterQuery) {
     hotSection.style.display = 'block';
-    aiSection.style.display = 'block';
     grid.innerHTML = ''; empty.style.display = 'none';
-    countEl.textContent = '热搜 · AI工具';
+    countEl.textContent = '热搜';
     return;
   } else {
     hotSection.style.display = 'none';
-    aiSection.style.display = 'none';
   }
 
   // Default: no group selected = show nothing unless searching
@@ -1333,98 +1237,6 @@ function formatHotValue(val) {
   if (isNaN(num)) return '';
   if (num >= 10000) return (num / 10000).toFixed(1) + '万';
   return num.toString();
-}
-
-// === 常用工具（从书签中选取） ===
-function getPinnedBmIds() {
-  try { const raw = localStorage.getItem('pinnedBmIds'); if (raw) { const arr = JSON.parse(raw); if (Array.isArray(arr)) return arr; } } catch (e) {}
-  return [];
-}
-function savePinnedBmIds(list) { localStorage.setItem('pinnedBmIds', JSON.stringify(list)); }
-
-function renderAITools() {
-  const grid = document.getElementById('aiToolsGrid');
-  if (!grid) return;
-  const pinnedIds = getPinnedBmIds();
-  const pinnedBms = pinnedIds.map(id => bookmarks.find(b => b.id === id)).filter(Boolean);
-  if (pinnedBms.length === 0) {
-    grid.innerHTML = `<div class="add-tool-card" onclick="openQuickToolModal()" title="从书签中选择常用工具" style="width:100%;padding:20px;">
-      <span style="font-size:22px;">+</span><span style="font-size:14px;">从书签中添加常用工具</span></div>`;
-    return;
-  }
-  grid.innerHTML = pinnedBms.map((bm) => `
-    <a class="ai-tool-card" href="${escapeHtml(bm.url)}" target="_blank">
-      <button class="del-tool" onclick="unpinBookmark(event,'${bm.id}')" title="移除">×</button>
-      <div class="icon-wrap" style="background:${getColorStyle(bm.color)};">${getIconHtml(bm)}</div>
-      <div class="info"><div class="name">${escapeHtml(bm.title)}</div></div>
-    </a>
-  `).join('') + `
-    <div class="add-tool-card" onclick="openQuickToolModal()" title="管理常用工具">
-      <span style="font-size:20px;">+</span><span style="font-size:13px;">选择</span></div>
-  `;
-}
-function unpinBookmark(e, bmId) {
-  e.preventDefault(); e.stopPropagation();
-  savePinnedBmIds(getPinnedBmIds().filter(id => id !== bmId));
-  renderAITools();
-  showToast('已移除');
-}
-
-function openQuickToolModal() {
-  const pinnedIds = getPinnedBmIds();
-  const selected = new Set(pinnedIds);
-  const content = document.getElementById('quickToolBmList');
-  if (bookmarks.length === 0) {
-    content.innerHTML = '<p style="text-align:center;color:rgba(0,0,0,0.3);padding:40px;">暂无书签，请先添加书签</p>';
-  } else {
-    const grouped = {};
-    bookmarks.forEach(bm => {
-      const g = getGroupById(bm.groupId);
-      const key = g ? g.name : '未分组';
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(bm);
-    });
-    content.innerHTML = Object.entries(grouped).map(([gname, bms]) => `
-      <div style="margin-bottom:12px;">
-        <div style="font-size:11px;color:rgba(0,0,0,0.3);margin-bottom:6px;padding-left:2px;">${escapeHtml(gname)}</div>
-        ${bms.map(bm => {
-          const checked = selected.has(bm.id);
-          return `<label class="pin-bm-row${checked ? ' checked' : ''}" data-id="${bm.id}">
-            <span class="pin-checkbox">${checked ? '✓' : ''}</span>
-            <span class="pin-icon" style="background:${getColorStyle(bm.color)};">${getIconHtml(bm)}</span>
-            <span class="pin-name">${escapeHtml(bm.title)}</span>
-          </label>`;
-        }).join('')}
-      </div>
-    `).join('');
-    content.querySelectorAll('.pin-bm-row').forEach(row => {
-      row.addEventListener('click', () => {
-        const id = row.dataset.id;
-        const cb = row.querySelector('.pin-checkbox');
-        if (selected.has(id)) {
-          selected.delete(id);
-          row.classList.remove('checked');
-          cb.textContent = '';
-        } else {
-          selected.add(id);
-          row.classList.add('checked');
-          cb.textContent = '✓';
-        }
-      });
-    });
-  }
-  document.getElementById('quickToolModalOverlay').style.display = 'flex';
-}
-
-function closeQuickToolModal() { document.getElementById('quickToolModalOverlay').style.display = 'none'; }
-
-function confirmPinBookmarks() {
-  const checkedRows = document.querySelectorAll('.pin-bm-row.checked');
-  const selected = Array.from(checkedRows).map(row => row.dataset.id);
-  savePinnedBmIds(selected);
-  renderAITools();
-  closeQuickToolModal();
-  showToast('常用工具已更新');
 }
 
 // === Drag & Drop Reorder ===
