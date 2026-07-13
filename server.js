@@ -243,6 +243,80 @@ app.delete('/api/groups/:id', authMiddleware, (req, res) => {
   }
 });
 
+// === Protected: Fetch website meta (title + favicon) ===
+app.get('/api/fetch-meta', authMiddleware, (req, res) => {
+  try {
+    const url = req.query.url;
+    if (!url) return res.status(400).json({ success: false, error: '缺少 url 参数' });
+
+    const fullUrl = /^https?:\/\//i.test(url) ? url : 'https://' + url;
+    const urlObj = new URL(fullUrl);
+    const proto = urlObj.protocol === 'https:' ? require('https') : require('http');
+    const domain = urlObj.hostname;
+
+    // Google favicon fallback
+    const fallbackIcon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+
+    const fetchOptions = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+      },
+      timeout: 5000,
+    };
+
+    proto.get(fullUrl, fetchOptions, (resp) => {
+      // Follow redirects (max 3)
+      if ([301, 302, 303, 307, 308].includes(resp.statusCode)) {
+        const redirect = resp.headers.location;
+        if (redirect) {
+          const redirectUrl = redirect.startsWith('http') ? redirect : urlObj.origin + redirect;
+          proto.get(redirectUrl, { ...fetchOptions, timeout: 5000 }, (resp2) => {
+            handleResponse(resp2, res, domain, fallbackIcon);
+          }).on('error', () => sendFallback(res, domain, fallbackIcon))
+           .on('timeout', function() { this.destroy(); sendFallback(res, domain, fallbackIcon); });
+          return;
+        }
+      }
+      handleResponse(resp, res, domain, fallbackIcon);
+    }).on('error', () => sendFallback(res, domain, fallbackIcon))
+      .on('timeout', function() { this.destroy(); sendFallback(res, domain, fallbackIcon); });
+  } catch (e) {
+    res.status(400).json({ success: false, error: 'URL 格式不正确' });
+  }
+});
+
+function handleResponse(resp, res, domain, fallbackIcon) {
+  const chunks = [];
+  resp.on('data', chunk => {
+    chunks.push(chunk);
+    // Limit content size
+    if (chunks.reduce((s, c) => s + c.length, 0) > 500000) resp.destroy();
+  });
+  resp.on('end', () => {
+    const html = Buffer.concat(chunks).toString('utf-8');
+    // Extract <title>
+    const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const title = titleMatch ? titleMatch[1].trim() : '';
+    // Extract favicon from <link> tags
+    const iconMatch = html.match(/<link[^>]+rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i)
+                   || html.match(/<link[^>]+href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i);
+    let icon = '';
+    if (iconMatch) {
+      const href = iconMatch[1];
+      icon = href.startsWith('http') ? href : (href.startsWith('//') ? 'https:' + href : 'https://' + domain + (href.startsWith('/') ? '' : '/') + href);
+    } else {
+      icon = fallbackIcon;
+    }
+    res.json({ success: true, title, icon });
+  });
+  resp.on('error', () => sendFallback(res, domain, fallbackIcon));
+}
+
+function sendFallback(res, domain, fallbackIcon) {
+  res.json({ success: true, title: '', icon: fallbackIcon });
+}
+
 app.listen(PORT, () => {
   console.log(`Bookmark server running at http://localhost:${PORT}`);
   console.log(`Auth: ${PASSWORD ? 'enabled' : 'disabled'}`);

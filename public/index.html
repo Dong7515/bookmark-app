@@ -236,6 +236,19 @@
     font-size: 14px; background: var(--bg); color: var(--text);
     outline: none; transition: border var(--transition); font-family: inherit;
   }
+  .url-row { display: flex; gap: 8px; }
+  .url-row input { flex: 1; }
+  .fetch-btn {
+    height: 44px; padding: 0 14px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--card-bg);
+    color: var(--primary); font-size: 13px; cursor: pointer;
+    white-space: nowrap; transition: all var(--transition);
+    font-family: inherit; flex-shrink: 0;
+  }
+  .fetch-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fetch-btn.fetching { animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
   .form-group select { cursor: pointer; }
   .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
@@ -333,7 +346,10 @@
     </div>
     <div class="form-group">
       <label>网址</label>
-      <input id="modalUrlInput" type="text" placeholder="如：https://github.com">
+      <div class="url-row">
+        <input id="modalUrlInput" type="text" placeholder="如：https://github.com">
+        <button class="fetch-btn" id="fetchMetaBtn" title="自动获取网站名称和图标">获取信息</button>
+      </div>
     </div>
     <div class="form-group">
       <label>分组</label>
@@ -929,6 +945,44 @@ async function addBookmark() {
   } catch (e) { showToast('操作失败: ' + e.message); }
 }
 
+// === Auto-fetch website meta ===
+async function fetchWebsiteMeta() {
+  const urlInput = document.getElementById('modalUrlInput');
+  const url = urlInput.value.trim();
+  if (!url) return;
+
+  const btn = document.getElementById('fetchMetaBtn');
+  btn.textContent = '获取中...';
+  btn.disabled = true;
+  btn.classList.add('fetching');
+
+  try {
+    const encoded = encodeURIComponent(url);
+    const apiPath = useApi ? `/api/fetch-meta?url=${encoded}` : null;
+
+    if (apiPath) {
+      const result = await apiCall(apiPath);
+      if (result.success) {
+        if (result.title) {
+          const titleInput = document.getElementById('modalTitleInput');
+          if (!titleInput.value.trim()) titleInput.value = result.title;
+        }
+        if (result.icon) {
+          const iconInput = document.getElementById('modalIconInput');
+          if (!iconInput.value.trim()) iconInput.value = result.icon;
+        }
+        showToast(result.title ? `已获取: ${result.title}` : '未找到标题，仅获取图标');
+      }
+    }
+  } catch (e) {
+    showToast('获取失败: ' + e.message);
+  } finally {
+    btn.textContent = '获取信息';
+    btn.disabled = false;
+    btn.classList.remove('fetching');
+  }
+}
+
 function editBookmark(id) {
   const bm = bookmarks.find(b => b.id === id);
   if (bm) openModal('编辑书签', bm);
@@ -1030,6 +1084,12 @@ document.getElementById('addBookmarkBtn').addEventListener('click', () => openMo
 document.getElementById('modalCancel').addEventListener('click', closeModal);
 document.getElementById('modalConfirm').addEventListener('click', addBookmark);
 document.getElementById('modalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('fetchMetaBtn').addEventListener('click', fetchWebsiteMeta);
+document.getElementById('modalUrlInput').addEventListener('blur', () => {
+  const titleInput = document.getElementById('modalTitleInput');
+  const urlInput = document.getElementById('modalUrlInput');
+  if (!titleInput.value.trim() && urlInput.value.trim()) fetchWebsiteMeta();
+});
 document.getElementById('groupModalCancel').addEventListener('click', closeGroupModal);
 document.getElementById('groupModalConfirm').addEventListener('click', confirmGroup);
 document.getElementById('groupModalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeGroupModal(); });
