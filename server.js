@@ -2,6 +2,8 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const http = require('http');
+const WebSocket = require('ws');
 
 const app = express();
 app.use(express.json());
@@ -449,7 +451,7 @@ function sendFallback(res, domain, fallbackIcon) {
   res.json({ success: true, title: '', icon: fallbackIcon });
 }
 
-async function startServer() {
+async function startServer(listenPort) {
   if (USE_GIST) {
     try {
       cachedData = await loadFromGist();
@@ -458,11 +460,31 @@ async function startServer() {
       console.error('Failed to load from Gist, using local file:', e.message);
     }
   }
-  app.listen(PORT, () => {
-    console.log(`Bookmark server running at http://localhost:${PORT}`);
-    console.log(`Auth: ${PASSWORD ? 'enabled' : 'disabled'}`);
-    console.log(`Storage: ${USE_GIST ? 'GitHub Gist (persistent)' : 'Local file (ephemeral)'}`);
+  const server = http.createServer(app);
+  const wss = new WebSocket.Server({ server });
+
+  wss.on('connection', (ws) => {
+    ws.on('message', (data) => {
+      const msg = data.toString();
+      // Echo back with metadata
+      ws.send(JSON.stringify({ type: 'echo', payload: msg, timestamp: Date.now() }));
+    });
+    ws.on('error', (err) => console.error('WebSocket error:', err.message));
+  });
+
+  return new Promise((resolve, reject) => {
+    const p = listenPort ?? PORT;
+    server.listen(p, () => {
+      const addr = server.address();
+      console.log(`Bookmark server running at http://localhost:${addr.port}`);
+      console.log(`Auth: ${PASSWORD ? 'enabled' : 'disabled'}`);
+      console.log(`Storage: ${USE_GIST ? 'GitHub Gist (persistent)' : 'Local file (ephemeral)'}`);
+      resolve({ server, wss, port: addr.port });
+    });
+    server.once('error', reject);
   });
 }
 
-startServer();
+module.exports = { app, startServer };
+
+if (require.main === module) startServer();

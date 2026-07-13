@@ -43,26 +43,9 @@
   .bg-layer {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     z-index: 0; pointer-events: none;
-    background: radial-gradient(ellipse at 50% 0%, #e8ecf0 0%, #dce2e8 35%, #cfd6de 70%, #c2c9d2 100%);
+    background: url('bg-wallpaper.jpg') center / cover no-repeat;
   }
-  .bg-layer::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: transparent;
-  }
-  .bg-orb {
-    position: absolute; border-radius: 50%;
-    filter: blur(120px); opacity: 0.08;
-    animation: orbFloat 20s ease-in-out infinite;
-  }
-  .bg-orb:nth-child(1) { width: 600px; height: 600px; background: #c4cdd8; top: -15%; left: -10%; animation-delay: 0s; opacity: 0.15; }
-  .bg-orb:nth-child(2) { width: 500px; height: 500px; background: #a8b4c2; top: 50%; right: -12%; animation-delay: -7s; opacity: 0.15; }
-  .bg-orb:nth-child(3) { width: 450px; height: 450px; background: #909daa; bottom: -10%; left: 30%; animation-delay: -14s; opacity: 0.15; }
-  @keyframes orbFloat {
-    0%,100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(3%, -2%) scale(1.05); }
-    66% { transform: translate(-2%, 2%) scale(0.95); }
-  }
+  .bg-orb { display: none; }
   .bg-grid { display: none; }
 
   /* ====== Custom Wallpaper ====== */
