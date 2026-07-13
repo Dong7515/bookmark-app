@@ -27,7 +27,7 @@
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-    background: #0f111b;
+    background: #061424;
     color: #fff;
     min-height: 100vh;
     overflow-x: hidden;
@@ -35,20 +35,20 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ====== Dynamic Background ====== */
+  /* ====== Ocean Background ====== */
   .bg-layer {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     z-index: 0; pointer-events: none;
-    background: #0f111b;
+    background: #061424;
   }
   .bg-orb {
     position: absolute; border-radius: 50%;
     filter: blur(120px); opacity: 0.18;
     animation: orbFloat 20s ease-in-out infinite;
   }
-  .bg-orb:nth-child(1) { width: 600px; height: 600px; background: #7c6ff7; top: -15%; left: -10%; animation-delay: 0s; }
-  .bg-orb:nth-child(2) { width: 500px; height: 500px; background: #ec4899; top: 50%; right: -12%; animation-delay: -7s; }
-  .bg-orb:nth-child(3) { width: 450px; height: 450px; background: #0ea5e9; bottom: -10%; left: 30%; animation-delay: -14s; }
+  .bg-orb:nth-child(1) { width: 600px; height: 600px; background: #006994; top: -15%; left: -10%; animation-delay: 0s; }
+  .bg-orb:nth-child(2) { width: 500px; height: 500px; background: #0096c7; top: 50%; right: -12%; animation-delay: -7s; }
+  .bg-orb:nth-child(3) { width: 450px; height: 450px; background: #48cae4; bottom: -10%; left: 30%; animation-delay: -14s; }
   @keyframes orbFloat {
     0%,100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(3%, -2%) scale(1.05); }
@@ -73,7 +73,7 @@
   .bg-wallpaper.active ~ .bg-layer .bg-grid { opacity: 0.5; }
   .wallpaper-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(15,17,27,0.45); z-index: -1;
+    background: rgba(6,20,36,0.45); z-index: -1;
     display: none;
   }
   .bg-wallpaper.active ~ .wallpaper-overlay { display: block; }
@@ -283,7 +283,7 @@
   /* ====== Login Screen ====== */
   .login-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: #0f111b; z-index: 500;
+    background: #061424; z-index: 500;
     display: flex; align-items: center; justify-content: center;
   }
   .login-overlay::before {
