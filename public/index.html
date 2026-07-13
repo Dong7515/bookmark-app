@@ -1379,7 +1379,20 @@ async function importBookmarks(file) {
     const text = await file.text(); let data = JSON.parse(text);
     if (Array.isArray(data)) data = { bookmarks: data, groups: [] };
     const ig = data.groups || [], ib = data.bookmarks || [];
-    if (useApi) { for (const g of ig) await apiCall(API_GROUPS, { method: 'POST', body: JSON.stringify({ name: g.name, color: g.color || '#7c6ff7' }) }); for (const bm of ib) await apiCall(API, { method: 'POST', body: JSON.stringify({ title: bm.title, url: bm.url, color: bm.color || 'gradient1', icon: bm.icon || '', groupId: bm.groupId || '' }) }); await loadBookmarks(); }
+    if (useApi) {
+      // Create groups and map old IDs to new ones
+      const idMap = {};
+      for (const g of ig) {
+        const res = await apiCall(API_GROUPS, { method: 'POST', body: JSON.stringify({ name: g.name, color: g.color || '#7c6ff7' }) });
+        if (res.success && res.data) idMap[g.id] = res.data.id;
+      }
+      // Create bookmarks with remapped group IDs
+      for (const bm of ib) {
+        const groupId = idMap[bm.groupId] || bm.groupId || '';
+        await apiCall(API, { method: 'POST', body: JSON.stringify({ title: bm.title, url: bm.url, color: bm.color || 'gradient1', icon: bm.icon || '', groupId }) });
+      }
+      await loadBookmarks();
+    }
     else { for (const g of ig) { if (!groups.some(ex => ex.id === g.id)) groups.push(g); } for (const bm of ib) { bookmarks.push({ ...bm, id: generateId() }); } localSaveAll(); renderAll(); }
     showToast(`成功导入 ${ib.length} 个书签、${ig.length} 个分组`);
   } catch (e) { showToast('导入失败: ' + e.message); }
