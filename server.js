@@ -11,6 +11,33 @@ const PASSWORD = process.env.BOOKMARK_PASSWORD || '7515';
 
 const DATA_FILE = path.join(__dirname, 'data', 'bookmarks.json');
 
+// === Cloud Data Storage (GitHub Gist) ===
+// Data persists in a private GitHub Gist so it survives Render container rebuilds
+const GIST_ID = process.env.GIST_ID || '';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+const USE_GIST = !!(GIST_ID && GITHUB_TOKEN);
+let cachedData = null;
+let syncTimer = null;
+
+async function loadFromGist() {
+  const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+  });
+  if (!res.ok) throw new Error(`Gist API ${res.status}`);
+  const gist = await res.json();
+  const content = JSON.parse(gist.files['bookmarks.json'].content);
+  return content;
+}
+
+async function syncToGist(data) {
+  const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+    method: 'PATCH',
+    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ files: { 'bookmarks.json': { content: JSON.stringify(data, null, 2) } } })
+  });
+  if (!res.ok) throw new Error(`Gist sync ${res.status}`);
+}
+
 // === Session tokens (in-memory, cleared on restart) ===
 const validTokens = new Set();
 
@@ -84,6 +111,9 @@ function generateId() {
 }
 
 function readData() {
+  // Use in-memory cache if available (set from Gist on startup or after writes)
+  if (cachedData) return JSON.parse(JSON.stringify(cachedData));
+  // Fallback to local file
   try {
     if (!fs.existsSync(DATA_FILE)) {
       const initial = { bookmarks: DEFAULT_BOOKMARKS, groups: DEFAULT_GROUPS };
@@ -105,7 +135,19 @@ function readData() {
 }
 
 function writeData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  cachedData = data;
+  // Write to local file as backup
+  try {
+    fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (e) { /* ignore local file errors */ }
+  // Sync to Gist (debounced 1s, non-blocking)
+  if (USE_GIST) {
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => {
+      syncToGist(cachedData).catch(e => console.error('Gist sync failed:', e.message));
+    }, 1000);
+  }
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -334,7 +376,20 @@ function sendFallback(res, domain, fallbackIcon) {
   res.json({ success: true, title: '', icon: fallbackIcon });
 }
 
-app.listen(PORT, () => {
-  console.log(`Bookmark server running at http://localhost:${PORT}`);
-  console.log(`Auth: ${PASSWORD ? 'enabled' : 'disabled'}`);
-});
+async function startServer() {
+  if (USE_GIST) {
+    try {
+      cachedData = await loadFromGist();
+      console.log('Data loaded from GitHub Gist');
+    } catch (e) {
+      console.error('Failed to load from Gist, using local file:', e.message);
+    }
+  }
+  app.listen(PORT, () => {
+    console.log(`Bookmark server running at http://localhost:${PORT}`);
+    console.log(`Auth: ${PASSWORD ? 'enabled' : 'disabled'}`);
+    console.log(`Storage: ${USE_GIST ? 'GitHub Gist (persistent)' : 'Local file (ephemeral)'}`);
+  });
+}
+
+startServer();
