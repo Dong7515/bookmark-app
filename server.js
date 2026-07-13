@@ -169,6 +169,23 @@ app.delete('/api/bookmarks/:id', authMiddleware, (req, res) => {
   }
 });
 
+app.put('/api/bookmarks/reorder', authMiddleware, (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({ success: false, error: '需要书签ID数组' });
+    }
+    const data = readData();
+    const reordered = ids.map(id => data.bookmarks.find(b => b.id === id)).filter(Boolean);
+    const remaining = data.bookmarks.filter(b => !ids.includes(b.id));
+    data.bookmarks = [...reordered, ...remaining];
+    writeData(data);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ success: false, error: '排序失败' });
+  }
+});
+
 app.post('/api/bookmarks/reset', authMiddleware, (_req, res) => {
   try {
     const data = {
