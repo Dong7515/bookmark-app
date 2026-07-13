@@ -1,11 +1,61 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
+app.use(express.json());
+
 const PORT = process.env.PORT || 3000;
+const PASSWORD = process.env.BOOKMARK_PASSWORD || 'bookmark123';
 
 const DATA_FILE = path.join(__dirname, 'data', 'bookmarks.json');
+
+// === Session tokens (in-memory, cleared on restart) ===
+const validTokens = new Set();
+
+function generateToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+// === Auth middleware ===
+function authMiddleware(req, res, next) {
+  // If no password set, skip auth
+  if (!PASSWORD) return next();
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, error: '未授权，请先登录', needAuth: true });
+  }
+  const token = authHeader.slice(7);
+  if (!validTokens.has(token)) {
+    return res.status(401).json({ success: false, error: '登录已过期，请重新登录', needAuth: true });
+  }
+  next();
+}
+
+// === Auth API ===
+app.post('/api/auth/login', (req, res) => {
+  const { password } = req.body;
+  if (!password || password !== PASSWORD) {
+    return res.status(401).json({ success: false, error: '密码错误' });
+  }
+  const token = generateToken();
+  validTokens.add(token);
+  res.json({ success: true, token });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    validTokens.delete(authHeader.slice(7));
+  }
+  res.json({ success: true });
+});
+
+app.get('/api/auth/status', (_req, res) => {
+  res.json({ success: true, needAuth: !!PASSWORD });
+});
 
 const DEFAULT_GROUPS = [
   { id: 'g1', name: '开发工具', color: '#667eea' },
@@ -42,7 +92,6 @@ function readData() {
     }
     const raw = fs.readFileSync(DATA_FILE, 'utf-8');
     let data = JSON.parse(raw);
-    // Backward compat: if old flat array, upgrade to new format
     if (Array.isArray(data)) {
       data = { bookmarks: data, groups: DEFAULT_GROUPS };
       writeData(data);
@@ -59,13 +108,10 @@ function writeData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
-// Middleware
-app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// === Bookmark APIs ===
-
-app.get('/api/bookmarks', (_req, res) => {
+// === Protected: Bookmark APIs ===
+app.get('/api/bookmarks', authMiddleware, (_req, res) => {
   try {
     const { bookmarks, groups } = readData();
     res.json({ success: true, data: bookmarks, groups });
@@ -74,7 +120,7 @@ app.get('/api/bookmarks', (_req, res) => {
   }
 });
 
-app.post('/api/bookmarks', (req, res) => {
+app.post('/api/bookmarks', authMiddleware, (req, res) => {
   try {
     const { title, url, color, icon, groupId } = req.body;
     if (!title || !url) {
@@ -90,7 +136,7 @@ app.post('/api/bookmarks', (req, res) => {
   }
 });
 
-app.put('/api/bookmarks/:id', (req, res) => {
+app.put('/api/bookmarks/:id', authMiddleware, (req, res) => {
   try {
     const { id } = req.params;
     const { title, url, color, icon, groupId } = req.body;
@@ -107,7 +153,7 @@ app.put('/api/bookmarks/:id', (req, res) => {
   }
 });
 
-app.delete('/api/bookmarks/:id', (req, res) => {
+app.delete('/api/bookmarks/:id', authMiddleware, (req, res) => {
   try {
     const { id } = req.params;
     let data = readData();
@@ -123,7 +169,7 @@ app.delete('/api/bookmarks/:id', (req, res) => {
   }
 });
 
-app.post('/api/bookmarks/reset', (_req, res) => {
+app.post('/api/bookmarks/reset', authMiddleware, (_req, res) => {
   try {
     const data = {
       bookmarks: DEFAULT_BOOKMARKS.map(b => ({...b})),
@@ -136,9 +182,8 @@ app.post('/api/bookmarks/reset', (_req, res) => {
   }
 });
 
-// === Group APIs ===
-
-app.get('/api/groups', (_req, res) => {
+// === Protected: Group APIs ===
+app.get('/api/groups', authMiddleware, (_req, res) => {
   try {
     const { groups } = readData();
     res.json({ success: true, data: groups });
@@ -147,7 +192,7 @@ app.get('/api/groups', (_req, res) => {
   }
 });
 
-app.post('/api/groups', (req, res) => {
+app.post('/api/groups', authMiddleware, (req, res) => {
   try {
     const { name, color } = req.body;
     if (!name || !name.trim()) {
@@ -163,7 +208,7 @@ app.post('/api/groups', (req, res) => {
   }
 });
 
-app.put('/api/groups/:id', (req, res) => {
+app.put('/api/groups/:id', authMiddleware, (req, res) => {
   try {
     const { id } = req.params;
     const { name, color } = req.body;
@@ -181,7 +226,7 @@ app.put('/api/groups/:id', (req, res) => {
   }
 });
 
-app.delete('/api/groups/:id', (req, res) => {
+app.delete('/api/groups/:id', authMiddleware, (req, res) => {
   try {
     const { id } = req.params;
     let data = readData();
@@ -190,7 +235,6 @@ app.delete('/api/groups/:id', (req, res) => {
       return res.status(404).json({ success: false, error: '分组不存在' });
     }
     data.groups = data.groups.filter(g => g.id !== id);
-    // Clear groupId from bookmarks in deleted group
     data.bookmarks.forEach(bm => { if (bm.groupId === id) bm.groupId = ''; });
     writeData(data);
     res.json({ success: true });
@@ -201,4 +245,5 @@ app.delete('/api/groups/:id', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Bookmark server running at http://localhost:${PORT}`);
+  console.log(`Auth: ${PASSWORD ? 'enabled' : 'disabled'}`);
 });

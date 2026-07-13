@@ -122,6 +122,13 @@
     transition: all var(--transition); box-shadow: var(--shadow);
   }
   .theme-toggle:hover { box-shadow: var(--shadow-hover); }
+  .logout-btn {
+    border: 1px solid var(--border); background: var(--card-bg); color: var(--text-secondary);
+    cursor: pointer; font-size: 16px; width: 36px; height: 36px;
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition); box-shadow: var(--shadow);
+  }
+  .logout-btn:hover { color: var(--danger); border-color: var(--danger); }
   .bookmark-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px;
   }
@@ -163,6 +170,49 @@
   }
   .card-action:hover { color: var(--danger); border-color: var(--danger); }
   .card-action.edit:hover { color: var(--primary); border-color: var(--primary); }
+
+  /* === Login Screen === */
+  .login-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.06) 0%, transparent 50%);
+  }
+  .login-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    padding: 40px 36px; width: 90%; max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15); text-align: center;
+  }
+  .login-icon {
+    font-size: 48px; margin-bottom: 16px;
+    width: 80px; height: 80px; border-radius: 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px; color: #fff;
+  }
+  .login-card h2 { font-size: 22px; margin-bottom: 6px; color: var(--text); }
+  .login-card .subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
+  .login-card .error-msg { color: var(--danger); font-size: 13px; margin-bottom: 12px; min-height: 20px; }
+  .login-card input {
+    width: 100%; height: 48px; padding: 0 16px;
+    border: 2px solid var(--border); border-radius: 12px;
+    font-size: 15px; background: var(--bg); color: var(--text);
+    outline: none; transition: border var(--transition); font-family: inherit;
+    text-align: center; letter-spacing: 4px;
+  }
+  .login-card input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+  .login-card .btn-login {
+    width: 100%; height: 48px; border-radius: 12px;
+    background: var(--primary); color: #fff; border: none;
+    font-size: 16px; cursor: pointer; margin-top: 16px;
+    transition: background var(--transition); font-family: inherit;
+  }
+  .login-card .btn-login:hover { background: var(--primary-light); }
+  .login-card .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* === Modal === */
   .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
@@ -208,10 +258,25 @@
     animation: toastIn 0.3s ease;
   }
   @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
-<div class="container">
+
+<!-- Login Screen -->
+<div class="login-overlay hidden" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-icon">&#128274;</div>
+    <h2>需要密码</h2>
+    <p class="subtitle">请输入密码才能访问书签</p>
+    <div class="error-msg" id="loginError"></div>
+    <input type="password" id="loginPassword" placeholder="输入密码" autocomplete="off" maxlength="64">
+    <button class="btn-login" id="loginBtn">解锁</button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="container" id="mainContent">
   <header class="header">
     <div class="clock" id="clock">00:00</div>
     <div class="date-text" id="dateText"></div>
@@ -241,6 +306,7 @@
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
       <span style="font-size:13px;color:var(--text-secondary);" id="bookmarkCount">加载中...</span>
+      <button class="logout-btn" id="logoutBtn" title="锁定">&#128274;</button>
       <button class="theme-toggle" id="themeToggle" title="切换主题">&#9728;&#65039;</button>
     </div>
   </div>
@@ -355,58 +421,188 @@ let editingId = null;
 let editingGroupId = null;
 let currentEngine = 'google';
 let selectedColor = 'gradient1';
-let selectedGroup = null; // null = 全部
+let selectedGroup = null;
 let useApi = false;
+let authToken = null;
+let needAuth = false;
 
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
-// === Storage: API-first, localStorage fallback ===
-const API = '/api/bookmarks';
-const API_GROUPS = '/api/groups';
-const LS_KEY = 'wb_bookmarks';
-const LS_KEY_GROUPS = 'wb_groups';
+// === Auth ===
+function getAuthHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  return headers;
+}
 
-async function apiFetch(url, options = {}) {
+async function apiCall(url, options = {}) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 3000);
+  const timeout = setTimeout(() => controller.abort(), 5000);
   try {
     const res = await fetch(url, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       signal: controller.signal,
       ...options,
     });
     clearTimeout(timeout);
+
+    if (res.status === 401) {
+      // Token expired or invalid
+      clearAuth();
+      showLogin();
+      throw new Error('登录已过期，请重新登录');
+    }
+
     const data = await res.json();
     if (!data.success && !res.ok) throw new Error(data.error || '请求失败');
     return data;
-  } catch (e) { clearTimeout(timeout); throw e; }
+  } catch (e) {
+    clearTimeout(timeout);
+    if (e.name === 'AbortError') throw new Error('请求超时');
+    throw e;
+  }
 }
 
+// Auth API (no auth header needed)
+async function apiAuthFetch(url, options = {}) {
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  return res.json();
+}
+
+const API = '/api/bookmarks';
+const API_GROUPS = '/api/groups';
+const API_AUTH = '/api/auth';
+const LS_KEY = 'wb_bookmarks';
+const LS_KEY_GROUPS = 'wb_groups';
+const LS_TOKEN = 'wb_token';
+
+// === Login / Logout ===
+function showLogin() {
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('mainContent').classList.add('hidden');
+  setTimeout(() => document.getElementById('loginPassword').focus(), 150);
+}
+
+function hideLogin() {
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('mainContent').classList.remove('hidden');
+}
+
+async function doLogin() {
+  const password = document.getElementById('loginPassword').value.trim();
+  if (!password) { document.getElementById('loginError').textContent = '请输入密码'; return; }
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.textContent = '验证中...';
+  document.getElementById('loginError').textContent = '';
+
+  try {
+    const result = await apiAuthFetch(`${API_AUTH}/login`, {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    });
+    if (result.success) {
+      authToken = result.token;
+      localStorage.setItem(LS_TOKEN, authToken);
+      hideLogin();
+      await loadBookmarks();
+      showToast('已解锁');
+    } else {
+      document.getElementById('loginError').textContent = result.error || '密码错误';
+    }
+  } catch (e) {
+    document.getElementById('loginError').textContent = '网络错误，请重试';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '解锁';
+  }
+}
+
+function clearAuth() {
+  authToken = null;
+  localStorage.removeItem(LS_TOKEN);
+}
+
+async function doLogout() {
+  try {
+    await apiAuthFetch(`${API_AUTH}/logout`, { method: 'POST', headers: getAuthHeaders() });
+  } catch (e) { /* ignore */ }
+  clearAuth();
+  showLogin();
+  showToast('已锁定');
+}
+
+// === Storage: API-first, localStorage fallback ===
 async function checkApiAvailable() {
   try {
-    const res = await fetch(API, { method: 'GET', signal: AbortSignal.timeout(2000) });
-    const data = await res.json();
-    useApi = data.success === true;
-  } catch { useApi = false; }
+    // First check auth status
+    const statusRes = await apiAuthFetch(`${API_AUTH}/status`);
+    needAuth = statusRes.needAuth === true;
+
+    if (needAuth) {
+      // Try stored token
+      const stored = localStorage.getItem(LS_TOKEN);
+      if (stored) {
+        authToken = stored;
+        // Verify token is still valid by making a request
+        try {
+          await apiCall(API);
+          useApi = true;
+          return;
+        } catch (e) {
+          clearAuth();
+        }
+      }
+      // Need to login
+      useApi = true;
+      return;
+    }
+
+    // No auth needed
+    try {
+      const res = await fetch(API, { method: 'GET', signal: AbortSignal.timeout(2000) });
+      const data = await res.json();
+      useApi = data.success === true;
+    } catch { useApi = false; }
+  } catch {
+    useApi = false;
+    needAuth = false;
+  }
 }
 
 // === Data Loading ===
 async function loadBookmarks() {
-  try {
-    const result = await apiFetch(API);
-    bookmarks = result.data;
-    groups = result.groups || [];
-  } catch (e) {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) { try { bookmarks = JSON.parse(raw); } catch { bookmarks = []; } }
-    if (!bookmarks || bookmarks.length === 0) bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b}));
-    const rawGroups = localStorage.getItem(LS_KEY_GROUPS);
-    if (rawGroups) { try { groups = JSON.parse(rawGroups); } catch { groups = []; } }
-    if (!groups || groups.length === 0) groups = [...DEFAULT_GROUPS];
-    localSaveAll();
+  if (useApi) {
+    try {
+      const result = await apiCall(API);
+      bookmarks = result.data;
+      groups = result.groups || [];
+    } catch (e) {
+      if (e.message.includes('登录已过期')) throw e;
+      fallbackLocal();
+    }
+  } else {
+    fallbackLocal();
   }
   renderBookmarks();
   renderGroupTabs();
+}
+
+function fallbackLocal() {
+  useApi = false;
+  const raw = localStorage.getItem(LS_KEY);
+  if (raw) { try { bookmarks = JSON.parse(raw); } catch { bookmarks = []; } }
+  if (!bookmarks || bookmarks.length === 0) bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b}));
+  const rawGroups = localStorage.getItem(LS_KEY_GROUPS);
+  if (rawGroups) { try { groups = JSON.parse(rawGroups); } catch { groups = []; } }
+  if (!groups || groups.length === 0) groups = [...DEFAULT_GROUPS];
+  localSaveAll();
 }
 
 function localSaveAll() {
@@ -417,7 +613,7 @@ function localSaveAll() {
 // === Group CRUD ===
 async function saveAddGroup(name, color) {
   if (useApi) {
-    const result = await apiFetch(API_GROUPS, { method: 'POST', body: JSON.stringify({ name, color }) });
+    const result = await apiCall(API_GROUPS, { method: 'POST', body: JSON.stringify({ name, color }) });
     groups.push(result.data);
     return result;
   }
@@ -429,7 +625,7 @@ async function saveAddGroup(name, color) {
 
 async function saveUpdateGroup(id, name, color) {
   if (useApi) {
-    await apiFetch(`${API_GROUPS}/${id}`, { method: 'PUT', body: JSON.stringify({ name, color }) });
+    await apiCall(`${API_GROUPS}/${id}`, { method: 'PUT', body: JSON.stringify({ name, color }) });
   }
   const idx = groups.findIndex(g => g.id === id);
   if (idx !== -1) {
@@ -440,11 +636,8 @@ async function saveUpdateGroup(id, name, color) {
 }
 
 async function saveDeleteGroup(id) {
-  if (useApi) {
-    await apiFetch(`${API_GROUPS}/${id}`, { method: 'DELETE' });
-  }
+  if (useApi) await apiCall(`${API_GROUPS}/${id}`, { method: 'DELETE' });
   groups = groups.filter(g => g.id !== id);
-  // Clear groupId from bookmarks
   bookmarks.forEach(bm => { if (bm.groupId === id) bm.groupId = ''; });
   if (selectedGroup === id) selectedGroup = null;
   localSaveAll();
@@ -455,7 +648,7 @@ function getGroupById(id) { return groups.find(g => g.id === id); }
 // === Bookmark CRUD ===
 async function saveAddBookmark(title, url, color, icon, groupId) {
   if (useApi) {
-    const result = await apiFetch(API, { method: 'POST', body: JSON.stringify({ title, url, color, icon, groupId }) });
+    const result = await apiCall(API, { method: 'POST', body: JSON.stringify({ title, url, color, icon, groupId }) });
     bookmarks.push(result.data);
     return result;
   }
@@ -467,7 +660,7 @@ async function saveAddBookmark(title, url, color, icon, groupId) {
 
 async function saveUpdateBookmark(id, title, url, color, icon, groupId) {
   if (useApi) {
-    const result = await apiFetch(`${API}/${id}`, { method: 'PUT', body: JSON.stringify({ title, url, color, icon, groupId }) });
+    const result = await apiCall(`${API}/${id}`, { method: 'PUT', body: JSON.stringify({ title, url, color, icon, groupId }) });
     const idx = bookmarks.findIndex(b => b.id === id);
     if (idx !== -1) bookmarks[idx] = result.data;
     return result;
@@ -481,14 +674,14 @@ async function saveUpdateBookmark(id, title, url, color, icon, groupId) {
 }
 
 async function saveDeleteBookmark(id) {
-  if (useApi) { await apiFetch(`${API}/${id}`, { method: 'DELETE' }); }
+  if (useApi) { await apiCall(`${API}/${id}`, { method: 'DELETE' }); }
   bookmarks = bookmarks.filter(b => b.id !== id);
   localSaveAll();
 }
 
 async function resetBookmarks() {
   if (useApi) {
-    const result = await apiFetch(`${API}/reset`, { method: 'POST' });
+    const result = await apiCall(`${API}/reset`, { method: 'POST' });
     bookmarks = result.data;
     groups = result.groups || [];
     return;
@@ -537,7 +730,6 @@ function renderGroupTabs() {
   html += `<button class="add-group-btn" id="addGroupBtn" title="添加分组">+</button>`;
   container.innerHTML = html;
 
-  // Bind tab clicks
   container.querySelectorAll('.group-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const gid = tab.dataset.group;
@@ -630,9 +822,8 @@ function renderBookmarks() {
   const countEl = document.getElementById('bookmarkCount');
 
   const filtered = selectedGroup ? bookmarks.filter(b => b.groupId === selectedGroup) : bookmarks;
-  countEl.textContent = useApi
-    ? `${filtered.length} / ${bookmarks.length} 个书签`
-    : `${filtered.length} / ${bookmarks.length} 个书签 (本地存储)`;
+  const storageLabel = useApi ? '' : ' (本地存储)';
+  countEl.textContent = `${filtered.length} / ${bookmarks.length} 个书签${storageLabel}`;
 
   if (filtered.length === 0) {
     grid.innerHTML = '';
@@ -696,7 +887,6 @@ function openModal(title, bm) {
   selectedColor = bm ? (bm.color || 'gradient1') : 'gradient1';
   updateColorPicker();
 
-  // Populate group select
   const select = document.getElementById('modalGroupSelect');
   select.innerHTML = '<option value="">无分组</option>' + groups.map(g =>
     `<option value="${g.id}" ${bm && bm.groupId === g.id ? 'selected' : ''}>${escapeHtml(g.name)}</option>`
@@ -803,7 +993,6 @@ async function importBookmarks(file) {
   try {
     const text = await file.text();
     let data = JSON.parse(text);
-    // Handle both old and new format
     if (Array.isArray(data)) {
       data = { bookmarks: data, groups: [] };
     }
@@ -811,20 +1000,17 @@ async function importBookmarks(file) {
     const importBookmarks = data.bookmarks || [];
 
     if (useApi) {
-      // Add groups first
       for (const g of importGroups) {
-        await apiFetch(API_GROUPS, { method: 'POST', body: JSON.stringify({ name: g.name, color: g.color || '#667eea' }) });
+        await apiCall(API_GROUPS, { method: 'POST', body: JSON.stringify({ name: g.name, color: g.color || '#667eea' }) });
       }
-      // Then bookmarks
       for (const bm of importBookmarks) {
-        await apiFetch(API, {
+        await apiCall(API, {
           method: 'POST',
           body: JSON.stringify({ title: bm.title, url: bm.url, color: bm.color || 'gradient1', icon: bm.icon || '', groupId: bm.groupId || '' }),
         });
       }
       await loadBookmarks();
     } else {
-      // Local mode
       for (const g of importGroups) {
         if (!groups.some(ex => ex.id === g.id)) groups.push(g);
       }
@@ -850,6 +1036,7 @@ document.getElementById('groupModalOverlay').addEventListener('click', (e) => { 
 document.getElementById('exportBtn').addEventListener('click', exportBookmarks);
 document.getElementById('importBtn').addEventListener('click', () => { document.getElementById('importFile').click(); });
 document.getElementById('importFile').addEventListener('change', (e) => { if (e.target.files[0]) importBookmarks(e.target.files[0]); e.target.value = ''; });
+document.getElementById('logoutBtn').addEventListener('click', doLogout);
 
 // Color pickers
 document.querySelectorAll('#modalOverlay .color-dot').forEach(dot => {
@@ -907,6 +1094,12 @@ document.getElementById('resetBtn').addEventListener('click', async () => {
   } catch (e) { showToast('重置失败: ' + e.message); }
 });
 
+// Login events
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPassword').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') doLogin();
+});
+
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (document.getElementById('groupModalOverlay').style.display === 'flex') closeGroupModal();
@@ -921,10 +1114,30 @@ document.addEventListener('keydown', (e) => {
 // === Init ===
 (async function init() {
   loadTheme();
-  await checkApiAvailable();
-  await loadBookmarks();
   updateClock();
   setInterval(updateClock, 10000);
+
+  await checkApiAvailable();
+
+  if (needAuth) {
+    // Show login first, try auto-login with stored token
+    if (authToken) {
+      try {
+        await loadBookmarks();
+        hideLogin();
+        return;
+      } catch (e) {
+        showLogin();
+        return;
+      }
+    }
+    showLogin();
+    return;
+  }
+
+  // No auth needed
+  document.getElementById('logoutBtn').style.display = 'none';
+  await loadBookmarks();
 })();
 </script>
 </body>
