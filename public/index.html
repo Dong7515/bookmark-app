@@ -39,11 +39,11 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ====== Default Background Image ====== */
+  /* ====== Default Background: Soft Dark Gradient ====== */
   .bg-layer {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     z-index: 0; pointer-events: none;
-    background: url('default-bg.jpg') center/cover no-repeat;
+    background: radial-gradient(ellipse at 50% 0%, #8d7d80 0%, #6c5b65 35%, #4e3d47 70%, #392b34 100%);
   }
   .bg-layer::before {
     content: '';
@@ -55,9 +55,9 @@
     filter: blur(120px); opacity: 0.08;
     animation: orbFloat 20s ease-in-out infinite;
   }
-  .bg-orb:nth-child(1) { width: 600px; height: 600px; background: #a8d8ea; top: -15%; left: -10%; animation-delay: 0s; opacity: 0.15; }
-  .bg-orb:nth-child(2) { width: 500px; height: 500px; background: #83c5d0; top: 50%; right: -12%; animation-delay: -7s; opacity: 0.15; }
-  .bg-orb:nth-child(3) { width: 450px; height: 450px; background: #b8e4f0; bottom: -10%; left: 30%; animation-delay: -14s; opacity: 0.15; }
+  .bg-orb:nth-child(1) { width: 600px; height: 600px; background: #c4a5ac; top: -15%; left: -10%; animation-delay: 0s; opacity: 0.15; }
+  .bg-orb:nth-child(2) { width: 500px; height: 500px; background: #a08a9a; top: 50%; right: -12%; animation-delay: -7s; opacity: 0.15; }
+  .bg-orb:nth-child(3) { width: 450px; height: 450px; background: #8a6b7b; bottom: -10%; left: 30%; animation-delay: -14s; opacity: 0.15; }
   @keyframes orbFloat {
     0%,100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(3%, -2%) scale(1.05); }
