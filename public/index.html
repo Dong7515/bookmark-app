@@ -64,7 +64,7 @@
 
   /* ====== Custom Wallpaper ====== */
   .bg-wallpaper {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;
     background-size: cover; background-position: center; background-repeat: no-repeat;
     display: none;
   }
@@ -73,7 +73,7 @@
   .bg-wallpaper.active ~ .bg-layer .bg-grid { opacity: 0.5; }
   .wallpaper-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(240,244,248,0.55); z-index: -1;
+    background: rgba(240,244,248,0.35); z-index: 2;
     display: none;
   }
   .bg-wallpaper.active ~ .wallpaper-overlay { display: block; }
