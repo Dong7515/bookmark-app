@@ -1431,20 +1431,18 @@ function openQuickToolModal() {
       });
     });
   }
-  document.getElementById('quickToolModalOverlay').dataset._selected = JSON.stringify([...selected]);
   document.getElementById('quickToolModalOverlay').style.display = 'flex';
 }
 
 function closeQuickToolModal() { document.getElementById('quickToolModalOverlay').style.display = 'none'; }
 
 function confirmPinBookmarks() {
-  try {
-    const selected = JSON.parse(document.getElementById('quickToolModalOverlay').dataset._selected || '[]');
-    savePinnedBmIds(selected);
-    renderAITools();
-    closeQuickToolModal();
-    showToast('常用工具已更新');
-  } catch (e) { showToast('操作失败'); }
+  const checkedRows = document.querySelectorAll('.pin-bm-row.checked');
+  const selected = Array.from(checkedRows).map(row => row.dataset.id);
+  savePinnedBmIds(selected);
+  renderAITools();
+  closeQuickToolModal();
+  showToast('常用工具已更新');
 }
 
 // === Drag & Drop Reorder ===
