@@ -968,7 +968,7 @@ async function saveUpdateGroup(id, name, color) {
 async function saveDeleteGroup(id) {
   if (useApi) await apiCall(`${API_GROUPS}/${id}`, { method: 'DELETE' });
   groups = groups.filter(g => g.id !== id);
-  bookmarks.forEach(bm => { if (bm.groupId === id) bm.groupId = ''; });
+  bookmarks = bookmarks.filter(bm => bm.groupId !== id);
   if (selectedGroup === id) selectedGroup = null;
   localSaveAll();
 }
@@ -1131,14 +1131,15 @@ function updateBatchDeleteBar() {
 async function batchDeleteGroups() {
   if (selectedGroupIds.size === 0) return;
   const names = groups.filter(g => selectedGroupIds.has(g.id)).map(g => g.name).join('、');
-  if (!confirm(`确定删除以下 ${selectedGroupIds.size} 个分组吗？\n\n${names}\n\n书签不会被删除，只会移出分组。`)) return;
+  const bookmarkCount = bookmarks.filter(b => selectedGroupIds.has(b.groupId)).length;
+  if (!confirm(`确定删除以下 ${selectedGroupIds.size} 个分组吗？\n\n${names}\n\n⚠️ 这 ${bookmarkCount} 个书签也会被一起删除！`)) return;
   try {
     const ids = Array.from(selectedGroupIds);
     if (useApi) {
       await apiCall(`${API_GROUPS}/batch-delete`, { method: 'POST', body: JSON.stringify({ ids }) });
     }
     groups = groups.filter(g => !selectedGroupIds.has(g.id));
-    bookmarks.forEach(bm => { if (selectedGroupIds.has(bm.groupId)) bm.groupId = ''; });
+    bookmarks = bookmarks.filter(bm => !selectedGroupIds.has(bm.groupId));
     if (selectedGroupIds.has(selectedGroup)) selectedGroup = null;
     selectedGroupIds.clear();
     localSaveAll();
@@ -1426,7 +1427,7 @@ async function confirmGroup() {
   try { if (editingGroupId) { await saveUpdateGroup(editingGroupId, name, color); showToast('分组已更新'); } else { await saveAddGroup(name, color); showToast('分组已添加'); } closeGroupModal(); renderAll(); } catch (e) { showToast('操作失败: ' + e.message); }
 }
 function editGroupPrompt(id) { const g = getGroupById(id); if (g) openGroupModal('编辑分组', g); }
-async function deleteGroupPrompt(id) { const g = getGroupById(id); if (!g) return; if (!confirm(`确定删除分组「${g.name}」吗？\n书签不会被删除，只会移出分组。`)) return; try { await saveDeleteGroup(id); renderAll(); showToast('分组已删除'); } catch (e) { showToast('删除失败: ' + e.message); } }
+async function deleteGroupPrompt(id) { const g = getGroupById(id); if (!g) return; const count = bookmarks.filter(b => b.groupId === id).length; if (!confirm(`确定删除分组「${g.name}」吗？\n\n⚠️ 该分组下的 ${count} 个书签也会被一起删除！`)) return; try { await saveDeleteGroup(id); renderAll(); showToast('分组已删除'); } catch (e) { showToast('删除失败: ' + e.message); } }
 
 // === Bookmark Modal ===
 function openModal(title, bm, prefillUrl, prefillTitle) {

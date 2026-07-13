@@ -333,7 +333,7 @@ app.delete('/api/groups/:id', authMiddleware, (req, res) => {
       return res.status(404).json({ success: false, error: '分组不存在' });
     }
     data.groups = data.groups.filter(g => g.id !== id);
-    data.bookmarks.forEach(bm => { if (bm.groupId === id) bm.groupId = ''; });
+    data.bookmarks = data.bookmarks.filter(bm => bm.groupId !== id);
     writeData(data);
     res.json({ success: true });
   } catch (e) {
@@ -350,7 +350,7 @@ app.post('/api/groups/batch-delete', authMiddleware, (req, res) => {
     let data = readData();
     const idSet = new Set(ids);
     data.groups = data.groups.filter(g => !idSet.has(g.id));
-    data.bookmarks.forEach(bm => { if (idSet.has(bm.groupId)) bm.groupId = ''; });
+    data.bookmarks = data.bookmarks.filter(bm => !idSet.has(bm.groupId));
     writeData(data);
     res.json({ success: true, deleted: ids.length });
   } catch (e) {
