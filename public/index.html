@@ -540,7 +540,7 @@
     <div class="toolbar-actions">
       <button class="btn btn-primary" id="addBookmarkBtn">+ 添加书签</button>
       <button class="btn" id="bmletBtn" title="拖拽到书签栏，任何网页一键保存">⚡ 快速保存</button>
-      <button class="btn" id="resetBtn">恢复默认</button>
+
       <button class="btn" id="exportBtn" title="导出 JSON 备份">导出</button>
       <button class="btn" id="importBtn" title="从 JSON 文件导入">导入</button>
       <input type="file" id="importFile" accept=".json" style="display:none;">
@@ -784,10 +784,7 @@ async function saveUpdateBookmark(id, title, url, color, icon, groupId) {
   return { data: bookmarks[idx] };
 }
 async function saveDeleteBookmark(id) { if (useApi) await apiCall(`${API}/${id}`, { method: 'DELETE' }); bookmarks = bookmarks.filter(b => b.id !== id); localSaveAll(); }
-async function resetBookmarks() {
-  if (useApi) { const r = await apiCall(`${API}/reset`, { method: 'POST' }); bookmarks = r.data; groups = r.groups || []; }
-  else { bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b})); groups = [...DEFAULT_GROUPS]; selectedGroup = null; localSaveAll(); }
-}
+
 
 // === Render ===
 function renderAll() { renderGroupTabs(); renderBookmarks(); }
@@ -1092,7 +1089,7 @@ document.getElementById('searchInput').addEventListener('keydown', e => {
 document.getElementById('searchInput').addEventListener('input', () => {
   if (currentEngine === 'bookmark') { filterQuery = document.getElementById('searchInput').value.trim(); renderBookmarks(); }
 });
-document.getElementById('resetBtn').addEventListener('click', async () => { if (!confirm('确定恢复默认数据吗？所有修改将被替换。')) return; try { await resetBookmarks(); selectedGroup = null; filterQuery = ''; renderAll(); showToast('已恢复默认数据'); } catch (e) { showToast('重置失败: ' + e.message); } });
+
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
