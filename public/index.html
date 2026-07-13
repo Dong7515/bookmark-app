@@ -35,20 +35,25 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ====== Ocean Background ====== */
+  /* ====== Default Background Image ====== */
   .bg-layer {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     z-index: 0; pointer-events: none;
-    background: #f0f4f8;
+    background: url('default-bg.jpg') center/cover no-repeat;
+  }
+  .bg-layer::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(240,244,248,0.35);
   }
   .bg-orb {
     position: absolute; border-radius: 50%;
-    filter: blur(120px); opacity: 0.18;
+    filter: blur(120px); opacity: 0.08;
     animation: orbFloat 20s ease-in-out infinite;
   }
-  .bg-orb:nth-child(1) { width: 600px; height: 600px; background: #a8d8ea; top: -15%; left: -10%; animation-delay: 0s; opacity: 0.25; }
-  .bg-orb:nth-child(2) { width: 500px; height: 500px; background: #83c5d0; top: 50%; right: -12%; animation-delay: -7s; opacity: 0.25; }
-  .bg-orb:nth-child(3) { width: 450px; height: 450px; background: #b8e4f0; bottom: -10%; left: 30%; animation-delay: -14s; opacity: 0.25; }
+  .bg-orb:nth-child(1) { width: 600px; height: 600px; background: #a8d8ea; top: -15%; left: -10%; animation-delay: 0s; opacity: 0.15; }
+  .bg-orb:nth-child(2) { width: 500px; height: 500px; background: #83c5d0; top: 50%; right: -12%; animation-delay: -7s; opacity: 0.15; }
+  .bg-orb:nth-child(3) { width: 450px; height: 450px; background: #b8e4f0; bottom: -10%; left: 30%; animation-delay: -14s; opacity: 0.15; }
   @keyframes orbFloat {
     0%,100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(3%, -2%) scale(1.05); }
