@@ -43,19 +43,12 @@
                       radial-gradient(ellipse at 50% 50%, rgba(14,165,233,0.04) 0%, transparent 60%);
     transition: background var(--transition);
   }
-  .container {
-    width: 100%;
-    max-width: 1100px;
-    padding: 32px 24px;
-  }
-  .header { text-align: center; margin-bottom: 40px; }
-  .clock {
-    font-size: 64px; font-weight: 300; letter-spacing: 2px;
-    color: var(--text); line-height: 1; font-variant-numeric: tabular-nums;
-  }
+  .container { width: 100%; max-width: 1100px; padding: 32px 24px; }
+  .header { text-align: center; margin-bottom: 36px; }
+  .clock { font-size: 64px; font-weight: 300; letter-spacing: 2px; color: var(--text); line-height: 1; font-variant-numeric: tabular-nums; }
   .date-text { font-size: 16px; color: var(--text-secondary); margin-top: 8px; }
   .greeting { font-size: 22px; font-weight: 500; margin-top: 6px; color: var(--text); }
-  .search-section { margin-bottom: 36px; display: flex; justify-content: center; }
+  .search-section { margin-bottom: 28px; display: flex; justify-content: center; }
   .search-wrapper { position: relative; width: 100%; max-width: 560px; }
   .search-box {
     width: 100%; height: 52px; padding: 0 52px 0 20px;
@@ -73,14 +66,44 @@
     transition: background var(--transition);
   }
   .search-btn:hover { background: var(--primary-light); }
-  .engine-switch { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+  .engine-switch { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
   .engine-btn {
     padding: 4px 14px; border-radius: 20px; border: 1px solid var(--border);
     background: var(--card-bg); color: var(--text-secondary);
     font-size: 13px; cursor: pointer; transition: all var(--transition);
   }
   .engine-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+
+  /* === Group Tabs === */
+  .group-tabs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .group-tab {
+    padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--card-bg); color: var(--text-secondary);
+    font-size: 13px; cursor: pointer; transition: all var(--transition);
+    white-space: nowrap; display: flex; align-items: center; gap: 6px;
+  }
+  .group-tab:hover { border-color: var(--primary-light); color: var(--text); }
+  .group-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .group-tab .tab-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .group-tab .tab-count { font-size: 11px; opacity: 0.8; }
+  .group-tab .tab-actions { display: none; margin-left: 2px; gap: 2px; }
+  .group-tab:hover .tab-actions { display: flex; }
+  .tab-action {
+    width: 18px; height: 18px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,0.3); color: inherit; cursor: pointer;
+    font-size: 10px; display: flex; align-items: center; justify-content: center;
+  }
+  .tab-action:hover { background: rgba(255,255,255,0.5); }
+  .group-tab.active .tab-action:hover { background: rgba(255,255,255,0.4); }
+  .add-group-btn {
+    width: 32px; height: 32px; border-radius: 50%; border: 2px dashed var(--border);
+    background: transparent; color: var(--text-secondary); cursor: pointer;
+    font-size: 18px; display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+  }
+  .add-group-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .toolbar-actions { display: flex; gap: 10px; }
   .btn {
     padding: 8px 18px; border-radius: 10px; border: 1px solid var(--border);
@@ -110,9 +133,7 @@
     text-decoration: none; color: inherit;
     display: flex; flex-direction: column; align-items: center; gap: 10px;
   }
-  .bookmark-card:hover {
-    transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--primary-light);
-  }
+  .bookmark-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--primary-light); }
   .card-icon {
     width: 48px; height: 48px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
@@ -121,13 +142,11 @@
     color: #fff; overflow: hidden;
   }
   .card-icon img { width: 32px; height: 32px; }
-  .card-title {
-    font-size: 13px; font-weight: 500; color: var(--text);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
-  }
-  .card-url {
-    font-size: 11px; color: var(--text-secondary);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+  .card-title { font-size: 13px; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .card-url { font-size: 11px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .card-group-tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
   }
   .card-actions {
     position: absolute; top: 6px; right: 6px;
@@ -154,22 +173,21 @@
     background: var(--card-bg); border-radius: var(--radius);
     padding: 28px; width: 90%; max-width: 440px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 0.25s ease;
+    max-height: 90vh; overflow-y: auto;
   }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   .modal h3 { font-size: 20px; margin-bottom: 20px; font-weight: 600; color: var(--text); }
   .form-group { margin-bottom: 16px; }
-  .form-group label {
-    display: block; font-size: 13px; font-weight: 500;
-    margin-bottom: 6px; color: var(--text-secondary);
-  }
-  .form-group input {
+  .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
+  .form-group input, .form-group select {
     width: 100%; height: 44px; padding: 0 14px;
     border: 1px solid var(--border); border-radius: 10px;
     font-size: 14px; background: var(--bg); color: var(--text);
     outline: none; transition: border var(--transition); font-family: inherit;
   }
-  .form-group input:focus { border-color: var(--primary); }
+  .form-group select { cursor: pointer; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
   .color-picker-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   .color-dot {
@@ -190,12 +208,6 @@
     animation: toastIn 0.3s ease;
   }
   @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-  .loading-spinner {
-    display: inline-block; width: 20px; height: 20px;
-    border: 2px solid var(--border); border-top-color: var(--primary);
-    border-radius: 50%; animation: spin 0.6s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -233,6 +245,9 @@
     </div>
   </div>
 
+  <!-- Group Tabs -->
+  <div class="group-tabs" id="groupTabs"></div>
+
   <div class="bookmark-grid" id="bookmarkGrid"></div>
   <div class="empty-state" id="emptyState" style="display:none;">
     <div class="icon">&#128209;</div>
@@ -242,7 +257,7 @@
   <div class="footer">WorkBuddy 在线书签 - 数据云端存储，多设备同步</div>
 </div>
 
-<!-- Modal -->
+<!-- Bookmark Modal -->
 <div class="modal-overlay" id="modalOverlay" style="display:none;">
   <div class="modal">
     <h3 id="modalTitle">添加书签</h3>
@@ -253,6 +268,12 @@
     <div class="form-group">
       <label>网址</label>
       <input id="modalUrlInput" type="text" placeholder="如：https://github.com">
+    </div>
+    <div class="form-group">
+      <label>分组</label>
+      <select id="modalGroupSelect">
+        <option value="">无分组</option>
+      </select>
     </div>
     <div class="form-group">
       <label>图标颜色 / 自定义图标URL</label>
@@ -277,34 +298,73 @@
   </div>
 </div>
 
+<!-- Group Modal -->
+<div class="modal-overlay" id="groupModalOverlay" style="display:none;">
+  <div class="modal">
+    <h3 id="groupModalTitle">添加分组</h3>
+    <div class="form-group">
+      <label>分组名称</label>
+      <input id="groupNameInput" type="text" placeholder="如：工作、学习、娱乐" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label>颜色</label>
+      <div class="color-picker-row" id="groupColorPicker">
+        <span class="color-dot selected" data-color="#667eea" style="background:#667eea"></span>
+        <span class="color-dot" data-color="#f5576c" style="background:#f5576c"></span>
+        <span class="color-dot" data-color="#f59e0b" style="background:#f59e0b"></span>
+        <span class="color-dot" data-color="#10b981" style="background:#10b981"></span>
+        <span class="color-dot" data-color="#3b82f6" style="background:#3b82f6"></span>
+        <span class="color-dot" data-color="#8b5cf6" style="background:#8b5cf6"></span>
+        <span class="color-dot" data-color="#ec4899" style="background:#ec4899"></span>
+        <span class="color-dot" data-color="#14b8a6" style="background:#14b8a6"></span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="groupModalCancel">取消</button>
+      <button class="btn btn-primary" id="groupModalConfirm">确认</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // === State ===
+const DEFAULT_GROUPS = [
+  { id: 'g1', name: '开发工具', color: '#667eea' },
+  { id: 'g2', name: '社交媒体', color: '#f5576c' },
+  { id: 'g3', name: '学习资源', color: '#43e97b' },
+  { id: 'g4', name: '常用工具', color: '#4facfe' },
+];
 const DEFAULT_BOOKMARKS = [
-  { id: '1', title: 'GitHub', url: 'https://github.com', color: 'gradient8' },
-  { id: '2', title: '谷歌', url: 'https://www.google.com', color: 'gradient3' },
-  { id: '3', title: '百度', url: 'https://www.baidu.com', color: 'gradient4' },
-  { id: '4', title: 'B站', url: 'https://www.bilibili.com', color: 'gradient2' },
-  { id: '5', title: '知乎', url: 'https://www.zhihu.com', color: 'gradient3' },
-  { id: '6', title: '掘金', url: 'https://juejin.cn', color: 'gradient1' },
-  { id: '7', title: '微信公众平台', url: 'https://mp.weixin.qq.com', color: 'gradient6' },
-  { id: '8', title: 'YouTube', url: 'https://www.youtube.com', color: 'gradient2' },
-  { id: '9', title: 'Stack Overflow', url: 'https://stackoverflow.com', color: 'gradient5' },
-  { id: '10', title: '语雀', url: 'https://www.yuque.com', color: 'gradient6' },
-  { id: '11', title: '飞书', url: 'https://www.feishu.cn', color: 'gradient3' },
-  { id: '12', title: 'V2EX', url: 'https://www.v2ex.com', color: 'gradient8' },
+  { id: '1', title: 'GitHub', url: 'https://github.com', color: 'gradient8', groupId: 'g1' },
+  { id: '2', title: '谷歌', url: 'https://www.google.com', color: 'gradient3', groupId: 'g4' },
+  { id: '3', title: '百度', url: 'https://www.baidu.com', color: 'gradient4', groupId: 'g4' },
+  { id: '4', title: 'B站', url: 'https://www.bilibili.com', color: 'gradient2', groupId: 'g2' },
+  { id: '5', title: '知乎', url: 'https://www.zhihu.com', color: 'gradient3', groupId: 'g2' },
+  { id: '6', title: '掘金', url: 'https://juejin.cn', color: 'gradient1', groupId: 'g1' },
+  { id: '7', title: '微信公众平台', url: 'https://mp.weixin.qq.com', color: 'gradient6', groupId: 'g4' },
+  { id: '8', title: 'YouTube', url: 'https://www.youtube.com', color: 'gradient2', groupId: 'g3' },
+  { id: '9', title: 'Stack Overflow', url: 'https://stackoverflow.com', color: 'gradient5', groupId: 'g1' },
+  { id: '10', title: '语雀', url: 'https://www.yuque.com', color: 'gradient6', groupId: 'g3' },
+  { id: '11', title: '飞书', url: 'https://www.feishu.cn', color: 'gradient3', groupId: 'g4' },
+  { id: '12', title: 'V2EX', url: 'https://www.v2ex.com', color: 'gradient8', groupId: 'g2' },
 ];
 
 let bookmarks = [];
+let groups = [];
 let editingId = null;
+let editingGroupId = null;
 let currentEngine = 'google';
 let selectedColor = 'gradient1';
-let useApi = false; // true if server API is reachable
+let selectedGroup = null; // null = 全部
+let useApi = false;
 
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
 // === Storage: API-first, localStorage fallback ===
 const API = '/api/bookmarks';
+const API_GROUPS = '/api/groups';
 const LS_KEY = 'wb_bookmarks';
+const LS_KEY_GROUPS = 'wb_groups';
 
 async function apiFetch(url, options = {}) {
   const controller = new AbortController();
@@ -319,13 +379,9 @@ async function apiFetch(url, options = {}) {
     const data = await res.json();
     if (!data.success && !res.ok) throw new Error(data.error || '请求失败');
     return data;
-  } catch (e) {
-    clearTimeout(timeout);
-    throw e;
-  }
+  } catch (e) { clearTimeout(timeout); throw e; }
 }
 
-// Check if server is reachable
 async function checkApiAvailable() {
   try {
     const res = await fetch(API, { method: 'GET', signal: AbortSignal.timeout(2000) });
@@ -334,87 +390,219 @@ async function checkApiAvailable() {
   } catch { useApi = false; }
 }
 
+// === Data Loading ===
 async function loadBookmarks() {
   try {
     const result = await apiFetch(API);
     bookmarks = result.data;
+    groups = result.groups || [];
   } catch (e) {
-    // Fallback to localStorage
     const raw = localStorage.getItem(LS_KEY);
     if (raw) { try { bookmarks = JSON.parse(raw); } catch { bookmarks = []; } }
-    if (!bookmarks || bookmarks.length === 0) {
-      bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b}));
-      localStorage.setItem(LS_KEY, JSON.stringify(bookmarks));
-    }
+    if (!bookmarks || bookmarks.length === 0) bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b}));
+    const rawGroups = localStorage.getItem(LS_KEY_GROUPS);
+    if (rawGroups) { try { groups = JSON.parse(rawGroups); } catch { groups = []; } }
+    if (!groups || groups.length === 0) groups = [...DEFAULT_GROUPS];
+    localSaveAll();
   }
   renderBookmarks();
+  renderGroupTabs();
 }
 
-function localSave() { localStorage.setItem(LS_KEY, JSON.stringify(bookmarks)); }
+function localSaveAll() {
+  localStorage.setItem(LS_KEY, JSON.stringify(bookmarks));
+  localStorage.setItem(LS_KEY_GROUPS, JSON.stringify(groups));
+}
 
-async function saveAddBookmark(title, url, color, icon) {
+// === Group CRUD ===
+async function saveAddGroup(name, color) {
   if (useApi) {
-    const result = await apiFetch(API, { method: 'POST', body: JSON.stringify({ title, url, color, icon }) });
+    const result = await apiFetch(API_GROUPS, { method: 'POST', body: JSON.stringify({ name, color }) });
+    groups.push(result.data);
+    return result;
+  }
+  const g = { id: generateId(), name, color };
+  groups.push(g);
+  localSaveAll();
+  return { data: g };
+}
+
+async function saveUpdateGroup(id, name, color) {
+  if (useApi) {
+    await apiFetch(`${API_GROUPS}/${id}`, { method: 'PUT', body: JSON.stringify({ name, color }) });
+  }
+  const idx = groups.findIndex(g => g.id === id);
+  if (idx !== -1) {
+    if (name !== undefined) groups[idx].name = name;
+    if (color !== undefined) groups[idx].color = color;
+  }
+  localSaveAll();
+}
+
+async function saveDeleteGroup(id) {
+  if (useApi) {
+    await apiFetch(`${API_GROUPS}/${id}`, { method: 'DELETE' });
+  }
+  groups = groups.filter(g => g.id !== id);
+  // Clear groupId from bookmarks
+  bookmarks.forEach(bm => { if (bm.groupId === id) bm.groupId = ''; });
+  if (selectedGroup === id) selectedGroup = null;
+  localSaveAll();
+}
+
+function getGroupById(id) { return groups.find(g => g.id === id); }
+
+// === Bookmark CRUD ===
+async function saveAddBookmark(title, url, color, icon, groupId) {
+  if (useApi) {
+    const result = await apiFetch(API, { method: 'POST', body: JSON.stringify({ title, url, color, icon, groupId }) });
     bookmarks.push(result.data);
     return result;
   }
-  const bm = { id: generateId(), title, url, color: color || 'gradient1', icon: icon || '' };
+  const bm = { id: generateId(), title, url, color: color || 'gradient1', icon: icon || '', groupId: groupId || '' };
   bookmarks.push(bm);
-  localSave();
+  localSaveAll();
   return { data: bm };
 }
 
-async function saveUpdateBookmark(id, title, url, color, icon) {
+async function saveUpdateBookmark(id, title, url, color, icon, groupId) {
   if (useApi) {
-    const result = await apiFetch(`${API}/${id}`, { method: 'PUT', body: JSON.stringify({ title, url, color, icon }) });
+    const result = await apiFetch(`${API}/${id}`, { method: 'PUT', body: JSON.stringify({ title, url, color, icon, groupId }) });
     const idx = bookmarks.findIndex(b => b.id === id);
     if (idx !== -1) bookmarks[idx] = result.data;
     return result;
   }
   const idx = bookmarks.findIndex(b => b.id === id);
   if (idx !== -1) {
-    bookmarks[idx] = { ...bookmarks[idx], title, url, color, icon };
-    localSave();
+    bookmarks[idx] = { ...bookmarks[idx], title, url, color, icon, groupId };
+    localSaveAll();
   }
   return { data: bookmarks[idx] };
 }
 
 async function saveDeleteBookmark(id) {
-  if (useApi) {
-    await apiFetch(`${API}/${id}`, { method: 'DELETE' });
-  }
+  if (useApi) { await apiFetch(`${API}/${id}`, { method: 'DELETE' }); }
   bookmarks = bookmarks.filter(b => b.id !== id);
-  localSave();
+  localSaveAll();
 }
 
 async function resetBookmarks() {
   if (useApi) {
     const result = await apiFetch(`${API}/reset`, { method: 'POST' });
     bookmarks = result.data;
+    groups = result.groups || [];
     return;
   }
   bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b}));
-  localSave();
+  groups = [...DEFAULT_GROUPS];
+  selectedGroup = null;
+  localSaveAll();
 }
 
-// === Theme (localStorage, per-device) ===
+// === Theme ===
 function loadTheme() {
   const theme = localStorage.getItem('wb_theme') || 'light';
   document.documentElement.setAttribute('data-theme', theme);
   updateThemeIcon(theme);
 }
-
 function saveTheme(theme) {
   localStorage.setItem('wb_theme', theme);
   document.documentElement.setAttribute('data-theme', theme);
   updateThemeIcon(theme);
 }
-
 function updateThemeIcon(theme) {
   document.getElementById('themeToggle').innerHTML = theme === 'dark' ? '&#127769;' : '&#9728;&#65039;';
 }
 
-// === Render ===
+// === Render: Group Tabs ===
+function renderGroupTabs() {
+  const container = document.getElementById('groupTabs');
+  const allCount = bookmarks.length;
+  const allActive = selectedGroup === null;
+
+  let html = `<button class="group-tab ${allActive ? 'active' : ''}" data-group="">全部<span class="tab-count">${allCount}</span></button>`;
+
+  groups.forEach(g => {
+    const count = bookmarks.filter(b => b.groupId === g.id).length;
+    const active = selectedGroup === g.id;
+    html += `<button class="group-tab ${active ? 'active' : ''}" data-group="${g.id}" style="${active ? 'background:'+g.color+';border-color:'+g.color+';color:#fff' : ''}">
+      <span class="tab-dot" style="background:${g.color}${active ? '' : ';display:none'}"></span>${escapeHtml(g.name)}<span class="tab-count">${count}</span>
+      <span class="tab-actions" onclick="event.stopPropagation()">
+        <button class="tab-action" onclick="editGroupPrompt('${g.id}')" title="编辑">&#9998;</button>
+        <button class="tab-action" onclick="deleteGroupPrompt('${g.id}')" title="删除">&#10005;</button>
+      </span>
+    </button>`;
+  });
+
+  html += `<button class="add-group-btn" id="addGroupBtn" title="添加分组">+</button>`;
+  container.innerHTML = html;
+
+  // Bind tab clicks
+  container.querySelectorAll('.group-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const gid = tab.dataset.group;
+      selectedGroup = gid || null;
+      renderGroupTabs();
+      renderBookmarks();
+    });
+  });
+  document.getElementById('addGroupBtn').addEventListener('click', () => openGroupModal('添加分组', null));
+}
+
+// === Group Modal ===
+function openGroupModal(titleText, g) {
+  editingGroupId = g ? g.id : null;
+  document.getElementById('groupModalTitle').textContent = titleText;
+  document.getElementById('groupNameInput').value = g ? g.name : '';
+  const activeColor = g ? g.color : '#667eea';
+  document.querySelectorAll('#groupColorPicker .color-dot').forEach(dot => {
+    dot.classList.toggle('selected', dot.dataset.color === activeColor);
+  });
+  document.getElementById('groupModalOverlay').style.display = 'flex';
+  document.getElementById('groupNameInput').focus();
+}
+
+function closeGroupModal() {
+  document.getElementById('groupModalOverlay').style.display = 'none';
+  editingGroupId = null;
+}
+
+async function confirmGroup() {
+  const name = document.getElementById('groupNameInput').value.trim();
+  if (!name) { showToast('请输入分组名称'); return; }
+  const color = document.querySelector('#groupColorPicker .color-dot.selected').dataset.color;
+  try {
+    if (editingGroupId) {
+      await saveUpdateGroup(editingGroupId, name, color);
+      showToast('分组已更新');
+    } else {
+      await saveAddGroup(name, color);
+      showToast('分组已添加');
+    }
+    closeGroupModal();
+    renderGroupTabs();
+    renderBookmarks();
+  } catch (e) { showToast('操作失败: ' + e.message); }
+}
+
+function editGroupPrompt(id) {
+  const g = getGroupById(id);
+  if (g) openGroupModal('编辑分组', g);
+}
+
+async function deleteGroupPrompt(id) {
+  const g = getGroupById(id);
+  if (!g) return;
+  if (!confirm(`确定删除分组「${g.name}」吗？\n分组下的书签不会被删除，只会移出分组。`)) return;
+  try {
+    await saveDeleteGroup(id);
+    renderGroupTabs();
+    renderBookmarks();
+    showToast('分组已删除');
+  } catch (e) { showToast('删除失败: ' + e.message); }
+}
+
+// === Render: Bookmarks ===
 function getIconHtml(bm) {
   if (bm.icon && bm.icon.startsWith('http')) {
     return `<img src="${bm.icon}" alt="" onerror="this.style.display='none';this.parentElement.textContent='${bm.title.charAt(0).toUpperCase()}';" crossorigin="anonymous">`;
@@ -440,25 +628,36 @@ function renderBookmarks() {
   const grid = document.getElementById('bookmarkGrid');
   const empty = document.getElementById('emptyState');
   const countEl = document.getElementById('bookmarkCount');
-  countEl.textContent = `${bookmarks.length} 个书签`;
 
-  if (bookmarks.length === 0) {
+  const filtered = selectedGroup ? bookmarks.filter(b => b.groupId === selectedGroup) : bookmarks;
+  countEl.textContent = useApi
+    ? `${filtered.length} / ${bookmarks.length} 个书签`
+    : `${filtered.length} / ${bookmarks.length} 个书签 (本地存储)`;
+
+  if (filtered.length === 0) {
     grid.innerHTML = '';
     empty.style.display = 'block';
+    empty.querySelector('h2').textContent = selectedGroup ? '该分组暂无书签' : '还没有书签';
+    empty.querySelector('p').textContent = selectedGroup
+      ? '点击上方「+ 添加书签」并选择此分组'
+      : '点击上方「+ 添加书签」开始收藏你常用的网址吧';
     return;
   }
   empty.style.display = 'none';
-  grid.innerHTML = bookmarks.map(bm => `
+  grid.innerHTML = filtered.map(bm => {
+    const group = getGroupById(bm.groupId);
+    const groupTag = group ? `<span class="card-group-tag" style="background:${group.color}">${escapeHtml(group.name)}</span>` : '';
+    return `
     <div class="bookmark-card" data-id="${bm.id}" onclick="openBookmark(event, '${bm.id}')">
       <div class="card-icon" style="background:${getColorStyle(bm.color)};">${getIconHtml(bm)}</div>
       <span class="card-title">${escapeHtml(bm.title)}</span>
-      <span class="card-url">${escapeHtml(bm.url.replace(/^https?:\/\//, ''))}</span>
+      ${groupTag}
       <div class="card-actions">
         <button class="card-action edit" onclick="event.stopPropagation();editBookmark('${bm.id}')" title="编辑">&#9998;</button>
         <button class="card-action" onclick="event.stopPropagation();deleteBookmark('${bm.id}')" title="删除">&#10005;</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function openBookmark(event, id) {
@@ -487,7 +686,7 @@ function showToast(msg) {
   setTimeout(() => toast.remove(), 2500);
 }
 
-// === Modal ===
+// === Bookmark Modal ===
 function openModal(title, bm) {
   editingId = bm ? bm.id : null;
   document.getElementById('modalTitle').textContent = title;
@@ -496,6 +695,13 @@ function openModal(title, bm) {
   document.getElementById('modalIconInput').value = bm ? (bm.icon || '') : '';
   selectedColor = bm ? (bm.color || 'gradient1') : 'gradient1';
   updateColorPicker();
+
+  // Populate group select
+  const select = document.getElementById('modalGroupSelect');
+  select.innerHTML = '<option value="">无分组</option>' + groups.map(g =>
+    `<option value="${g.id}" ${bm && bm.groupId === g.id ? 'selected' : ''}>${escapeHtml(g.name)}</option>`
+  ).join('');
+
   document.getElementById('modalOverlay').style.display = 'flex';
   document.getElementById('modalTitleInput').focus();
 }
@@ -515,22 +721,22 @@ async function addBookmark() {
   const title = document.getElementById('modalTitleInput').value.trim();
   let url = document.getElementById('modalUrlInput').value.trim();
   const icon = document.getElementById('modalIconInput').value.trim();
+  const groupId = document.getElementById('modalGroupSelect').value;
   if (!title || !url) { showToast('请填写名称和网址'); return; }
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
 
   try {
     if (editingId) {
-      await saveUpdateBookmark(editingId, title, url, selectedColor, icon);
+      await saveUpdateBookmark(editingId, title, url, selectedColor, icon, groupId);
       showToast('书签已更新');
     } else {
-      await saveAddBookmark(title, url, selectedColor, icon);
+      await saveAddBookmark(title, url, selectedColor, icon, groupId);
       showToast('书签已添加');
     }
     renderBookmarks();
+    renderGroupTabs();
     closeModal();
-  } catch (e) {
-    showToast('操作失败: ' + e.message);
-  }
+  } catch (e) { showToast('操作失败: ' + e.message); }
 }
 
 function editBookmark(id) {
@@ -543,21 +749,18 @@ async function deleteBookmark(id) {
   try {
     await saveDeleteBookmark(id);
     renderBookmarks();
+    renderGroupTabs();
     showToast('书签已删除');
-  } catch (e) {
-    showToast('删除失败: ' + e.message);
-  }
+  } catch (e) { showToast('删除失败: ' + e.message); }
 }
 
 // === Search ===
 function doSearch(query) {
   if (currentEngine === 'bookmark') {
     const q = query.toLowerCase();
-    bookmarks.forEach(bm => {
-      const card = document.querySelector(`.bookmark-card[data-id="${bm.id}"]`);
-      if (card) {
-        card.style.display = (bm.title.toLowerCase().includes(q) || bm.url.toLowerCase().includes(q)) ? '' : 'none';
-      }
+    document.querySelectorAll('.bookmark-card').forEach(card => {
+      const bm = bookmarks.find(b => b.id === card.dataset.id);
+      if (bm) card.style.display = (bm.title.toLowerCase().includes(q) || bm.url.toLowerCase().includes(q)) ? '' : 'none';
     });
     if (!query) renderBookmarks();
     return;
@@ -575,17 +778,11 @@ function updateClock() {
   const now = new Date();
   document.getElementById('clock').textContent =
     `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
   const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
   document.getElementById('dateText').textContent =
     `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
-
   const h = now.getHours();
-  const greetings = [
-    [6, '夜深了，早点休息'], [9, '早上好，新的一天开始了'],
-    [12, '上午好，精力充沛'], [14, '中午好，记得吃午饭'],
-    [18, '下午好，继续加油'], [22, '晚上好，放松一下'],
-  ];
+  const greetings = [[6,'夜深了，早点休息'],[9,'早上好，新的一天开始了'],[12,'上午好，精力充沛'],[14,'中午好，记得吃午饭'],[18,'下午好，继续加油'],[22,'晚上好，放松一下']];
   const g = greetings.find(([t]) => h < t);
   document.getElementById('greeting').textContent = g ? g[1] : '夜深了，早点休息';
 }
@@ -593,7 +790,7 @@ function updateClock() {
 // === Export / Import ===
 function exportBookmarks() {
   try {
-    const blob = new Blob([JSON.stringify(bookmarks, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ bookmarks, groups }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `bookmarks-backup-${new Date().toISOString().slice(0,10)}.json`;
@@ -605,31 +802,40 @@ function exportBookmarks() {
 async function importBookmarks(file) {
   try {
     const text = await file.text();
-    const data = JSON.parse(text);
-    if (!Array.isArray(data)) throw new Error('格式不正确');
+    let data = JSON.parse(text);
+    // Handle both old and new format
+    if (Array.isArray(data)) {
+      data = { bookmarks: data, groups: [] };
+    }
+    const importGroups = data.groups || [];
+    const importBookmarks = data.bookmarks || [];
 
     if (useApi) {
-      for (const item of data) {
+      // Add groups first
+      for (const g of importGroups) {
+        await apiFetch(API_GROUPS, { method: 'POST', body: JSON.stringify({ name: g.name, color: g.color || '#667eea' }) });
+      }
+      // Then bookmarks
+      for (const bm of importBookmarks) {
         await apiFetch(API, {
           method: 'POST',
-          body: JSON.stringify({
-            title: item.title, url: item.url,
-            color: item.color || 'gradient1', icon: item.icon || '',
-          }),
+          body: JSON.stringify({ title: bm.title, url: bm.url, color: bm.color || 'gradient1', icon: bm.icon || '', groupId: bm.groupId || '' }),
         });
       }
       await loadBookmarks();
     } else {
-      for (const item of data) {
-        bookmarks.push({
-          id: generateId(), title: item.title, url: item.url,
-          color: item.color || 'gradient1', icon: item.icon || '',
-        });
+      // Local mode
+      for (const g of importGroups) {
+        if (!groups.some(ex => ex.id === g.id)) groups.push(g);
       }
-      localSave();
+      for (const bm of importBookmarks) {
+        bookmarks.push({ id: generateId(), ...bm, id: generateId() });
+      }
+      localSaveAll();
       renderBookmarks();
+      renderGroupTabs();
     }
-    showToast(`成功导入 ${data.length} 个书签`);
+    showToast(`成功导入 ${importBookmarks.length} 个书签、${importGroups.length} 个分组`);
   } catch (e) { showToast('导入失败: ' + e.message); }
 }
 
@@ -637,20 +843,23 @@ async function importBookmarks(file) {
 document.getElementById('addBookmarkBtn').addEventListener('click', () => openModal('添加书签', null));
 document.getElementById('modalCancel').addEventListener('click', closeModal);
 document.getElementById('modalConfirm').addEventListener('click', addBookmark);
-document.getElementById('modalOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeModal();
-});
+document.getElementById('modalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('groupModalCancel').addEventListener('click', closeGroupModal);
+document.getElementById('groupModalConfirm').addEventListener('click', confirmGroup);
+document.getElementById('groupModalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeGroupModal(); });
 document.getElementById('exportBtn').addEventListener('click', exportBookmarks);
-document.getElementById('importBtn').addEventListener('click', () => {
-  document.getElementById('importFile').click();
-});
-document.getElementById('importFile').addEventListener('change', (e) => {
-  if (e.target.files[0]) importBookmarks(e.target.files[0]);
-  e.target.value = '';
-});
+document.getElementById('importBtn').addEventListener('click', () => { document.getElementById('importFile').click(); });
+document.getElementById('importFile').addEventListener('change', (e) => { if (e.target.files[0]) importBookmarks(e.target.files[0]); e.target.value = ''; });
 
-document.querySelectorAll('.color-dot').forEach(dot => {
+// Color pickers
+document.querySelectorAll('#modalOverlay .color-dot').forEach(dot => {
   dot.addEventListener('click', () => { selectedColor = dot.dataset.color; updateColorPicker(); });
+});
+document.querySelectorAll('#groupColorPicker .color-dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.querySelectorAll('#groupColorPicker .color-dot').forEach(d => d.classList.remove('selected'));
+    dot.classList.add('selected');
+  });
 });
 
 document.getElementById('themeToggle').addEventListener('click', () => {
@@ -683,25 +892,26 @@ document.getElementById('searchInput').addEventListener('keydown', (e) => {
     }
   }
 });
-
 document.getElementById('searchBtn').addEventListener('click', () => {
   const q = document.getElementById('searchInput').value.trim();
   if (q) doSearch(q);
 });
-
 document.getElementById('resetBtn').addEventListener('click', async () => {
-  if (!confirm('确定恢复默认书签吗？所有数据将被替换。')) return;
+  if (!confirm('确定恢复默认书签和分组吗？所有数据将被替换。')) return;
   try {
     await resetBookmarks();
+    selectedGroup = null;
     renderBookmarks();
-    showToast('已恢复默认书签');
-  } catch (e) {
-    showToast('重置失败: ' + e.message);
-  }
+    renderGroupTabs();
+    showToast('已恢复默认数据');
+  } catch (e) { showToast('重置失败: ' + e.message); }
 });
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') {
+    if (document.getElementById('groupModalOverlay').style.display === 'flex') closeGroupModal();
+    else closeModal();
+  }
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
     document.getElementById('searchInput').focus();
@@ -715,9 +925,6 @@ document.addEventListener('keydown', (e) => {
   await loadBookmarks();
   updateClock();
   setInterval(updateClock, 10000);
-  if (!useApi) {
-    document.getElementById('bookmarkCount').textContent += ' (本地存储)';
-  }
 })();
 </script>
 </body>
