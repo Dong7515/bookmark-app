@@ -231,6 +231,7 @@
   }
   .bookmark-card.dragging { opacity: 0.4; transform: scale(0.95); }
   .bookmark-card.drag-over { border-color: rgba(255,255,255,0.8) !important; box-shadow: 0 0 20px rgba(255,255,255,0.3) !important; transform: scale(1.05); }
+  .bookmark-card img { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
   .bookmark-card {
     background: rgba(255,255,255,0.18);
     border: 1px solid rgba(255,255,255,0.3);
@@ -751,7 +752,7 @@ async function resetBookmarks() {
 // === Render ===
 function renderAll() { renderGroupTabs(); renderBookmarks(); }
 function getIconHtml(bm) {
-  if (bm.icon && bm.icon.startsWith('http')) return `<img src="${bm.icon}" alt="" onerror="this.style.display='none';this.parentElement.textContent='${bm.title.charAt(0).toUpperCase()}';" crossorigin="anonymous">`;
+  if (bm.icon && bm.icon.startsWith('http')) return `<img src="${bm.icon}" alt="" draggable="false" onerror="this.style.display='none';this.parentElement.textContent='${bm.title.charAt(0).toUpperCase()}';" crossorigin="anonymous">`;
   return bm.title.charAt(0).toUpperCase();
 }
 function getColorStyle(color) {
@@ -820,26 +821,37 @@ function renderBookmarks() {
 
 // === Drag & Drop Reorder ===
 let dragSrcId = null;
+let justDragged = false;
 function bindDragEvents() {
   const cards = document.querySelectorAll('.bookmark-card');
   cards.forEach(card => {
     card.addEventListener('dragstart', e => {
       dragSrcId = card.dataset.id;
+      justDragged = true;
       card.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', card.dataset.id);
     });
     card.addEventListener('dragend', () => {
       card.classList.remove('dragging');
       document.querySelectorAll('.bookmark-card').forEach(c => c.classList.remove('drag-over'));
+      setTimeout(() => { justDragged = false; }, 100);
+    });
+    card.addEventListener('dragenter', e => {
+      e.preventDefault();
+      if (card.dataset.id !== dragSrcId) card.classList.add('drag-over');
     });
     card.addEventListener('dragover', e => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       if (card.dataset.id !== dragSrcId) card.classList.add('drag-over');
     });
-    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('dragleave', e => {
+      if (e.target === card) card.classList.remove('drag-over');
+    });
     card.addEventListener('drop', e => {
       e.preventDefault();
+      e.stopPropagation();
       card.classList.remove('drag-over');
       const targetId = card.dataset.id;
       if (!dragSrcId || dragSrcId === targetId) return;
@@ -860,7 +872,7 @@ async function saveReorder() {
   } else { localSaveAll(); }
 }
 
-function openBookmark(event, id) { if (event.target.closest('.card-action')) return; const bm = bookmarks.find(b => b.id === id); if (bm) { let url = bm.url; if (!/^https?:\/\//i.test(url)) url = 'https://' + url; window.open(url, '_blank'); } }
+function openBookmark(event, id) { if (justDragged) { event.preventDefault(); return; } if (event.target.closest('.card-action')) return; const bm = bookmarks.find(b => b.id === id); if (bm) { let url = bm.url; if (!/^https?:\/\//i.test(url)) url = 'https://' + url; window.open(url, '_blank'); } }
 
 function showContextMenu(event, id) { event.preventDefault(); contextTargetId = id; const menu = document.getElementById('contextMenu'); menu.style.left = event.clientX + 'px'; menu.style.top = event.clientY + 'px'; menu.classList.remove('hidden'); }
 function hideContextMenu() { document.getElementById('contextMenu').classList.add('hidden'); contextTargetId = null; }
