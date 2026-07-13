@@ -1275,9 +1275,10 @@ function hideGroupMenu() { document.getElementById('groupMenu').style.display = 
 document.getElementById('groupMenu').addEventListener('click', (e) => {
   const action = e.target.closest('.group-menu-item')?.dataset.action;
   if (!action || !groupMenuTarget) return;
+  const targetId = groupMenuTarget;
   hideGroupMenu();
-  if (action === 'edit') editGroupPrompt(groupMenuTarget);
-  if (action === 'delete') deleteGroupPrompt(groupMenuTarget);
+  if (action === 'edit') editGroupPrompt(targetId);
+  if (action === 'delete') deleteGroupPrompt(targetId);
 });
 document.addEventListener('click', (e) => { if (!e.target.closest('.group-menu') && !e.target.closest('.group-tab')) hideGroupMenu(); });
 
