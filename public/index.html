@@ -259,7 +259,7 @@
   .group-menu-item:hover { background: rgba(0,0,0,0.06); }
   .group-menu-item.danger { color: #f43f5e; }
   .group-menu-item.danger:hover { background: rgba(244,63,94,0.08); }
-  .header { text-align: center; margin-bottom: 40px; }
+  .header { text-align: center; margin-bottom: 20px; }
   .clock-row { display: flex; align-items: center; justify-content: center; gap: 16px; }
   .clock {
     font-size: 88px; font-weight: 200; letter-spacing: 4px; color: #fff; line-height: 1;
@@ -278,40 +278,48 @@
   .date-text { font-size: 15px; color: var(--text-secondary); margin-top: 12px; letter-spacing: 0.5px; text-shadow: 0 1px 8px rgba(0,0,0,0.2); }
   .greeting { font-size: 18px; font-weight: 400; margin-top: 4px; color: var(--text-muted); text-shadow: 0 1px 8px rgba(0,0,0,0.2); }
 
-  /* ====== Search ====== */
-  .search-section { margin-bottom: 20px; display: flex; justify-content: center; }
-  .search-wrapper { position: relative; width: 100%; max-width: 680px; }
-  .search-box {
-    width: 100%; height: 60px; padding: 0 120px 0 24px;
-    border: 1px solid rgba(255,255,255,0.25); border-radius: 20px;
-    font-size: 17px; background: rgba(255,255,255,0.12); color: #fff;
+  /* ====== Compact Search in Toolbar ====== */
+  .search-section { display: none; }
+  .toolbar-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .toolbar-search-box {
+    width: 200px; height: 36px; padding: 0 34px 0 12px;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 12px;
+    font-size: 13px; background: rgba(255,255,255,0.12); color: #fff;
     outline: none; transition: all var(--transition);
-    backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
-    box-shadow: 0 4px 30px rgba(0,0,0,0.08);
-    letter-spacing: 0.3px;
+    backdrop-filter: blur(16px) saturate(150%); -webkit-backdrop-filter: blur(16px) saturate(150%);
+    font-family: inherit; font-weight: 500;
   }
-  .search-box::placeholder { color: rgba(255,255,255,0.5); }
-  .search-box:focus {
+  .toolbar-search-box::placeholder { color: rgba(255,255,255,0.45); }
+  .toolbar-search-box:focus {
+    width: 280px;
     border-color: rgba(102,126,234,0.5);
-    background: rgba(255,255,255,0.95);
-    box-shadow: 0 0 0 4px rgba(102,126,234,0.1), 0 8px 30px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.95); color: #1a1a2e;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
   }
-  .search-engines {
-    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    display: flex; gap: 4px;
+  .toolbar-search-box:focus::placeholder { color: rgba(0,0,0,0.3); }
+  .toolbar-search-dots {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    display: flex; gap: 2px;
   }
-  .search-engine-dot {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.06);
-    cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
-    transition: all var(--transition); color: rgba(0,0,0,0.45);
+  .toolbar-search-dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: transparent; border: 1px solid rgba(255,255,255,0.15);
+    cursor: pointer; font-size: 11px; display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition); color: rgba(255,255,255,0.55);
   }
-  .search-engine-dot:hover { background: rgba(0,0,0,0.08); color: #1a1a2e; border-color: rgba(0,0,0,0.15); }
-  .search-engine-dot.active { background: rgba(102,126,234,0.15); color: #667eea; border-color: rgba(102,126,234,0.35); box-shadow: 0 0 12px rgba(102,126,234,0.1); }
+  .toolbar-search-dot:hover { background: rgba(255,255,255,0.15); color: #fff; }
+  .toolbar-search-dot.active { background: rgba(102,126,234,0.2); color: #667eea; border-color: rgba(102,126,234,0.35); }
+  .toolbar-search-box:focus ~ .toolbar-search-dots .toolbar-search-dot { color: rgba(0,0,0,0.35); border-color: rgba(0,0,0,0.08); }
+  .toolbar-search-box:focus ~ .toolbar-search-dots .toolbar-search-dot.active { color: #667eea; background: rgba(102,126,234,0.12); border-color: rgba(102,126,234,0.3); }
 
   /* ====== Toolbar ====== */
-  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-  .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+  .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .btn {
     padding: 9px 18px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06);
     background: rgba(255,255,255,0.7); color: rgba(0,0,0,0.65); font-size: 13px;
@@ -389,12 +397,35 @@
     display: flex; align-items: center; gap: 10px;
     cursor: pointer; transition: all 0.3s ease;
     text-decoration: none; color: inherit;
+    position: relative;
   }
   .ai-tool-card:hover { background: rgba(255,255,255,0.22); transform: translateY(-3px); border-color: rgba(255,255,255,0.4); }
   .ai-tool-card .icon-wrap { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
   .ai-tool-card .info { flex: 1; min-width: 0; }
   .ai-tool-card .info .name { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ai-tool-card .info .desc { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ai-tool-card .del-tool {
+    position: absolute; top: 6px; right: 8px;
+    width: 20px; height: 20px; border-radius: 50%;
+    border: none; background: rgba(244,63,94,0.7); color: #fff;
+    font-size: 11px; line-height: 20px; text-align: center;
+    cursor: pointer; opacity: 0; transition: opacity 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+  }
+  .ai-tool-card:hover .del-tool { opacity: 1; }
+  .add-tool-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px dashed rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 14px 12px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; cursor: pointer; transition: all 0.3s ease;
+    text-decoration: none; color: rgba(255,255,255,0.5);
+    min-height: 68px;
+  }
+  .add-tool-card:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); color: #fff; }
   @media (max-width: 768px) {
     .sidebar { width: 60px; padding: 16px 6px; }
     .sidebar-header { font-size: 0; padding: 0 0 10px; justify-content: center; }
@@ -621,7 +652,6 @@
   /* ====== Responsive ====== */
   @media (max-width: 768px) {
     .clock { font-size: 56px; }
-    .search-box { height: 52px; font-size: 15px; }
     .bookmark-grid { grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); gap: 14px; }
     .bookmark-card { padding: 22px 12px 16px; min-height: 150px; border-radius: 18px; }
     .card-icon { width: 54px; height: 54px; font-size: 26px; border-radius: 16px; }
@@ -632,8 +662,6 @@
   @media (max-width: 480px) {
     .clock { font-size: 44px; }
     .bookmark-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-    .search-box { padding: 0 100px 0 16px; }
-    .search-engine-dot { width: 28px; height: 28px; font-size: 12px; }
   }
 </style>
 </head>
@@ -709,18 +737,6 @@
     <div class="greeting" id="greeting"></div>
   </header>
 
-  <div class="search-section">
-    <div class="search-wrapper">
-      <input class="search-box" id="searchInput" type="text" placeholder="搜索书签或输入关键词进行网页搜索..." autocomplete="off">
-      <div class="search-engines">
-        <button class="search-engine-dot active" data-engine="google" title="Google">G</button>
-        <button class="search-engine-dot" data-engine="baidu" title="百度">百</button>
-        <button class="search-engine-dot" data-engine="bing" title="Bing">B</button>
-        <button class="search-engine-dot" data-engine="bookmark" title="搜索书签">&#128269;</button>
-      </div>
-    </div>
-  </div>
-
   <div class="toolbar">
     <div class="toolbar-actions">
       <button class="btn btn-primary" id="addBookmarkBtn">+ 添加书签</button>
@@ -729,6 +745,15 @@
       <button class="btn" id="exportBtn" title="导出 JSON 备份">导出</button>
       <button class="btn" id="importBtn" title="从 JSON 文件导入">导入</button>
       <input type="file" id="importFile" accept=".json" style="display:none;">
+      <div class="toolbar-search-wrap">
+        <input class="toolbar-search-box" id="searchInput" type="text" placeholder="搜索书签或输入关键词..." autocomplete="off">
+        <div class="toolbar-search-dots">
+          <button class="toolbar-search-dot active" data-engine="google" title="Google">G</button>
+          <button class="toolbar-search-dot" data-engine="baidu" title="百度">百</button>
+          <button class="toolbar-search-dot" data-engine="bing" title="Bing">B</button>
+          <button class="toolbar-search-dot" data-engine="bookmark" title="搜索书签">🔍</button>
+        </div>
+      </div>
     </div>
     <div class="toolbar-right-wrap">
       <span style="font-size:12px;color:rgba(255,255,255,0.3);" id="bookmarkCount">加载中...</span>
@@ -756,7 +781,7 @@
   <!-- AI Tools Section -->
   <div class="ai-tools-section" id="aiToolsSection" style="display:none;">
     <div class="ai-tools-header">
-      <h2>🤖 AI 工具推荐</h2>
+      <h2>🔥 常用工具</h2>
     </div>
     <div class="ai-tools-grid" id="aiToolsGrid"></div>
   </div>
@@ -838,6 +863,29 @@
     <div class="modal-actions">
       <button class="btn" id="groupModalCancel">取消</button>
       <button class="btn btn-primary" id="groupModalConfirm">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Tool Modal -->
+<div class="modal-overlay" id="quickToolModalOverlay" style="display:none;">
+  <div class="modal">
+    <h3>添加常用工具</h3>
+    <div class="form-group">
+      <label>名称</label>
+      <input id="quickToolName" type="text" placeholder="例如：百度" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label>网址</label>
+      <input id="quickToolUrl" type="text" placeholder="https://www.baidu.com">
+    </div>
+    <div class="form-group">
+      <label>图标（可选）</label>
+      <input id="quickToolIcon" type="text" placeholder="🔥 或任意 emoji / 文字" maxlength="4" value="🔥">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeQuickToolModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmAddQuickTool()">确认</button>
     </div>
   </div>
 </div>
@@ -1293,29 +1341,71 @@ function formatHotValue(val) {
   return num.toString();
 }
 
-const AI_TOOLS = [
-  { name: '豆包', desc: '字节旗下AI工具', url: 'https://www.doubao.com', icon: '💬', color: '#4a7aff' },
-  { name: '文心一言', desc: '百度AI对话助手', url: 'https://yiyan.baidu.com', icon: '🔵', color: '#4285f4' },
-  { name: '通义千问', desc: '阿里大语言模型', url: 'https://tongyi.aliyun.com', icon: '🔷', color: '#1677ff' },
-  { name: '智谱清言', desc: 'ChatGLM智能助手', url: 'https://chatglm.cn', icon: '⚡', color: '#6c5ce7' },
-  { name: 'Kimi', desc: '月之暗面AI助手', url: 'https://kimi.moonshot.cn', icon: '🌙', color: '#7c6ff7' },
-  { name: '讯飞星火', desc: '科大讯飞AI大模型', url: 'https://xinghuo.xfyun.cn', icon: '🔥', color: '#ff6b6b' },
-  { name: '秘塔AI', desc: 'AI搜索引擎', url: 'https://metaso.cn', icon: '🔍', color: '#00b894' },
-  { name: '可灵AI', desc: 'AI图片和视频生成', url: 'https://klingai.com', icon: '🎨', color: '#e17055' }
+const DEFAULT_QUICK_TOOLS = [
+  { id: 'qt1', name: '豆包', desc: '字节旗下AI工具', url: 'https://www.doubao.com', icon: '💬', color: '#4a7aff' },
+  { id: 'qt2', name: '文心一言', desc: '百度AI对话助手', url: 'https://yiyan.baidu.com', icon: '🔵', color: '#4285f4' },
+  { id: 'qt3', name: '通义千问', desc: '阿里大语言模型', url: 'https://tongyi.aliyun.com', icon: '🔷', color: '#1677ff' },
+  { id: 'qt4', name: '智谱清言', desc: 'ChatGLM智能助手', url: 'https://chatglm.cn', icon: '⚡', color: '#6c5ce7' },
+  { id: 'qt5', name: 'Kimi', desc: '月之暗面AI助手', url: 'https://kimi.moonshot.cn', icon: '🌙', color: '#7c6ff7' },
+  { id: 'qt6', name: '讯飞星火', desc: '科大讯飞AI大模型', url: 'https://xinghuo.xfyun.cn', icon: '🔥', color: '#ff6b6b' },
+  { id: 'qt7', name: '秘塔AI', desc: 'AI搜索引擎', url: 'https://metaso.cn', icon: '🔍', color: '#00b894' },
+  { id: 'qt8', name: '可灵AI', desc: 'AI图片和视频生成', url: 'https://klingai.com', icon: '🎨', color: '#e17055' }
 ];
+function getQuickTools() {
+  try { const raw = localStorage.getItem('quickTools'); if (raw) return JSON.parse(raw); } catch (e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_QUICK_TOOLS));
+}
+function saveQuickTools(list) { localStorage.setItem('quickTools', JSON.stringify(list)); }
 
 function renderAITools() {
   const grid = document.getElementById('aiToolsGrid');
   if (!grid) return;
-  grid.innerHTML = AI_TOOLS.map(t => `
+  const tools = getQuickTools();
+  grid.innerHTML = tools.map((t, idx) => `
     <a class="ai-tool-card" href="${escapeHtml(t.url)}" target="_blank">
+      <button class="del-tool" onclick="deleteQuickTool(event, ${idx})" title="删除">×</button>
       <div class="icon-wrap" style="background:${t.color}22;color:${t.color};">${t.icon}</div>
       <div class="info">
         <div class="name">${escapeHtml(t.name)}</div>
-        <div class="desc">${escapeHtml(t.desc)}</div>
+        <div class="desc">${escapeHtml(t.desc || '')}</div>
       </div>
     </a>
-  `).join('');
+  `).join('') + `
+    <div class="add-tool-card" onclick="openQuickToolModal()" title="添加常用工具">
+      <span style="font-size:20px;">+</span><span style="font-size:13px;">添加</span>
+    </div>
+  `;
+}
+function deleteQuickTool(e, idx) {
+  e.preventDefault(); e.stopPropagation();
+  const tools = getQuickTools();
+  tools.splice(idx, 1);
+  saveQuickTools(tools);
+  renderAITools();
+  showToast('已删除');
+}
+
+function openQuickToolModal() {
+  document.getElementById('quickToolModalOverlay').style.display = 'flex';
+  document.getElementById('quickToolName').value = '';
+  document.getElementById('quickToolUrl').value = '';
+  document.getElementById('quickToolIcon').value = '🔥';
+  document.getElementById('quickToolName').focus();
+}
+function closeQuickToolModal() { document.getElementById('quickToolModalOverlay').style.display = 'none'; }
+function confirmAddQuickTool() {
+  const name = document.getElementById('quickToolName').value.trim();
+  const url = document.getElementById('quickToolUrl').value.trim();
+  const icon = document.getElementById('quickToolIcon').value.trim() || '🔥';
+  if (!name || !url) { showToast('请填写名称和网址'); return; }
+  let finalUrl = url;
+  if (!/^https?:\/\//i.test(finalUrl)) finalUrl = 'https://' + finalUrl;
+  const tools = getQuickTools();
+  tools.push({ id: 'qt_' + Date.now(), name, desc: '', url: finalUrl, icon, color: '#667eea' });
+  saveQuickTools(tools);
+  renderAITools();
+  closeQuickToolModal();
+  showToast('已添加');
 }
 
 // === Drag & Drop Reorder ===
@@ -1571,8 +1661,8 @@ document.querySelectorAll('#contextMenu .context-item').forEach(item => item.add
 document.addEventListener('click', e => { if (!e.target.closest('#contextMenu')) hideContextMenu(); });
 
 // Search engines
-document.querySelectorAll('.search-engine-dot').forEach(dot => dot.addEventListener('click', () => {
-  document.querySelectorAll('.search-engine-dot').forEach(d => d.classList.remove('active'));
+document.querySelectorAll('.toolbar-search-dot').forEach(dot => dot.addEventListener('click', () => {
+  document.querySelectorAll('.toolbar-search-dot').forEach(d => d.classList.remove('active'));
   dot.classList.add('active'); currentEngine = dot.dataset.engine;
   document.getElementById('searchInput').placeholder = currentEngine === 'bookmark' ? '搜索你的书签...' : '输入关键词搜索网页...';
   if (currentEngine !== 'bookmark') { filterQuery = ''; renderBookmarks(); }
