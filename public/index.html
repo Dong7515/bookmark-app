@@ -823,15 +823,16 @@ function renderGroupTabs() {
   groups.forEach(g => {
     const count = bookmarks.filter(b => b.groupId === g.id).length;
     const active = selectedGroup === g.id;
-    html += `<button class="group-tab ${active ? 'active' : ''}" data-group="${g.id}">
+    html += `<button class="group-tab ${active ? 'active' : ''}" data-group="${g.id}" draggable="true">
       ${escapeHtml(g.name)}<span class="tab-count">${count}</span>
     </button>`;
   });
   html += `<button class="add-group-btn" id="addGroupBtn" title="新建分组">+</button>`;
   container.innerHTML = html;
-  // Group tab click: short click = filter, long press = edit/delete
+  // Group tab click: short click = filter, long press = edit/delete, drag = reorder
   let longPressTimer = null;
   let longPressTriggered = false;
+  let groupDragSrcId = null;
   container.querySelectorAll('.group-tab').forEach(tab => {
     const groupId = tab.dataset.group;
     const onStart = (e) => {
@@ -854,6 +855,39 @@ function renderGroupTabs() {
     tab.addEventListener('touchstart', onStart, { passive: true });
     tab.addEventListener('touchend', onEnd);
     tab.addEventListener('touchmove', () => { clearTimeout(longPressTimer); longPressTriggered = true; });
+    // Drag events
+    tab.addEventListener('dragstart', (e) => {
+      clearTimeout(longPressTimer);
+      longPressTriggered = true;
+      groupDragSrcId = groupId;
+      tab.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    tab.addEventListener('dragend', () => {
+      tab.classList.remove('dragging');
+      document.querySelectorAll('.group-tab').forEach(t => t.classList.remove('drag-over'));
+    });
+    tab.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (tab.dataset.group !== groupDragSrcId) tab.classList.add('drag-over');
+    });
+    tab.addEventListener('dragenter', (e) => { e.preventDefault(); });
+    tab.addEventListener('dragleave', () => tab.classList.remove('drag-over'));
+    tab.addEventListener('drop', (e) => {
+      e.preventDefault();
+      tab.classList.remove('drag-over');
+      const targetId = tab.dataset.group;
+      if (!groupDragSrcId || groupDragSrcId === targetId) return;
+      const srcIdx = groups.findIndex(g => g.id === groupDragSrcId);
+      const tgtIdx = groups.findIndex(g => g.id === targetId);
+      if (srcIdx === -1 || tgtIdx === -1) return;
+      const [moved] = groups.splice(srcIdx, 1);
+      groups.splice(tgtIdx, 0, moved);
+      groupDragSrcId = null;
+      saveGroupReorder();
+      renderAll();
+    });
   });
   document.getElementById('addGroupBtn').addEventListener('click', () => openGroupModal('新建分组', null));
 }
@@ -939,6 +973,11 @@ function bindDragEvents() {
 async function saveReorder() {
   if (useApi) {
     try { await apiCall(`${API}/reorder`, { method: 'PUT', body: JSON.stringify({ ids: bookmarks.map(b => b.id) }) }); } catch (e) { console.error('Reorder save failed:', e); }
+  } else { localSaveAll(); }
+}
+async function saveGroupReorder() {
+  if (useApi) {
+    try { await apiCall(`${API_GROUPS}/reorder`, { method: 'PUT', body: JSON.stringify({ ids: groups.map(g => g.id) }) }); } catch (e) { console.error('Group reorder save failed:', e); }
   } else { localSaveAll(); }
 }
 

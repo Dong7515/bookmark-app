@@ -302,6 +302,23 @@ app.delete('/api/groups/:id', authMiddleware, (req, res) => {
   }
 });
 
+app.put('/api/groups/reorder', authMiddleware, (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({ success: false, error: '需要分组ID数组' });
+    }
+    const data = readData();
+    const reordered = ids.map(id => data.groups.find(g => g.id === id)).filter(Boolean);
+    const remaining = data.groups.filter(g => !ids.includes(g.id));
+    data.groups = [...reordered, ...remaining];
+    writeData(data);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ success: false, error: '分组排序失败' });
+  }
+});
+
 // === Protected: Fetch website meta (title + favicon) ===
 app.get('/api/fetch-meta', authMiddleware, (req, res) => {
   try {
