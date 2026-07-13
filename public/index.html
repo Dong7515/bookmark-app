@@ -159,6 +159,19 @@
     margin-bottom: 8px;
     display: flex; align-items: center; gap: 8px;
   }
+  .sidebar-home-btn {
+    width: 100%; padding: 9px 14px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.55); font-size: 13px; cursor: pointer;
+    transition: all var(--transition);
+    display: flex; align-items: center; gap: 8px;
+    font-family: inherit; font-weight: 500; text-align: left;
+    margin-bottom: 4px;
+  }
+  .sidebar-home-btn:hover {
+    background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.9);
+  }
   .sidebar-footer {
     margin-top: auto; padding-top: 12px;
     border-top: 1px solid rgba(255,255,255,0.08);
@@ -350,6 +363,7 @@
     .sidebar { width: 60px; padding: 16px 6px; }
     .sidebar-header { font-size: 0; padding: 0 0 10px; justify-content: center; }
     .sidebar-header::before { content: '📚'; font-size: 18px; }
+    .sidebar-home-btn { font-size: 11px; padding: 8px; justify-content: center; border-radius: 10px; }
     .group-tab { padding: 8px; justify-content: center; border-radius: 10px; }
     .group-tab .tab-name { display: none; }
     .group-tab .tab-count { display: none; }
@@ -638,6 +652,7 @@
 <div class="layout-wrapper">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">📚 我的书签</div>
+    <button class="sidebar-home-btn" id="sidebarHomeBtn" title="回到首页">🏠 回到首页</button>
     <div class="group-tabs" id="groupTabs"></div>
     <div class="sidebar-footer">
       <button class="add-group-btn" id="addGroupBtn" title="新建分组">+ 新建分组</button>
@@ -1511,6 +1526,13 @@ document.addEventListener('keydown', e => {
 // === Init ===
 (async function init() {
   updateClock(); setInterval(updateClock, 10000);
+  // Sidebar home button: reset to home view
+  document.getElementById('sidebarHomeBtn').addEventListener('click', () => {
+    selectedGroup = null; filterQuery = '';
+    document.getElementById('searchInput').value = '';
+    renderAll();
+    fetchHotBoards();
+  });
   loadWallpaper();
   await checkApiAvailable();
   if (needAuth) {
