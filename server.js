@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
-const PASSWORD = process.env.BOOKMARK_PASSWORD || 'bookmark123';
+const PASSWORD = process.env.BOOKMARK_PASSWORD || 'dong123';
 
 const DATA_FILE = path.join(__dirname, 'data', 'bookmarks.json');
 
