@@ -341,6 +341,23 @@ app.delete('/api/groups/:id', authMiddleware, (req, res) => {
   }
 });
 
+app.post('/api/groups/batch-delete', authMiddleware, (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, error: '需要分组ID数组' });
+    }
+    let data = readData();
+    const idSet = new Set(ids);
+    data.groups = data.groups.filter(g => !idSet.has(g.id));
+    data.bookmarks.forEach(bm => { if (idSet.has(bm.groupId)) bm.groupId = ''; });
+    writeData(data);
+    res.json({ success: true, deleted: ids.length });
+  } catch (e) {
+    res.status(500).json({ success: false, error: '批量删除失败' });
+  }
+});
+
 app.put('/api/groups/reorder', authMiddleware, (req, res) => {
   try {
     const { ids } = req.body;

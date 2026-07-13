@@ -205,6 +205,42 @@
     transition: all var(--transition); font-family: inherit; font-weight: 500;
   }
   .add-group-btn:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.1); }
+  /* Manage mode */
+  .sidebar-manage-bar { display: flex; gap: 6px; }
+  .sidebar-manage-bar .add-group-btn { flex: 1; }
+  .manage-toggle-btn {
+    height: 40px; padding: 0 12px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6); cursor: pointer; font-size: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    transition: all var(--transition); font-family: inherit; font-weight: 500;
+    white-space: nowrap;
+  }
+  .manage-toggle-btn:hover { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); }
+  .manage-toggle-btn.active { background: rgba(244,63,94,0.3); border-color: rgba(244,63,94,0.5); color: #fca5a5; }
+  .group-tab .tab-checkbox {
+    width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.3); background: transparent;
+    display: none; align-items: center; justify-content: center;
+    font-size: 11px; color: #fff; transition: all 0.15s;
+  }
+  .group-tab.manage-mode .tab-checkbox { display: flex; }
+  .group-tab.manage-mode.checked .tab-checkbox { background: #f43f5e; border-color: #f43f5e; }
+  .group-tab.manage-mode { cursor: default; }
+  .batch-delete-bar {
+    display: none; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.08);
+    margin-top: 8px;
+  }
+  .batch-delete-bar.show { display: block; }
+  .batch-delete-btn {
+    width: 100%; height: 38px; border-radius: 10px;
+    border: none; background: rgba(244,63,94,0.25);
+    color: #fca5a5; cursor: pointer; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all var(--transition); font-family: inherit; font-weight: 600;
+  }
+  .batch-delete-btn:hover { background: rgba(244,63,94,0.4); color: #fecaca; }
+  .batch-delete-btn:disabled { opacity: 0.3; cursor: not-allowed; }
   /* Long-press group menu */
   .group-menu {
     position: fixed; z-index: 1000;
@@ -655,7 +691,13 @@
     <button class="sidebar-home-btn" id="sidebarHomeBtn" title="回到首页">🏠 回到首页</button>
     <div class="group-tabs" id="groupTabs"></div>
     <div class="sidebar-footer">
-      <button class="add-group-btn" id="addGroupBtn" title="新建分组">+ 新建分组</button>
+      <div class="sidebar-manage-bar">
+        <button class="add-group-btn" id="addGroupBtn" title="新建分组">+ 新建分组</button>
+        <button class="manage-toggle-btn" id="manageToggleBtn" title="管理分组">✎ 管理</button>
+      </div>
+      <div class="batch-delete-bar" id="batchDeleteBar">
+        <button class="batch-delete-btn" id="batchDeleteBtn">🗑 批量删除 (<span id="batchCount">0</span>)</button>
+      </div>
     </div>
   </aside>
   <div class="container" id="mainContent">
@@ -829,6 +871,7 @@ let currentEngine = 'google', filterQuery = '';
 let selectedColor = 'gradient1', selectedGroup = null;
 let useApi = false, authToken = null, needAuth = false;
 let contextTargetId = null;
+let multiSelectMode = false, selectedGroupIds = new Set();
 
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
@@ -967,7 +1010,10 @@ function renderGroupTabs() {
   groups.forEach(g => {
     const count = bookmarks.filter(b => b.groupId === g.id).length;
     const active = selectedGroup === g.id;
-    html += `<button class="group-tab ${active ? 'active' : ''}" data-group="${g.id}" draggable="true">
+    const checked = selectedGroupIds.has(g.id);
+    const mc = multiSelectMode ? ' manage-mode' + (checked ? ' checked' : '') : '';
+    html += `<button class="group-tab ${active && !multiSelectMode ? 'active' : ''}${mc}" data-group="${g.id}" ${multiSelectMode ? '' : 'draggable="true"'}>
+      <span class="tab-checkbox">${checked ? '✓' : ''}</span>
       <span class="tab-icon">${escapeHtml(g.icon || '📁')}</span>
       <span class="tab-name">${escapeHtml(g.name)}</span>
       <span class="tab-count">${count}</span>
@@ -975,6 +1021,7 @@ function renderGroupTabs() {
   });
   container.innerHTML = html;
   // Group tab click: short click = filter, long press = edit/delete, drag = reorder
+  // In manage mode: click = toggle checkbox, long press still works
   let longPressTimer = null;
   let longPressTriggered = false;
   let groupDragSrcId = null;
@@ -984,12 +1031,22 @@ function renderGroupTabs() {
       longPressTriggered = false;
       longPressTimer = setTimeout(() => {
         longPressTriggered = true;
-        showGroupMenu(e, groupId);
+        if (!multiSelectMode) showGroupMenu(e, groupId);
       }, 600);
     };
     const onEnd = () => {
       clearTimeout(longPressTimer);
-      if (!longPressTriggered) {
+      if (longPressTriggered) return;
+      if (multiSelectMode) {
+        // Toggle checkbox in manage mode
+        if (selectedGroupIds.has(groupId)) {
+          selectedGroupIds.delete(groupId);
+        } else {
+          selectedGroupIds.add(groupId);
+        }
+        updateBatchDeleteBar();
+        renderGroupTabs();
+      } else {
         selectedGroup = (selectedGroup === groupId) ? null : groupId;
         renderAll();
       }
@@ -1000,6 +1057,7 @@ function renderGroupTabs() {
     tab.addEventListener('touchstart', onStart, { passive: true });
     tab.addEventListener('touchend', onEnd);
     tab.addEventListener('touchmove', () => { clearTimeout(longPressTimer); longPressTriggered = true; });
+    if (multiSelectMode) return; // No drag in manage mode
     // Drag events
     tab.addEventListener('dragstart', (e) => {
       clearTimeout(longPressTimer);
@@ -1034,8 +1092,70 @@ function renderGroupTabs() {
       renderAll();
     });
   });
-  document.getElementById('addGroupBtn').addEventListener('click', () => openGroupModal('新建分组', null));
+  if (!document.getElementById('addGroupBtn')._bound) {
+    document.getElementById('addGroupBtn')._bound = true;
+    document.getElementById('addGroupBtn').addEventListener('click', () => openGroupModal('新建分组', null));
+  }
 }
+
+function toggleManageMode() {
+  multiSelectMode = !multiSelectMode;
+  const btn = document.getElementById('manageToggleBtn');
+  if (multiSelectMode) {
+    btn.textContent = '✕ 取消';
+    btn.classList.add('active');
+    selectedGroupIds.clear();
+    selectedGroup = null;
+  } else {
+    btn.textContent = '✎ 管理';
+    btn.classList.remove('active');
+    selectedGroupIds.clear();
+  }
+  updateBatchDeleteBar();
+  renderGroupTabs();
+  // If exiting manage mode without a selected group, show home
+  if (!multiSelectMode && !selectedGroup && !filterQuery) renderBookmarks();
+}
+
+function updateBatchDeleteBar() {
+  const bar = document.getElementById('batchDeleteBar');
+  const count = document.getElementById('batchCount');
+  count.textContent = selectedGroupIds.size;
+  if (multiSelectMode && selectedGroupIds.size > 0) {
+    bar.classList.add('show');
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+async function batchDeleteGroups() {
+  if (selectedGroupIds.size === 0) return;
+  const names = groups.filter(g => selectedGroupIds.has(g.id)).map(g => g.name).join('、');
+  if (!confirm(`确定删除以下 ${selectedGroupIds.size} 个分组吗？\n\n${names}\n\n书签不会被删除，只会移出分组。`)) return;
+  try {
+    const ids = Array.from(selectedGroupIds);
+    if (useApi) {
+      await apiCall(`${API_GROUPS}/batch-delete`, { method: 'POST', body: JSON.stringify({ ids }) });
+    }
+    groups = groups.filter(g => !selectedGroupIds.has(g.id));
+    bookmarks.forEach(bm => { if (selectedGroupIds.has(bm.groupId)) bm.groupId = ''; });
+    if (selectedGroupIds.has(selectedGroup)) selectedGroup = null;
+    selectedGroupIds.clear();
+    localSaveAll();
+    updateBatchDeleteBar();
+    renderGroupTabs();
+    if (!selectedGroup && !filterQuery) renderBookmarks();
+    showToast(`已删除 ${ids.length} 个分组`);
+  } catch (e) {
+    showToast('批量删除失败: ' + e.message);
+  }
+}
+
+// Bind manage & batch-delete buttons (once)
+(function bindSidebarButtons() {
+  document.getElementById('manageToggleBtn').addEventListener('click', toggleManageMode);
+  document.getElementById('batchDeleteBtn').addEventListener('click', batchDeleteGroups);
+})();
 
 function renderBookmarks() {
   const grid = document.getElementById('bookmarkGrid');
@@ -1537,7 +1657,10 @@ document.addEventListener('keydown', e => {
   updateClock(); setInterval(updateClock, 10000);
   // Sidebar home button: reset to home view
   document.getElementById('sidebarHomeBtn').addEventListener('click', () => {
-    selectedGroup = null; filterQuery = '';
+    selectedGroup = null; filterQuery = ''; multiSelectMode = false; selectedGroupIds.clear();
+    document.getElementById('manageToggleBtn').textContent = '✎ 管理';
+    document.getElementById('manageToggleBtn').classList.remove('active');
+    updateBatchDeleteBar();
     document.getElementById('searchInput').value = '';
     renderAll();
     fetchHotBoards();
