@@ -260,6 +260,75 @@
   .icon-btn:hover { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.4); color: #fff; transform: translateY(-1px); }
   .icon-btn.danger:hover { color: #ff6b6b; border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.12); }
 
+  /* ====== Hot Trends & AI Tools ====== */
+  .hot-trends-section { margin-bottom: 20px; }
+  .hot-trends-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .hot-trends-header h2 { font-size: 16px; color: #fff; font-weight: 700; }
+  .hot-trends-header span { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .hot-trends-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .hot-trend-card {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 16px 14px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+  }
+  .hot-trend-card:hover { background: rgba(255,255,255,0.22); transform: translateY(-2px); }
+  .hot-trend-card .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 14px; font-weight: 700; color: #fff; }
+  .hot-trend-card .card-header .icon { font-size: 18px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+  .hot-trend-card .card-header .tag { font-size: 10px; color: rgba(255,255,255,0.45); margin-left: auto; font-weight: 500; }
+  .hot-trend-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12px; color: rgba(255,255,255,0.8); cursor: pointer; transition: all 0.15s; border-radius: 6px; }
+  .hot-trend-item:hover { color: #fff; background: rgba(255,255,255,0.08); padding-left: 4px; padding-right: 4px; margin: 0 -4px; }
+  .hot-trend-item .rank { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .hot-trend-item .rank.top1 { background: #ff4757; color: #fff; }
+  .hot-trend-item .rank.top2 { background: #ff6b81; color: #fff; }
+  .hot-trend-item .rank.top3 { background: #ffa502; color: #fff; }
+  .hot-trend-item .rank.normal { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); }
+  .hot-trend-item .title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hot-trend-item .heat { font-size: 10px; color: rgba(255,255,255,0.35); flex-shrink: 0; font-weight: 400; }
+  .hot-trend-loading { text-align: center; padding: 20px; color: rgba(255,255,255,0.4); font-size: 13px; }
+  .hot-trend-error { text-align: center; padding: 12px; color: rgba(255,255,255,0.4); font-size: 12px; }
+  .hot-trend-error a { color: rgba(255,255,255,0.6); text-decoration: underline; }
+
+  /* AI Tools Section */
+  .ai-tools-section { margin-bottom: 24px; }
+  .ai-tools-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .ai-tools-header h2 { font-size: 16px; color: #fff; font-weight: 700; }
+  .ai-tools-header span { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .ai-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 14px;
+  }
+  .ai-tool-card {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 14px 12px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; transition: all 0.3s ease;
+    text-decoration: none; color: inherit;
+  }
+  .ai-tool-card:hover { background: rgba(255,255,255,0.22); transform: translateY(-3px); border-color: rgba(255,255,255,0.4); }
+  .ai-tool-card .icon-wrap { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .ai-tool-card .info { flex: 1; min-width: 0; }
+  .ai-tool-card .info .name { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ai-tool-card .info .desc { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 768px) {
+    .hot-trends-grid { grid-template-columns: repeat(2, 1fr); }
+    .ai-tools-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  }
+  @media (max-width: 480px) {
+    .hot-trends-grid { grid-template-columns: 1fr; }
+    .ai-tools-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
   /* ====== Bookmark Grid ====== */
   .bookmark-grid {
     display: grid;
@@ -575,6 +644,24 @@
   </div>
 
   <div class="group-tabs" id="groupTabs"></div>
+
+  <!-- Hot Trends Section -->
+  <div class="hot-trends-section" id="hotTrendsSection" style="display:none;">
+    <div class="hot-trends-header">
+      <h2>🔥 热搜排行榜</h2>
+      <span id="hotTrendsUpdateTime">更新中...</span>
+    </div>
+    <div class="hot-trends-grid" id="hotTrendsGrid"></div>
+  </div>
+
+  <!-- AI Tools Section -->
+  <div class="ai-tools-section" id="aiToolsSection" style="display:none;">
+    <div class="ai-tools-header">
+      <h2>🤖 AI 工具推荐</h2>
+    </div>
+    <div class="ai-tools-grid" id="aiToolsGrid"></div>
+  </div>
+
   <div class="bookmark-grid" id="bookmarkGrid"></div>
   <div class="empty-state" id="emptyState" style="display:none;">
     <div class="icon">&#128209;</div>
@@ -726,7 +813,7 @@ async function doLogin() {
   document.getElementById('loginError').textContent = '';
   try {
     const result = await apiAuthFetch(`${API_AUTH}/login`, { method: 'POST', body: JSON.stringify({ password }) });
-    if (result.success) { authToken = result.token; localStorage.setItem(LS_TOKEN, authToken); hideLogin(); await loadBookmarks(); checkAutoAdd(); showToast('已解锁'); }
+    if (result.success) { authToken = result.token; localStorage.setItem(LS_TOKEN, authToken); hideLogin(); await loadBookmarks(); checkAutoAdd(); fetchHotBoards(); showToast('已解锁'); }
     else { document.getElementById('loginError').textContent = result.error || '密码错误'; }
   } catch (e) { document.getElementById('loginError').textContent = '网络错误，请重试'; }
   finally { btn.disabled = false; btn.textContent = '解锁'; }
@@ -802,7 +889,7 @@ async function saveDeleteBookmark(id) { if (useApi) await apiCall(`${API}/${id}`
 
 
 // === Render ===
-function renderAll() { renderGroupTabs(); renderBookmarks(); }
+function renderAll() { renderGroupTabs(); renderAITools(); renderBookmarks(); }
 function getIconHtml(bm) {
   if (bm.icon && bm.icon.startsWith('http')) return `<img src="${bm.icon}" alt="" draggable="false" onerror="this.style.display='none';this.parentElement.textContent='${bm.title.charAt(0).toUpperCase()}';" crossorigin="anonymous">`;
   return bm.title.charAt(0).toUpperCase();
@@ -896,6 +983,21 @@ function renderBookmarks() {
   const grid = document.getElementById('bookmarkGrid');
   const empty = document.getElementById('emptyState');
   const countEl = document.getElementById('bookmarkCount');
+  const hotSection = document.getElementById('hotTrendsSection');
+  const aiSection = document.getElementById('aiToolsSection');
+
+  // Toggle hot trends & AI tools visibility based on selection state
+  if (!selectedGroup && !filterQuery) {
+    hotSection.style.display = 'block';
+    aiSection.style.display = 'block';
+    grid.innerHTML = ''; empty.style.display = 'none';
+    countEl.textContent = '热搜 · AI工具';
+    return;
+  } else {
+    hotSection.style.display = 'none';
+    aiSection.style.display = 'none';
+  }
+
   // Default: no group selected = show nothing unless searching
   let filtered;
   if (filterQuery) {
@@ -933,6 +1035,108 @@ function renderBookmarks() {
     </div>`;
   }).join('');
   bindDragEvents();
+}
+
+// === Hot Trends & AI Tools ===
+let hotBoardsData = { weibo: null, douyin: null, xiaohongshu: null, bilibili: null };
+const HOT_API_BASE = 'https://uapis.cn/api/v1/misc/hotboard';
+const HOT_SOURCES = [
+  { key: 'weibo', name: '微博', icon: '🔥', tag: '热搜榜', color: '#e6162d' },
+  { key: 'douyin', name: '抖音', icon: '🎵', tag: '今日热门', color: '#1a1a2e' },
+  { key: 'xiaohongshu', name: '小红书', icon: '📕', tag: '社区精选', color: '#ff2442' },
+  { key: 'bilibili', name: '哔哩哔哩', icon: '📺', tag: '综合热门', color: '#00a1d6' }
+];
+
+async function fetchHotBoards() {
+  const grid = document.getElementById('hotTrendsGrid');
+  const timeEl = document.getElementById('hotTrendsUpdateTime');
+  if (!grid) return;
+  grid.innerHTML = '<div class="hot-trend-loading" style="grid-column: 1 / -1;">正在获取热榜数据...</div>';
+  timeEl.textContent = '更新中...';
+
+  const results = await Promise.allSettled(HOT_SOURCES.map(async s => {
+    try {
+      const res = await fetch(`${HOT_API_BASE}?type=${s.key}`);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      return { key: s.key, data: data };
+    } catch (e) { return { key: s.key, error: e.message }; }
+  }));
+
+  results.forEach(r => {
+    if (r.status === 'fulfilled') {
+      if (r.value.data) hotBoardsData[r.value.key] = r.value.data;
+    }
+  });
+  renderHotBoards();
+
+  const anyOk = results.some(r => r.status === 'fulfilled' && !r.value.error);
+  if (anyOk) {
+    const now = new Date();
+    timeEl.textContent = `更新于 ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  } else {
+    timeEl.textContent = '获取失败';
+  }
+}
+
+function renderHotBoards() {
+  const grid = document.getElementById('hotTrendsGrid');
+  if (!grid) return;
+  let html = '';
+  HOT_SOURCES.forEach(s => {
+    const data = hotBoardsData[s.key];
+    if (!data || !data.list || !data.list.length) {
+      html += `<div class="hot-trend-card"><div class="card-header"><span class="icon" style="background:${s.color}22;color:${s.color};">${s.icon}</span>${s.name}<span class="tag">${s.tag}</span></div><div class="hot-trend-error">暂无数据</div></div>`;
+      return;
+    }
+    const items = data.list.slice(0, 6);
+    let itemsHtml = items.map((item, i) => {
+      const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : 'normal';
+      const heatVal = item.hot_value ? formatHotValue(item.hot_value) : '';
+      return `<div class="hot-trend-item" onclick="window.open('${escapeHtml(item.url)}','_blank')">
+        <span class="rank ${rankClass}">${item.index}</span>
+        <span class="title" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</span>
+        ${heatVal ? `<span class="heat">${heatVal}</span>` : ''}
+      </div>`;
+    }).join('');
+    html += `<div class="hot-trend-card">
+      <div class="card-header"><span class="icon" style="background:${s.color}22;color:${s.color};">${s.icon}</span>${s.name}<span class="tag">${s.tag}</span></div>
+      ${itemsHtml}
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+function formatHotValue(val) {
+  const num = parseInt(val, 10);
+  if (isNaN(num)) return '';
+  if (num >= 10000) return (num / 10000).toFixed(1) + '万';
+  return num.toString();
+}
+
+const AI_TOOLS = [
+  { name: '豆包', desc: '字节旗下AI工具', url: 'https://www.doubao.com', icon: '💬', color: '#4a7aff' },
+  { name: '文心一言', desc: '百度AI对话助手', url: 'https://yiyan.baidu.com', icon: '🔵', color: '#4285f4' },
+  { name: '通义千问', desc: '阿里大语言模型', url: 'https://tongyi.aliyun.com', icon: '🔷', color: '#1677ff' },
+  { name: '智谱清言', desc: 'ChatGLM智能助手', url: 'https://chatglm.cn', icon: '⚡', color: '#6c5ce7' },
+  { name: 'Kimi', desc: '月之暗面AI助手', url: 'https://kimi.moonshot.cn', icon: '🌙', color: '#7c6ff7' },
+  { name: '讯飞星火', desc: '科大讯飞AI大模型', url: 'https://xinghuo.xfyun.cn', icon: '🔥', color: '#ff6b6b' },
+  { name: '秘塔AI', desc: 'AI搜索引擎', url: 'https://metaso.cn', icon: '🔍', color: '#00b894' },
+  { name: '可灵AI', desc: 'AI图片和视频生成', url: 'https://klingai.com', icon: '🎨', color: '#e17055' }
+];
+
+function renderAITools() {
+  const grid = document.getElementById('aiToolsGrid');
+  if (!grid) return;
+  grid.innerHTML = AI_TOOLS.map(t => `
+    <a class="ai-tool-card" href="${escapeHtml(t.url)}" target="_blank">
+      <div class="icon-wrap" style="background:${t.color}22;color:${t.color};">${t.icon}</div>
+      <div class="info">
+        <div class="name">${escapeHtml(t.name)}</div>
+        <div class="desc">${escapeHtml(t.desc)}</div>
+      </div>
+    </a>
+  `).join('');
 }
 
 // === Drag & Drop Reorder ===
@@ -1267,12 +1471,13 @@ document.addEventListener('keydown', e => {
   loadWallpaper();
   await checkApiAvailable();
   if (needAuth) {
-    if (authToken) { try { await loadBookmarks(); hideLogin(); checkAutoAdd(); return; } catch (e) { showLogin(); return; } }
+    if (authToken) { try { await loadBookmarks(); hideLogin(); checkAutoAdd(); fetchHotBoards(); return; } catch (e) { showLogin(); return; } }
     showLogin(); return;
   }
   document.getElementById('logoutBtn').style.display = 'none';
   await loadBookmarks();
   checkAutoAdd();
+  fetchHotBoards();
 })();
 
 function checkAutoAdd() {
