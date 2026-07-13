@@ -6,275 +6,347 @@
 <title>我的书签 - 个人起始页</title>
 <style>
   :root {
-    --bg: #f0f2f5;
-    --card-bg: #ffffff;
-    --text: #1a1a2e;
-    --text-secondary: #6b7280;
-    --border: #e5e7eb;
-    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-    --shadow-hover: 0 4px 16px rgba(0,0,0,0.1), 0 8px 28px rgba(0,0,0,0.06);
+    --bg: #0a0f1e;
+    --bg-overlay: rgba(255,255,255,0.06);
+    --bg-card: rgba(255,255,255,0.08);
+    --bg-card-hover: rgba(255,255,255,0.12);
+    --text: #ffffff;
+    --text-secondary: rgba(255,255,255,0.55);
+    --text-muted: rgba(255,255,255,0.35);
+    --border: rgba(255,255,255,0.1);
+    --border-hover: rgba(255,255,255,0.2);
+    --shadow: 0 8px 32px rgba(0,0,0,0.3);
+    --shadow-hover: 0 12px 48px rgba(0,0,0,0.4);
     --primary: #6366f1;
     --primary-light: #818cf8;
-    --danger: #ef4444;
-    --radius: 16px;
-    --radius-sm: 10px;
-    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --danger: #f43f5e;
+    --radius: 20px;
+    --radius-sm: 14px;
+    --radius-lg: 28px;
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  [data-theme="dark"] {
-    --bg: #0f0f1a;
-    --card-bg: #1a1a2e;
-    --text: #e5e7eb;
-    --text-secondary: #9ca3af;
-    --border: #2d2d44;
-    --shadow: 0 1px 3px rgba(0,0,0,0.3);
-    --shadow-hover: 0 4px 20px rgba(0,0,0,0.4);
-  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: var(--bg);
-    color: var(--text);
+    background: #0a0f1e;
+    color: #fff;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-image: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
-                      radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.06) 0%, transparent 50%),
-                      radial-gradient(ellipse at 50% 50%, rgba(14,165,233,0.04) 0%, transparent 60%);
-    transition: background var(--transition);
+    overflow-x: hidden;
   }
-  .container { width: 100%; max-width: 1100px; padding: 32px 24px; }
-  .header { text-align: center; margin-bottom: 36px; }
-  .clock { font-size: 64px; font-weight: 300; letter-spacing: 2px; color: var(--text); line-height: 1; font-variant-numeric: tabular-nums; }
-  .date-text { font-size: 16px; color: var(--text-secondary); margin-top: 8px; }
-  .greeting { font-size: 22px; font-weight: 500; margin-top: 6px; color: var(--text); }
-  .search-section { margin-bottom: 28px; display: flex; justify-content: center; }
-  .search-wrapper { position: relative; width: 100%; max-width: 560px; }
+
+  /* Animated starfield background */
+  .bg-stars {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 0%, rgba(14,165,233,0.08) 0%, transparent 40%),
+      #0a0f1e;
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+
+  .container { width: 100%; max-width: 1200px; padding: 40px 24px 60px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 32px; }
+  .clock { font-size: 72px; font-weight: 300; letter-spacing: 2px; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 0 0 40px rgba(99,102,241,0.3); }
+  .date-text { font-size: 15px; color: var(--text-secondary); margin-top: 10px; }
+  .greeting { font-size: 20px; font-weight: 400; margin-top: 6px; color: var(--text-secondary); }
+
+  /* Search */
+  .search-section { margin-bottom: 32px; display: flex; justify-content: center; }
+  .search-wrapper { position: relative; width: 100%; max-width: 640px; }
   .search-box {
-    width: 100%; height: 52px; padding: 0 52px 0 20px;
-    border: 2px solid var(--border); border-radius: 26px;
-    font-size: 16px; background: var(--card-bg); color: var(--text);
-    outline: none; transition: all var(--transition); box-shadow: var(--shadow);
+    width: 100%; height: 56px; padding: 0 56px 0 24px;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 28px;
+    font-size: 16px; background: rgba(255,255,255,0.06); color: #fff;
+    outline: none; transition: all var(--transition);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
   }
-  .search-box:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+  .search-box::placeholder { color: rgba(255,255,255,0.35); }
+  .search-box:focus {
+    border-color: rgba(99,102,241,0.5);
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.15), 0 4px 24px rgba(0,0,0,0.2);
+  }
   .search-btn {
     position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-    background: var(--primary); color: #fff; border: none;
-    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); color: #fff; border: none;
+    width: 42px; height: 42px; border-radius: 50%;
     cursor: pointer; font-size: 18px;
     display: flex; align-items: center; justify-content: center;
-    transition: background var(--transition);
+    transition: all var(--transition); backdrop-filter: blur(10px);
   }
-  .search-btn:hover { background: var(--primary-light); }
-  .engine-switch { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
-  .engine-btn {
-    padding: 4px 14px; border-radius: 20px; border: 1px solid var(--border);
-    background: var(--card-bg); color: var(--text-secondary);
-    font-size: 13px; cursor: pointer; transition: all var(--transition);
-  }
-  .engine-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .search-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-50%) scale(1.05); }
 
-  /* === Group Tabs === */
-  .group-tabs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+  /* Engine Switch */
+  .engine-switch { display: flex; gap: 10px; justify-content: center; margin-bottom: 32px; }
+  .engine-btn {
+    padding: 6px 18px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer;
+    transition: all var(--transition); backdrop-filter: blur(10px);
+  }
+  .engine-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+  .engine-btn.active { background: rgba(99,102,241,0.25); color: #fff; border-color: rgba(99,102,241,0.4); box-shadow: 0 0 20px rgba(99,102,241,0.15); }
+
+  /* Group Tabs */
+  .group-tabs { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
   .group-tab {
-    padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border);
-    background: var(--card-bg); color: var(--text-secondary);
-    font-size: 13px; cursor: pointer; transition: all var(--transition);
+    padding: 8px 18px; border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer;
+    transition: all var(--transition); backdrop-filter: blur(10px);
     white-space: nowrap; display: flex; align-items: center; gap: 6px;
   }
-  .group-tab:hover { border-color: var(--primary-light); color: var(--text); }
-  .group-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .group-tab:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
+  .group-tab.active { background: rgba(99,102,241,0.25); color: #fff; border-color: rgba(99,102,241,0.4); box-shadow: 0 0 20px rgba(99,102,241,0.1); }
   .group-tab .tab-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .group-tab .tab-count { font-size: 11px; opacity: 0.8; }
+  .group-tab .tab-count { font-size: 11px; opacity: 0.7; }
   .group-tab .tab-actions { display: none; margin-left: 2px; gap: 2px; }
   .group-tab:hover .tab-actions { display: flex; }
   .tab-action {
     width: 18px; height: 18px; border-radius: 50%; border: none;
-    background: rgba(255,255,255,0.3); color: inherit; cursor: pointer;
+    background: rgba(255,255,255,0.15); color: inherit; cursor: pointer;
     font-size: 10px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
   }
-  .tab-action:hover { background: rgba(255,255,255,0.5); }
-  .group-tab.active .tab-action:hover { background: rgba(255,255,255,0.4); }
+  .tab-action:hover { background: rgba(255,255,255,0.3); }
   .add-group-btn {
-    width: 32px; height: 32px; border-radius: 50%; border: 2px dashed var(--border);
-    background: transparent; color: var(--text-secondary); cursor: pointer;
-    font-size: 18px; display: flex; align-items: center; justify-content: center;
-    transition: all var(--transition);
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px dashed rgba(255,255,255,0.15); background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.4); cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition); backdrop-filter: blur(10px);
   }
-  .add-group-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .add-group-btn:hover { border-color: rgba(99,102,241,0.5); color: rgba(99,102,241,0.8); background: rgba(99,102,241,0.1); }
 
-  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  /* Toolbar */
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
   .toolbar-actions { display: flex; gap: 10px; }
   .btn {
-    padding: 8px 18px; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--card-bg); color: var(--text); font-size: 14px;
+    padding: 9px 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); font-size: 14px;
     cursor: pointer; transition: all var(--transition);
     display: flex; align-items: center; gap: 6px;
-    box-shadow: var(--shadow); font-family: inherit;
+    backdrop-filter: blur(10px); font-family: inherit;
   }
-  .btn:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
-  .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-  .btn-primary:hover { background: var(--primary-light); }
-  .theme-toggle {
-    border: 1px solid var(--border); background: var(--card-bg); color: var(--text);
-    cursor: pointer; font-size: 18px; width: 36px; height: 36px;
-    border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    transition: all var(--transition); box-shadow: var(--shadow);
+  .btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.15); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+  .btn-primary { background: rgba(99,102,241,0.25); color: #fff; border-color: rgba(99,102,241,0.3); }
+  .btn-primary:hover { background: rgba(99,102,241,0.4); border-color: rgba(99,102,241,0.5); }
+  .theme-toggle, .logout-btn {
+    border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.7); cursor: pointer; font-size: 18px;
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition); backdrop-filter: blur(10px);
   }
-  .theme-toggle:hover { box-shadow: var(--shadow-hover); }
-  .logout-btn {
-    border: 1px solid var(--border); background: var(--card-bg); color: var(--text-secondary);
-    cursor: pointer; font-size: 16px; width: 36px; height: 36px;
-    border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    transition: all var(--transition); box-shadow: var(--shadow);
-  }
-  .logout-btn:hover { color: var(--danger); border-color: var(--danger); }
+  .theme-toggle:hover, .logout-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.15); transform: translateY(-1px); }
+  .logout-btn:hover { color: #f43f5e; border-color: rgba(244,63,94,0.3); }
+
+  /* Bookmark Grid - More spacious, like WeTab */
   .bookmark-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 18px;
   }
   .bookmark-card {
-    background: var(--card-bg); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px 16px 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 24px 16px 18px;
     cursor: pointer; transition: all var(--transition);
-    text-align: center; position: relative; box-shadow: var(--shadow);
+    text-align: center; position: relative;
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     text-decoration: none; color: inherit;
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
   }
-  .bookmark-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--primary-light); }
+  .bookmark-card:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.18);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+  }
   .card-icon {
-    width: 48px; height: 48px; border-radius: 12px;
+    width: 56px; height: 56px; border-radius: 16px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px; flex-shrink: 0;
+    font-size: 28px; flex-shrink: 0;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff; overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
   }
-  .card-icon img { width: 32px; height: 32px; }
-  .card-title { font-size: 13px; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-  .card-url { font-size: 11px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .bookmark-card:hover .card-icon { transform: scale(1.1) rotate(-3deg); }
+  .card-icon img { width: 36px; height: 36px; }
+  .card-title { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .card-url { font-size: 11px; color: rgba(255,255,255,0.4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
   .card-group-tag {
-    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    font-size: 10px; padding: 3px 10px; border-radius: 10px;
     color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+    backdrop-filter: blur(10px);
   }
   .card-actions {
-    position: absolute; top: 6px; right: 6px;
-    display: flex; gap: 2px; opacity: 0; transition: opacity var(--transition);
+    position: absolute; top: 8px; right: 8px;
+    display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s;
   }
   .bookmark-card:hover .card-actions { opacity: 1; }
   .card-action {
-    width: 26px; height: 26px; border-radius: 6px;
-    background: var(--card-bg); border: 1px solid var(--border);
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
     cursor: pointer; font-size: 12px;
     display: flex; align-items: center; justify-content: center;
-    color: var(--text-secondary); transition: all var(--transition);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: rgba(255,255,255,0.7); transition: all 0.2s;
+    backdrop-filter: blur(10px);
   }
-  .card-action:hover { color: var(--danger); border-color: var(--danger); }
-  .card-action.edit:hover { color: var(--primary); border-color: var(--primary); }
+  .card-action:hover { color: #f43f5e; border-color: rgba(244,63,94,0.4); background: rgba(244,63,94,0.15); }
+  .card-action.edit:hover { color: #818cf8; border-color: rgba(129,140,248,0.4); background: rgba(129,140,248,0.15); }
 
-  /* === Login Screen === */
+  /* Login Screen */
   .login-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: var(--bg);
+    background: #0a0f1e; z-index: 500;
     display: flex; align-items: center; justify-content: center;
-    z-index: 500;
-    background-image: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
-                      radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.06) 0%, transparent 50%);
+  }
+  .login-overlay::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.1) 0%, transparent 50%);
   }
   .login-card {
-    background: var(--card-bg); border-radius: var(--radius);
-    padding: 40px 36px; width: 90%; max-width: 380px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15); text-align: center;
+    background: rgba(255,255,255,0.06); border-radius: var(--radius);
+    padding: 48px 40px; width: 90%; max-width: 400px;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    text-align: center; position: relative; z-index: 1;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
   }
   .login-icon {
-    font-size: 48px; margin-bottom: 16px;
-    width: 80px; height: 80px; border-radius: 20px;
+    font-size: 48px; width: 88px; height: 88px; border-radius: 24px;
     background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px; color: #fff;
+    margin: 0 auto 24px; color: #fff;
+    box-shadow: 0 8px 32px rgba(99,102,241,0.3);
   }
-  .login-card h2 { font-size: 22px; margin-bottom: 6px; color: var(--text); }
-  .login-card .subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
-  .login-card .error-msg { color: var(--danger); font-size: 13px; margin-bottom: 12px; min-height: 20px; }
+  .login-card h2 { font-size: 24px; margin-bottom: 8px; color: #fff; font-weight: 500; }
+  .login-card .subtitle { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 28px; }
+  .login-card .error-msg { color: #f43f5e; font-size: 13px; margin-bottom: 12px; min-height: 20px; }
   .login-card input {
-    width: 100%; height: 48px; padding: 0 16px;
-    border: 2px solid var(--border); border-radius: 12px;
-    font-size: 15px; background: var(--bg); color: var(--text);
-    outline: none; transition: border var(--transition); font-family: inherit;
+    width: 100%; height: 52px; padding: 0 20px;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+    font-size: 16px; background: rgba(255,255,255,0.04); color: #fff;
+    outline: none; transition: all var(--transition); font-family: inherit;
     text-align: center; letter-spacing: 4px;
+    backdrop-filter: blur(10px);
   }
-  .login-card input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+  .login-card input::placeholder { color: rgba(255,255,255,0.3); }
+  .login-card input:focus { border-color: rgba(99,102,241,0.5); background: rgba(255,255,255,0.08); box-shadow: 0 0 0 4px rgba(99,102,241,0.1); }
   .login-card .btn-login {
-    width: 100%; height: 48px; border-radius: 12px;
-    background: var(--primary); color: #fff; border: none;
-    font-size: 16px; cursor: pointer; margin-top: 16px;
-    transition: background var(--transition); font-family: inherit;
+    width: 100%; height: 52px; border-radius: 14px;
+    background: rgba(99,102,241,0.25); color: #fff; border: 1px solid rgba(99,102,241,0.3);
+    font-size: 16px; cursor: pointer; margin-top: 20px;
+    transition: all var(--transition); font-family: inherit; backdrop-filter: blur(10px);
   }
-  .login-card .btn-login:hover { background: var(--primary-light); }
-  .login-card .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+  .login-card .btn-login:hover { background: rgba(99,102,241,0.4); border-color: rgba(99,102,241,0.5); box-shadow: 0 0 24px rgba(99,102,241,0.2); }
+  .login-card .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* === Modal === */
+  /* Modal */
   .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     display: flex; align-items: center; justify-content: center;
     z-index: 100; animation: fadeIn 0.2s ease;
   }
   .modal {
-    background: var(--card-bg); border-radius: var(--radius);
-    padding: 28px; width: 90%; max-width: 440px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 0.25s ease;
+    background: rgba(20,24,40,0.95); border-radius: var(--radius);
+    padding: 32px; width: 90%; max-width: 460px;
+    border: 1px solid rgba(255,255,255,0.1);
+    animation: slideUp 0.25s ease; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
     max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
   }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .modal h3 { font-size: 20px; margin-bottom: 20px; font-weight: 600; color: var(--text); }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
+  .modal h3 { font-size: 20px; margin-bottom: 24px; font-weight: 600; color: #fff; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 8px; color: rgba(255,255,255,0.5); }
   .form-group input, .form-group select {
-    width: 100%; height: 44px; padding: 0 14px;
-    border: 1px solid var(--border); border-radius: 10px;
-    font-size: 14px; background: var(--bg); color: var(--text);
-    outline: none; transition: border var(--transition); font-family: inherit;
+    width: 100%; height: 48px; padding: 0 16px;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+    font-size: 14px; background: rgba(255,255,255,0.04); color: #fff;
+    outline: none; transition: all var(--transition); font-family: inherit;
+    backdrop-filter: blur(10px);
   }
+  .form-group input::placeholder, .form-group select option { color: rgba(255,255,255,0.3); }
+  .form-group select option { background: #1a1f35; color: #fff; }
+  .form-group input:focus, .form-group select:focus { border-color: rgba(99,102,241,0.5); background: rgba(255,255,255,0.08); }
   .url-row { display: flex; gap: 8px; }
   .url-row input { flex: 1; }
   .fetch-btn {
-    height: 44px; padding: 0 14px; border-radius: 10px;
-    border: 1px solid var(--border); background: var(--card-bg);
-    color: var(--primary); font-size: 13px; cursor: pointer;
-    white-space: nowrap; transition: all var(--transition);
+    height: 48px; padding: 0 16px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.7); font-size: 13px; cursor: pointer;
+    white-space: nowrap; transition: all var(--transition); backdrop-filter: blur(10px);
     font-family: inherit; flex-shrink: 0;
   }
-  .fetch-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .fetch-btn:hover { background: rgba(99,102,241,0.2); color: #fff; border-color: rgba(99,102,241,0.3); }
   .fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .fetch-btn.fetching { animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-  .form-group select { cursor: pointer; }
-  .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
-  .color-picker-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; }
+  .color-picker-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .color-dot {
-    width: 28px; height: 28px; border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     cursor: pointer; border: 2px solid transparent; transition: all var(--transition);
   }
   .color-dot:hover { transform: scale(1.15); }
-  .color-dot.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
-  .empty-state .icon { font-size: 56px; margin-bottom: 16px; opacity: 0.5; }
-  .empty-state h2 { font-size: 20px; margin-bottom: 8px; font-weight: 500; }
-  .empty-state p { font-size: 14px; margin-bottom: 20px; }
-  .footer { text-align: center; margin-top: 40px; color: var(--text-secondary); font-size: 12px; opacity: 0.6; }
+  .color-dot.selected { border-color: #fff; box-shadow: 0 0 0 3px rgba(99,102,241,0.3); }
+
+  .empty-state { text-align: center; padding: 80px 20px; color: rgba(255,255,255,0.4); }
+  .empty-state .icon { font-size: 64px; margin-bottom: 20px; opacity: 0.4; }
+  .empty-state h2 { font-size: 22px; margin-bottom: 10px; font-weight: 500; color: rgba(255,255,255,0.7); }
+  .empty-state p { font-size: 14px; margin-bottom: 24px; }
+  .footer { text-align: center; margin-top: 48px; color: rgba(255,255,255,0.25); font-size: 12px; }
   .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: #1f2937; color: #fff; padding: 10px 24px;
-    border-radius: 10px; font-size: 14px; z-index: 200;
-    animation: toastIn 0.3s ease;
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    background: rgba(20,24,40,0.95); color: #fff; padding: 12px 28px;
+    border-radius: 14px; font-size: 14px; z-index: 200;
+    animation: toastIn 0.3s ease; border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
   }
   @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
   .hidden { display: none !important; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .clock { font-size: 52px; }
+    .bookmark-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+    .bookmark-card { padding: 18px 12px 14px; }
+    .card-icon { width: 48px; height: 48px; font-size: 24px; }
+    .card-icon img { width: 28px; height: 28px; }
+  }
 </style>
 </head>
 <body>
+
+<div class="bg-stars" id="bgStars"></div>
 
 <!-- Login Screen -->
 <div class="login-overlay hidden" id="loginOverlay">
@@ -318,9 +390,9 @@
       <input type="file" id="importFile" accept=".json" style="display:none;">
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <span style="font-size:13px;color:var(--text-secondary);" id="bookmarkCount">加载中...</span>
+      <span style="font-size:13px;color:rgba(255,255,255,0.4);" id="bookmarkCount">加载中...</span>
       <button class="logout-btn" id="logoutBtn" title="锁定">&#128274;</button>
-      <button class="theme-toggle" id="themeToggle" title="切换主题">&#9728;&#65039;</button>
+      <button class="theme-toggle" id="themeToggle" title="切换主题">&#127769;</button>
     </div>
   </div>
 
@@ -444,6 +516,24 @@ let needAuth = false;
 
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
+// === Starfield ===
+(function initStars() {
+  const container = document.getElementById('bgStars');
+  if (!container) return;
+  for (let i = 0; i < 60; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.animationDelay = Math.random() * 3 + 's';
+    star.style.opacity = Math.random() * 0.5 + 0.2;
+    const size = Math.random() > 0.8 ? 3 : 2;
+    star.style.width = size + 'px';
+    star.style.height = size + 'px';
+    container.appendChild(star);
+  }
+})();
+
 // === Auth ===
 function getAuthHeaders() {
   const headers = { 'Content-Type': 'application/json' };
@@ -461,14 +551,11 @@ async function apiCall(url, options = {}) {
       ...options,
     });
     clearTimeout(timeout);
-
     if (res.status === 401) {
-      // Token expired or invalid
       clearAuth();
       showLogin();
       throw new Error('登录已过期，请重新登录');
     }
-
     const data = await res.json();
     if (!data.success && !res.ok) throw new Error(data.error || '请求失败');
     return data;
@@ -479,7 +566,6 @@ async function apiCall(url, options = {}) {
   }
 }
 
-// Auth API (no auth header needed)
 async function apiAuthFetch(url, options = {}) {
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
@@ -503,7 +589,6 @@ function showLogin() {
   document.getElementById('mainContent').classList.add('hidden');
   setTimeout(() => document.getElementById('loginPassword').focus(), 150);
 }
-
 function hideLogin() {
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('mainContent').classList.remove('hidden');
@@ -512,16 +597,12 @@ function hideLogin() {
 async function doLogin() {
   const password = document.getElementById('loginPassword').value.trim();
   if (!password) { document.getElementById('loginError').textContent = '请输入密码'; return; }
-
   const btn = document.getElementById('loginBtn');
-  btn.disabled = true;
-  btn.textContent = '验证中...';
+  btn.disabled = true; btn.textContent = '验证中...';
   document.getElementById('loginError').textContent = '';
-
   try {
     const result = await apiAuthFetch(`${API_AUTH}/login`, {
-      method: 'POST',
-      body: JSON.stringify({ password }),
+      method: 'POST', body: JSON.stringify({ password }),
     });
     if (result.success) {
       authToken = result.token;
@@ -534,80 +615,39 @@ async function doLogin() {
     }
   } catch (e) {
     document.getElementById('loginError').textContent = '网络错误，请重试';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '解锁';
-  }
+  } finally { btn.disabled = false; btn.textContent = '解锁'; }
 }
 
-function clearAuth() {
-  authToken = null;
-  localStorage.removeItem(LS_TOKEN);
-}
+function clearAuth() { authToken = null; localStorage.removeItem(LS_TOKEN); }
 
 async function doLogout() {
-  try {
-    await apiAuthFetch(`${API_AUTH}/logout`, { method: 'POST', headers: getAuthHeaders() });
-  } catch (e) { /* ignore */ }
-  clearAuth();
-  showLogin();
-  showToast('已锁定');
+  try { await apiAuthFetch(`${API_AUTH}/logout`, { method: 'POST', headers: getAuthHeaders() }); } catch (e) {}
+  clearAuth(); showLogin(); showToast('已锁定');
 }
 
-// === Storage: API-first, localStorage fallback ===
+// === Storage ===
 async function checkApiAvailable() {
   try {
-    // First check auth status
     const statusRes = await apiAuthFetch(`${API_AUTH}/status`);
     needAuth = statusRes.needAuth === true;
-
     if (needAuth) {
-      // Try stored token
       const stored = localStorage.getItem(LS_TOKEN);
       if (stored) {
         authToken = stored;
-        // Verify token is still valid by making a request
-        try {
-          await apiCall(API);
-          useApi = true;
-          return;
-        } catch (e) {
-          clearAuth();
-        }
+        try { await apiCall(API); useApi = true; return; } catch (e) { clearAuth(); }
       }
-      // Need to login
-      useApi = true;
-      return;
+      useApi = true; return;
     }
-
-    // No auth needed
-    try {
-      const res = await fetch(API, { method: 'GET', signal: AbortSignal.timeout(2000) });
-      const data = await res.json();
-      useApi = data.success === true;
-    } catch { useApi = false; }
-  } catch {
-    useApi = false;
-    needAuth = false;
-  }
+    try { const res = await fetch(API, { method: 'GET', signal: AbortSignal.timeout(2000) }); const data = await res.json(); useApi = data.success === true; } catch { useApi = false; }
+  } catch { useApi = false; needAuth = false; }
 }
 
-// === Data Loading ===
 async function loadBookmarks() {
   if (useApi) {
-    try {
-      const result = await apiCall(API);
-      bookmarks = result.data;
-      groups = result.groups || [];
-    } catch (e) {
-      if (e.message.includes('登录已过期')) throw e;
-      fallbackLocal();
-    }
-  } else {
-    fallbackLocal();
-  }
-  renderBookmarks();
-  renderGroupTabs();
+    try { const result = await apiCall(API); bookmarks = result.data; groups = result.groups || []; }
+    catch (e) { if (e.message.includes('登录已过期')) throw e; fallbackLocal(); }
+  } else { fallbackLocal(); }
+  renderBookmarks(); renderGroupTabs();
 }
 
 function fallbackLocal() {
@@ -628,29 +668,15 @@ function localSaveAll() {
 
 // === Group CRUD ===
 async function saveAddGroup(name, color) {
-  if (useApi) {
-    const result = await apiCall(API_GROUPS, { method: 'POST', body: JSON.stringify({ name, color }) });
-    groups.push(result.data);
-    return result;
-  }
-  const g = { id: generateId(), name, color };
-  groups.push(g);
-  localSaveAll();
-  return { data: g };
+  if (useApi) { const result = await apiCall(API_GROUPS, { method: 'POST', body: JSON.stringify({ name, color }) }); groups.push(result.data); return result; }
+  const g = { id: generateId(), name, color }; groups.push(g); localSaveAll(); return { data: g };
 }
-
 async function saveUpdateGroup(id, name, color) {
-  if (useApi) {
-    await apiCall(`${API_GROUPS}/${id}`, { method: 'PUT', body: JSON.stringify({ name, color }) });
-  }
+  if (useApi) { await apiCall(`${API_GROUPS}/${id}`, { method: 'PUT', body: JSON.stringify({ name, color }) }); }
   const idx = groups.findIndex(g => g.id === id);
-  if (idx !== -1) {
-    if (name !== undefined) groups[idx].name = name;
-    if (color !== undefined) groups[idx].color = color;
-  }
+  if (idx !== -1) { if (name !== undefined) groups[idx].name = name; if (color !== undefined) groups[idx].color = color; }
   localSaveAll();
 }
-
 async function saveDeleteGroup(id) {
   if (useApi) await apiCall(`${API_GROUPS}/${id}`, { method: 'DELETE' });
   groups = groups.filter(g => g.id !== id);
@@ -658,83 +684,43 @@ async function saveDeleteGroup(id) {
   if (selectedGroup === id) selectedGroup = null;
   localSaveAll();
 }
-
 function getGroupById(id) { return groups.find(g => g.id === id); }
 
 // === Bookmark CRUD ===
 async function saveAddBookmark(title, url, color, icon, groupId) {
-  if (useApi) {
-    const result = await apiCall(API, { method: 'POST', body: JSON.stringify({ title, url, color, icon, groupId }) });
-    bookmarks.push(result.data);
-    return result;
-  }
-  const bm = { id: generateId(), title, url, color: color || 'gradient1', icon: icon || '', groupId: groupId || '' };
-  bookmarks.push(bm);
-  localSaveAll();
-  return { data: bm };
+  if (useApi) { const result = await apiCall(API, { method: 'POST', body: JSON.stringify({ title, url, color, icon, groupId }) }); bookmarks.push(result.data); return result; }
+  const bm = { id: generateId(), title, url, color: color || 'gradient1', icon: icon || '', groupId: groupId || '' }; bookmarks.push(bm); localSaveAll(); return { data: bm };
 }
-
 async function saveUpdateBookmark(id, title, url, color, icon, groupId) {
-  if (useApi) {
-    const result = await apiCall(`${API}/${id}`, { method: 'PUT', body: JSON.stringify({ title, url, color, icon, groupId }) });
-    const idx = bookmarks.findIndex(b => b.id === id);
-    if (idx !== -1) bookmarks[idx] = result.data;
-    return result;
-  }
+  if (useApi) { const result = await apiCall(`${API}/${id}`, { method: 'PUT', body: JSON.stringify({ title, url, color, icon, groupId }) }); const idx = bookmarks.findIndex(b => b.id === id); if (idx !== -1) bookmarks[idx] = result.data; return result; }
   const idx = bookmarks.findIndex(b => b.id === id);
-  if (idx !== -1) {
-    bookmarks[idx] = { ...bookmarks[idx], title, url, color, icon, groupId };
-    localSaveAll();
-  }
+  if (idx !== -1) { bookmarks[idx] = { ...bookmarks[idx], title, url, color, icon, groupId }; localSaveAll(); }
   return { data: bookmarks[idx] };
 }
-
 async function saveDeleteBookmark(id) {
   if (useApi) { await apiCall(`${API}/${id}`, { method: 'DELETE' }); }
-  bookmarks = bookmarks.filter(b => b.id !== id);
-  localSaveAll();
+  bookmarks = bookmarks.filter(b => b.id !== id); localSaveAll();
 }
-
 async function resetBookmarks() {
-  if (useApi) {
-    const result = await apiCall(`${API}/reset`, { method: 'POST' });
-    bookmarks = result.data;
-    groups = result.groups || [];
-    return;
-  }
-  bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b}));
-  groups = [...DEFAULT_GROUPS];
-  selectedGroup = null;
-  localSaveAll();
+  if (useApi) { const result = await apiCall(`${API}/reset`, { method: 'POST' }); bookmarks = result.data; groups = result.groups || []; return; }
+  bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b})); groups = [...DEFAULT_GROUPS]; selectedGroup = null; localSaveAll();
 }
 
 // === Theme ===
-function loadTheme() {
-  const theme = localStorage.getItem('wb_theme') || 'light';
-  document.documentElement.setAttribute('data-theme', theme);
-  updateThemeIcon(theme);
-}
-function saveTheme(theme) {
-  localStorage.setItem('wb_theme', theme);
-  document.documentElement.setAttribute('data-theme', theme);
-  updateThemeIcon(theme);
-}
-function updateThemeIcon(theme) {
-  document.getElementById('themeToggle').innerHTML = theme === 'dark' ? '&#127769;' : '&#9728;&#65039;';
-}
+function loadTheme() { updateThemeIcon('dark'); }
+function saveTheme(theme) { updateThemeIcon(theme); }
+function updateThemeIcon(theme) { document.getElementById('themeToggle').innerHTML = theme === 'dark' ? '&#127769;' : '&#127769;'; }
 
 // === Render: Group Tabs ===
 function renderGroupTabs() {
   const container = document.getElementById('groupTabs');
   const allCount = bookmarks.length;
   const allActive = selectedGroup === null;
-
   let html = `<button class="group-tab ${allActive ? 'active' : ''}" data-group="">全部<span class="tab-count">${allCount}</span></button>`;
-
   groups.forEach(g => {
     const count = bookmarks.filter(b => b.groupId === g.id).length;
     const active = selectedGroup === g.id;
-    html += `<button class="group-tab ${active ? 'active' : ''}" data-group="${g.id}" style="${active ? 'background:'+g.color+';border-color:'+g.color+';color:#fff' : ''}">
+    html += `<button class="group-tab ${active ? 'active' : ''}" data-group="${g.id}" style="${active ? 'background:'+g.color+'20;border-color:'+g.color+'50;color:#fff' : ''}">
       <span class="tab-dot" style="background:${g.color}${active ? '' : ';display:none'}"></span>${escapeHtml(g.name)}<span class="tab-count">${count}</span>
       <span class="tab-actions" onclick="event.stopPropagation()">
         <button class="tab-action" onclick="editGroupPrompt('${g.id}')" title="编辑">&#9998;</button>
@@ -742,17 +728,10 @@ function renderGroupTabs() {
       </span>
     </button>`;
   });
-
   html += `<button class="add-group-btn" id="addGroupBtn" title="添加分组">+</button>`;
   container.innerHTML = html;
-
   container.querySelectorAll('.group-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const gid = tab.dataset.group;
-      selectedGroup = gid || null;
-      renderGroupTabs();
-      renderBookmarks();
-    });
+    tab.addEventListener('click', () => { selectedGroup = tab.dataset.group || null; renderGroupTabs(); renderBookmarks(); });
   });
   document.getElementById('addGroupBtn').addEventListener('click', () => openGroupModal('添加分组', null));
 }
@@ -763,52 +742,20 @@ function openGroupModal(titleText, g) {
   document.getElementById('groupModalTitle').textContent = titleText;
   document.getElementById('groupNameInput').value = g ? g.name : '';
   const activeColor = g ? g.color : '#667eea';
-  document.querySelectorAll('#groupColorPicker .color-dot').forEach(dot => {
-    dot.classList.toggle('selected', dot.dataset.color === activeColor);
-  });
+  document.querySelectorAll('#groupColorPicker .color-dot').forEach(dot => { dot.classList.toggle('selected', dot.dataset.color === activeColor); });
   document.getElementById('groupModalOverlay').style.display = 'flex';
   document.getElementById('groupNameInput').focus();
 }
-
-function closeGroupModal() {
-  document.getElementById('groupModalOverlay').style.display = 'none';
-  editingGroupId = null;
-}
-
+function closeGroupModal() { document.getElementById('groupModalOverlay').style.display = 'none'; editingGroupId = null; }
 async function confirmGroup() {
   const name = document.getElementById('groupNameInput').value.trim();
   if (!name) { showToast('请输入分组名称'); return; }
   const color = document.querySelector('#groupColorPicker .color-dot.selected').dataset.color;
-  try {
-    if (editingGroupId) {
-      await saveUpdateGroup(editingGroupId, name, color);
-      showToast('分组已更新');
-    } else {
-      await saveAddGroup(name, color);
-      showToast('分组已添加');
-    }
-    closeGroupModal();
-    renderGroupTabs();
-    renderBookmarks();
-  } catch (e) { showToast('操作失败: ' + e.message); }
+  try { if (editingGroupId) { await saveUpdateGroup(editingGroupId, name, color); showToast('分组已更新'); } else { await saveAddGroup(name, color); showToast('分组已添加'); } closeGroupModal(); renderGroupTabs(); renderBookmarks(); }
+  catch (e) { showToast('操作失败: ' + e.message); }
 }
-
-function editGroupPrompt(id) {
-  const g = getGroupById(id);
-  if (g) openGroupModal('编辑分组', g);
-}
-
-async function deleteGroupPrompt(id) {
-  const g = getGroupById(id);
-  if (!g) return;
-  if (!confirm(`确定删除分组「${g.name}」吗？\n分组下的书签不会被删除，只会移出分组。`)) return;
-  try {
-    await saveDeleteGroup(id);
-    renderGroupTabs();
-    renderBookmarks();
-    showToast('分组已删除');
-  } catch (e) { showToast('删除失败: ' + e.message); }
-}
+function editGroupPrompt(id) { const g = getGroupById(id); if (g) openGroupModal('编辑分组', g); }
+async function deleteGroupPrompt(id) { const g = getGroupById(id); if (!g) return; if (!confirm(`确定删除分组「${g.name}」吗？\n分组下的书签不会被删除，只会移出分组。`)) return; try { await saveDeleteGroup(id); renderGroupTabs(); renderBookmarks(); showToast('分组已删除'); } catch (e) { showToast('删除失败: ' + e.message); } }
 
 // === Render: Bookmarks ===
 function getIconHtml(bm) {
@@ -817,7 +764,6 @@ function getIconHtml(bm) {
   }
   return bm.title.charAt(0).toUpperCase();
 }
-
 function getColorStyle(color) {
   const gradients = {
     gradient1: 'linear-gradient(135deg, #667eea, #764ba2)',
@@ -831,29 +777,24 @@ function getColorStyle(color) {
   };
   return gradients[color] || gradients.gradient8;
 }
-
 function renderBookmarks() {
   const grid = document.getElementById('bookmarkGrid');
   const empty = document.getElementById('emptyState');
   const countEl = document.getElementById('bookmarkCount');
-
   const filtered = selectedGroup ? bookmarks.filter(b => b.groupId === selectedGroup) : bookmarks;
   const storageLabel = useApi ? '' : ' (本地存储)';
   countEl.textContent = `${filtered.length} / ${bookmarks.length} 个书签${storageLabel}`;
-
   if (filtered.length === 0) {
     grid.innerHTML = '';
     empty.style.display = 'block';
     empty.querySelector('h2').textContent = selectedGroup ? '该分组暂无书签' : '还没有书签';
-    empty.querySelector('p').textContent = selectedGroup
-      ? '点击上方「+ 添加书签」并选择此分组'
-      : '点击上方「+ 添加书签」开始收藏你常用的网址吧';
+    empty.querySelector('p').textContent = selectedGroup ? '点击上方「+ 添加书签」并选择此分组' : '点击上方「+ 添加书签」开始收藏你常用的网址吧';
     return;
   }
   empty.style.display = 'none';
   grid.innerHTML = filtered.map(bm => {
     const group = getGroupById(bm.groupId);
-    const groupTag = group ? `<span class="card-group-tag" style="background:${group.color}">${escapeHtml(group.name)}</span>` : '';
+    const groupTag = group ? `<span class="card-group-tag" style="background:${group.color}66">${escapeHtml(group.name)}</span>` : '';
     return `
     <div class="bookmark-card" data-id="${bm.id}" onclick="openBookmark(event, '${bm.id}')">
       <div class="card-icon" style="background:${getColorStyle(bm.color)};">${getIconHtml(bm)}</div>
@@ -866,31 +807,16 @@ function renderBookmarks() {
     </div>`;
   }).join('');
 }
-
 function openBookmark(event, id) {
   if (event.target.closest('.card-action')) return;
   const bm = bookmarks.find(b => b.id === id);
-  if (bm) {
-    let url = bm.url;
-    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-    window.open(url, '_blank');
-  }
+  if (bm) { let url = bm.url; if (!/^https?:\/\//i.test(url)) url = 'https://' + url; window.open(url, '_blank'); }
 }
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
+function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 function showToast(msg) {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2500);
+  const existing = document.querySelector('.toast'); if (existing) existing.remove();
+  const toast = document.createElement('div'); toast.className = 'toast'; toast.textContent = msg;
+  document.body.appendChild(toast); setTimeout(() => toast.remove(), 2500);
 }
 
 // === Bookmark Modal ===
@@ -900,29 +826,14 @@ function openModal(title, bm) {
   document.getElementById('modalTitleInput').value = bm ? bm.title : '';
   document.getElementById('modalUrlInput').value = bm ? bm.url : '';
   document.getElementById('modalIconInput').value = bm ? (bm.icon || '') : '';
-  selectedColor = bm ? (bm.color || 'gradient1') : 'gradient1';
-  updateColorPicker();
-
+  selectedColor = bm ? (bm.color || 'gradient1') : 'gradient1'; updateColorPicker();
   const select = document.getElementById('modalGroupSelect');
-  select.innerHTML = '<option value="">无分组</option>' + groups.map(g =>
-    `<option value="${g.id}" ${bm && bm.groupId === g.id ? 'selected' : ''}>${escapeHtml(g.name)}</option>`
-  ).join('');
-
+  select.innerHTML = '<option value="">无分组</option>' + groups.map(g => `<option value="${g.id}" ${bm && bm.groupId === g.id ? 'selected' : ''}>${escapeHtml(g.name)}</option>`).join('');
   document.getElementById('modalOverlay').style.display = 'flex';
   document.getElementById('modalTitleInput').focus();
 }
-
-function closeModal() {
-  document.getElementById('modalOverlay').style.display = 'none';
-  editingId = null;
-}
-
-function updateColorPicker() {
-  document.querySelectorAll('.color-dot').forEach(dot => {
-    dot.classList.toggle('selected', dot.dataset.color === selectedColor);
-  });
-}
-
+function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; editingId = null; }
+function updateColorPicker() { document.querySelectorAll('.color-dot').forEach(dot => { dot.classList.toggle('selected', dot.dataset.color === selectedColor); }); }
 async function addBookmark() {
   const title = document.getElementById('modalTitleInput').value.trim();
   let url = document.getElementById('modalUrlInput').value.trim();
@@ -930,101 +841,52 @@ async function addBookmark() {
   const groupId = document.getElementById('modalGroupSelect').value;
   if (!title || !url) { showToast('请填写名称和网址'); return; }
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-
   try {
-    if (editingId) {
-      await saveUpdateBookmark(editingId, title, url, selectedColor, icon, groupId);
-      showToast('书签已更新');
-    } else {
-      await saveAddBookmark(title, url, selectedColor, icon, groupId);
-      showToast('书签已添加');
-    }
-    renderBookmarks();
-    renderGroupTabs();
-    closeModal();
+    if (editingId) { await saveUpdateBookmark(editingId, title, url, selectedColor, icon, groupId); showToast('书签已更新'); }
+    else { await saveAddBookmark(title, url, selectedColor, icon, groupId); showToast('书签已添加'); }
+    renderBookmarks(); renderGroupTabs(); closeModal();
   } catch (e) { showToast('操作失败: ' + e.message); }
 }
 
-// === Auto-fetch website meta ===
+// === Auto-fetch ===
 async function fetchWebsiteMeta() {
-  const urlInput = document.getElementById('modalUrlInput');
-  const url = urlInput.value.trim();
-  if (!url) return;
-
+  const url = document.getElementById('modalUrlInput').value.trim(); if (!url) return;
   const btn = document.getElementById('fetchMetaBtn');
-  btn.textContent = '获取中...';
-  btn.disabled = true;
-  btn.classList.add('fetching');
-
+  btn.textContent = '获取中...'; btn.disabled = true; btn.classList.add('fetching');
   try {
     const encoded = encodeURIComponent(url);
     const apiPath = useApi ? `/api/fetch-meta?url=${encoded}` : null;
-
     if (apiPath) {
       const result = await apiCall(apiPath);
       if (result.success) {
-        if (result.title) {
-          const titleInput = document.getElementById('modalTitleInput');
-          if (!titleInput.value.trim()) titleInput.value = result.title;
-        }
-        if (result.icon) {
-          const iconInput = document.getElementById('modalIconInput');
-          if (!iconInput.value.trim()) iconInput.value = result.icon;
-        }
+        if (result.title) { const titleInput = document.getElementById('modalTitleInput'); if (!titleInput.value.trim()) titleInput.value = result.title; }
+        if (result.icon) { const iconInput = document.getElementById('modalIconInput'); if (!iconInput.value.trim()) iconInput.value = result.icon; }
         showToast(result.title ? `已获取: ${result.title}` : '未找到标题，仅获取图标');
       }
     }
-  } catch (e) {
-    showToast('获取失败: ' + e.message);
-  } finally {
-    btn.textContent = '获取信息';
-    btn.disabled = false;
-    btn.classList.remove('fetching');
-  }
+  } catch (e) { showToast('获取失败: ' + e.message); }
+  finally { btn.textContent = '获取信息'; btn.disabled = false; btn.classList.remove('fetching'); }
 }
-
-function editBookmark(id) {
-  const bm = bookmarks.find(b => b.id === id);
-  if (bm) openModal('编辑书签', bm);
-}
-
-async function deleteBookmark(id) {
-  if (!confirm('确定要删除这个书签吗？')) return;
-  try {
-    await saveDeleteBookmark(id);
-    renderBookmarks();
-    renderGroupTabs();
-    showToast('书签已删除');
-  } catch (e) { showToast('删除失败: ' + e.message); }
-}
+function editBookmark(id) { const bm = bookmarks.find(b => b.id === id); if (bm) openModal('编辑书签', bm); }
+async function deleteBookmark(id) { if (!confirm('确定要删除这个书签吗？')) return; try { await saveDeleteBookmark(id); renderBookmarks(); renderGroupTabs(); showToast('书签已删除'); } catch (e) { showToast('删除失败: ' + e.message); } }
 
 // === Search ===
 function doSearch(query) {
   if (currentEngine === 'bookmark') {
     const q = query.toLowerCase();
-    document.querySelectorAll('.bookmark-card').forEach(card => {
-      const bm = bookmarks.find(b => b.id === card.dataset.id);
-      if (bm) card.style.display = (bm.title.toLowerCase().includes(q) || bm.url.toLowerCase().includes(q)) ? '' : 'none';
-    });
-    if (!query) renderBookmarks();
-    return;
+    document.querySelectorAll('.bookmark-card').forEach(card => { const bm = bookmarks.find(b => b.id === card.dataset.id); if (bm) card.style.display = (bm.title.toLowerCase().includes(q) || bm.url.toLowerCase().includes(q)) ? '' : 'none'; });
+    if (!query) renderBookmarks(); return;
   }
-  const engines = {
-    google: 'https://www.google.com/search?q=',
-    baidu: 'https://www.baidu.com/s?wd=',
-    bing: 'https://www.bing.com/search?q=',
-  };
+  const engines = { google: 'https://www.google.com/search?q=', baidu: 'https://www.baidu.com/s?wd=', bing: 'https://www.bing.com/search?q=' };
   window.open(engines[currentEngine] + encodeURIComponent(query), '_blank');
 }
 
 // === Clock ===
 function updateClock() {
   const now = new Date();
-  document.getElementById('clock').textContent =
-    `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  document.getElementById('clock').textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
-  document.getElementById('dateText').textContent =
-    `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
+  document.getElementById('dateText').textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
   const h = now.getHours();
   const greetings = [[6,'夜深了，早点休息'],[9,'早上好，新的一天开始了'],[12,'上午好，精力充沛'],[14,'中午好，记得吃午饭'],[18,'下午好，继续加油'],[22,'晚上好，放松一下']];
   const g = greetings.find(([t]) => h < t);
@@ -1035,46 +897,17 @@ function updateClock() {
 function exportBookmarks() {
   try {
     const blob = new Blob([JSON.stringify({ bookmarks, groups }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `bookmarks-backup-${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    showToast('导出成功');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `bookmarks-backup-${new Date().toISOString().slice(0,10)}.json`; a.click(); showToast('导出成功');
   } catch (e) { showToast('导出失败'); }
 }
-
 async function importBookmarks(file) {
   try {
-    const text = await file.text();
-    let data = JSON.parse(text);
-    if (Array.isArray(data)) {
-      data = { bookmarks: data, groups: [] };
-    }
-    const importGroups = data.groups || [];
-    const importBookmarks = data.bookmarks || [];
-
-    if (useApi) {
-      for (const g of importGroups) {
-        await apiCall(API_GROUPS, { method: 'POST', body: JSON.stringify({ name: g.name, color: g.color || '#667eea' }) });
-      }
-      for (const bm of importBookmarks) {
-        await apiCall(API, {
-          method: 'POST',
-          body: JSON.stringify({ title: bm.title, url: bm.url, color: bm.color || 'gradient1', icon: bm.icon || '', groupId: bm.groupId || '' }),
-        });
-      }
-      await loadBookmarks();
-    } else {
-      for (const g of importGroups) {
-        if (!groups.some(ex => ex.id === g.id)) groups.push(g);
-      }
-      for (const bm of importBookmarks) {
-        bookmarks.push({ id: generateId(), ...bm, id: generateId() });
-      }
-      localSaveAll();
-      renderBookmarks();
-      renderGroupTabs();
-    }
+    const text = await file.text(); let data = JSON.parse(text);
+    if (Array.isArray(data)) data = { bookmarks: data, groups: [] };
+    const importGroups = data.groups || []; const importBookmarks = data.bookmarks || [];
+    if (useApi) { for (const g of importGroups) { await apiCall(API_GROUPS, { method: 'POST', body: JSON.stringify({ name: g.name, color: g.color || '#667eea' }) }); } for (const bm of importBookmarks) { await apiCall(API, { method: 'POST', body: JSON.stringify({ title: bm.title, url: bm.url, color: bm.color || 'gradient1', icon: bm.icon || '', groupId: bm.groupId || '' }) }); } await loadBookmarks(); }
+    else { for (const g of importGroups) { if (!groups.some(ex => ex.id === g.id)) groups.push(g); } for (const bm of importBookmarks) { bookmarks.push({ id: generateId(), ...bm, id: generateId() }); } localSaveAll(); renderBookmarks(); renderGroupTabs(); }
     showToast(`成功导入 ${importBookmarks.length} 个书签、${importGroups.length} 个分组`);
   } catch (e) { showToast('导入失败: ' + e.message); }
 }
@@ -1085,11 +918,7 @@ document.getElementById('modalCancel').addEventListener('click', closeModal);
 document.getElementById('modalConfirm').addEventListener('click', addBookmark);
 document.getElementById('modalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
 document.getElementById('fetchMetaBtn').addEventListener('click', fetchWebsiteMeta);
-document.getElementById('modalUrlInput').addEventListener('blur', () => {
-  const titleInput = document.getElementById('modalTitleInput');
-  const urlInput = document.getElementById('modalUrlInput');
-  if (!titleInput.value.trim() && urlInput.value.trim()) fetchWebsiteMeta();
-});
+document.getElementById('modalUrlInput').addEventListener('blur', () => { const titleInput = document.getElementById('modalTitleInput'); const urlInput = document.getElementById('modalUrlInput'); if (!titleInput.value.trim() && urlInput.value.trim()) fetchWebsiteMeta(); });
 document.getElementById('groupModalCancel').addEventListener('click', closeGroupModal);
 document.getElementById('groupModalConfirm').addEventListener('click', confirmGroup);
 document.getElementById('groupModalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeGroupModal(); });
@@ -1098,29 +927,16 @@ document.getElementById('importBtn').addEventListener('click', () => { document.
 document.getElementById('importFile').addEventListener('change', (e) => { if (e.target.files[0]) importBookmarks(e.target.files[0]); e.target.value = ''; });
 document.getElementById('logoutBtn').addEventListener('click', doLogout);
 
-// Color pickers
-document.querySelectorAll('#modalOverlay .color-dot').forEach(dot => {
-  dot.addEventListener('click', () => { selectedColor = dot.dataset.color; updateColorPicker(); });
-});
-document.querySelectorAll('#groupColorPicker .color-dot').forEach(dot => {
-  dot.addEventListener('click', () => {
-    document.querySelectorAll('#groupColorPicker .color-dot').forEach(d => d.classList.remove('selected'));
-    dot.classList.add('selected');
-  });
-});
+document.querySelectorAll('#modalOverlay .color-dot').forEach(dot => { dot.addEventListener('click', () => { selectedColor = dot.dataset.color; updateColorPicker(); }); });
+document.querySelectorAll('#groupColorPicker .color-dot').forEach(dot => { dot.addEventListener('click', () => { document.querySelectorAll('#groupColorPicker .color-dot').forEach(d => d.classList.remove('selected')); dot.classList.add('selected'); }); });
 
-document.getElementById('themeToggle').addEventListener('click', () => {
-  const current = document.documentElement.getAttribute('data-theme');
-  saveTheme(current === 'dark' ? 'light' : 'dark');
-});
+document.getElementById('themeToggle').addEventListener('click', () => { showToast('当前为深色主题'); });
 
 document.querySelectorAll('.engine-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.engine-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentEngine = btn.dataset.engine;
-    document.getElementById('searchInput').placeholder =
-      currentEngine === 'bookmark' ? '搜索本地书签...' : '输入关键词搜索...';
+    btn.classList.add('active'); currentEngine = btn.dataset.engine;
+    document.getElementById('searchInput').placeholder = currentEngine === 'bookmark' ? '搜索本地书签...' : '输入关键词搜索...';
     if (currentEngine !== 'bookmark') renderBookmarks();
   });
 });
@@ -1128,47 +944,18 @@ document.querySelectorAll('.engine-btn').forEach(btn => {
 document.getElementById('searchInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') { const q = e.target.value.trim(); if (q) doSearch(q); }
   if (currentEngine === 'bookmark') {
-    const q = e.target.value.trim();
-    if (!q) renderBookmarks();
-    else {
-      const ql = q.toLowerCase();
-      document.querySelectorAll('.bookmark-card').forEach(card => {
-        const bm = bookmarks.find(b => b.id === card.dataset.id);
-        if (bm) card.style.display = (bm.title.toLowerCase().includes(ql) || bm.url.toLowerCase().includes(ql)) ? '' : 'none';
-      });
-    }
+    const q = e.target.value.trim(); if (!q) renderBookmarks(); else { const ql = q.toLowerCase(); document.querySelectorAll('.bookmark-card').forEach(card => { const bm = bookmarks.find(b => b.id === card.dataset.id); if (bm) card.style.display = (bm.title.toLowerCase().includes(ql) || bm.url.toLowerCase().includes(ql)) ? '' : 'none'; }); }
   }
 });
-document.getElementById('searchBtn').addEventListener('click', () => {
-  const q = document.getElementById('searchInput').value.trim();
-  if (q) doSearch(q);
-});
-document.getElementById('resetBtn').addEventListener('click', async () => {
-  if (!confirm('确定恢复默认书签和分组吗？所有数据将被替换。')) return;
-  try {
-    await resetBookmarks();
-    selectedGroup = null;
-    renderBookmarks();
-    renderGroupTabs();
-    showToast('已恢复默认数据');
-  } catch (e) { showToast('重置失败: ' + e.message); }
-});
+document.getElementById('searchBtn').addEventListener('click', () => { const q = document.getElementById('searchInput').value.trim(); if (q) doSearch(q); });
+document.getElementById('resetBtn').addEventListener('click', async () => { if (!confirm('确定恢复默认书签和分组吗？所有数据将被替换。')) return; try { await resetBookmarks(); selectedGroup = null; renderBookmarks(); renderGroupTabs(); showToast('已恢复默认数据'); } catch (e) { showToast('重置失败: ' + e.message); } });
 
-// Login events
 document.getElementById('loginBtn').addEventListener('click', doLogin);
-document.getElementById('loginPassword').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') doLogin();
-});
+document.getElementById('loginPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    if (document.getElementById('groupModalOverlay').style.display === 'flex') closeGroupModal();
-    else closeModal();
-  }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-    e.preventDefault();
-    document.getElementById('searchInput').focus();
-  }
+  if (e.key === 'Escape') { if (document.getElementById('groupModalOverlay').style.display === 'flex') closeGroupModal(); else closeModal(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); document.getElementById('searchInput').focus(); }
 });
 
 // === Init ===
@@ -1176,26 +963,11 @@ document.addEventListener('keydown', (e) => {
   loadTheme();
   updateClock();
   setInterval(updateClock, 10000);
-
   await checkApiAvailable();
-
   if (needAuth) {
-    // Show login first, try auto-login with stored token
-    if (authToken) {
-      try {
-        await loadBookmarks();
-        hideLogin();
-        return;
-      } catch (e) {
-        showLogin();
-        return;
-      }
-    }
-    showLogin();
-    return;
+    if (authToken) { try { await loadBookmarks(); hideLogin(); return; } catch (e) { showLogin(); return; } }
+    showLogin(); return;
   }
-
-  // No auth needed
   document.getElementById('logoutBtn').style.display = 'none';
   await loadBookmarks();
 })();
