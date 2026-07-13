@@ -111,6 +111,34 @@
   .wallpaper-url-input:focus { border-color: rgba(102,126,234,0.4); }
   .toolbar-right-wrap { position: relative; display: flex; gap: 8px; align-items: center; }
 
+  /* Bookmarklet popup */
+  .bmlet-popup {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4); z-index: 1000;
+    display: none; align-items: center; justify-content: center;
+  }
+  .bmlet-popup.show { display: flex; }
+  .bmlet-card {
+    background: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 20px; padding: 32px; max-width: 480px; width: 90%;
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 12px 50px rgba(0,0,0,0.15);
+  }
+  .bmlet-card h3 { font-size: 20px; font-weight: 600; color: #1a1a2e; margin: 0 0 8px; }
+  .bmlet-card .bmlet-sub { font-size: 13px; color: rgba(0,0,0,0.45); margin-bottom: 20px; line-height: 1.6; }
+  .bmlet-card .bmlet-link {
+    display: block; padding: 14px 20px; border-radius: 14px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff; font-size: 14px; font-weight: 600; text-align: center;
+    text-decoration: none; cursor: grab; user-select: none;
+    margin-bottom: 16px; transition: transform 0.15s;
+  }
+  .bmlet-card .bmlet-link:hover { transform: translateY(-2px); }
+  .bmlet-card .bmlet-link:active { cursor: grabbing; }
+  .bmlet-card .bmlet-tip { font-size: 12px; color: rgba(0,0,0,0.35); text-align: center; line-height: 1.6; }
+  .bmlet-card .bmlet-close { margin-top: 20px; width: 100%; padding: 10px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: transparent; color: rgba(0,0,0,0.5); font-size: 13px; cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.15s; }
+  .bmlet-card .bmlet-close:hover { background: rgba(0,0,0,0.03); color: #1a1a2e; }
+
   .container { width: 100%; max-width: 1280px; padding: 60px 28px 80px; margin: 0 auto; position: relative; z-index: 1; }
 
   /* ====== Header ====== */
@@ -468,6 +496,17 @@
   </div>
 </div>
 
+<!-- Bookmarklet Popup -->
+<div class="bmlet-popup" id="bmletPopup">
+  <div class="bmlet-card">
+    <h3>⚡ 拖拽到书签栏即可使用</h3>
+    <p class="bmlet-sub">把下面这个按钮拖到浏览器的<strong>书签栏</strong>。<br>之后在任何网页点一下就能保存到收藏。</p>
+    <a class="bmlet-link" id="bmletLink" href="" onclick="return false;">📌 保存到我的收藏</a>
+    <p class="bmlet-tip">👆 用鼠标按住左边的 📌，拖到浏览器书签栏松开</p>
+    <button class="bmlet-close" id="bmletClose">关闭</button>
+  </div>
+</div>
+
 <!-- Context Menu -->
 <div class="context-menu hidden" id="contextMenu">
   <div class="context-item" data-action="open">&#128279; 在新标签页打开</div>
@@ -500,6 +539,7 @@
   <div class="toolbar">
     <div class="toolbar-actions">
       <button class="btn btn-primary" id="addBookmarkBtn">+ 添加书签</button>
+      <button class="btn" id="bmletBtn" title="拖拽到书签栏，任何网页一键保存">⚡ 快速保存</button>
       <button class="btn" id="resetBtn">恢复默认</button>
       <button class="btn" id="exportBtn" title="导出 JSON 备份">导出</button>
       <button class="btn" id="importBtn" title="从 JSON 文件导入">导入</button>
@@ -671,7 +711,7 @@ async function doLogin() {
   document.getElementById('loginError').textContent = '';
   try {
     const result = await apiAuthFetch(`${API_AUTH}/login`, { method: 'POST', body: JSON.stringify({ password }) });
-    if (result.success) { authToken = result.token; localStorage.setItem(LS_TOKEN, authToken); hideLogin(); await loadBookmarks(); showToast('已解锁'); }
+    if (result.success) { authToken = result.token; localStorage.setItem(LS_TOKEN, authToken); hideLogin(); await loadBookmarks(); checkAutoAdd(); showToast('已解锁'); }
     else { document.getElementById('loginError').textContent = result.error || '密码错误'; }
   } catch (e) { document.getElementById('loginError').textContent = '网络错误，请重试'; }
   finally { btn.disabled = false; btn.textContent = '解锁'; }
@@ -904,11 +944,11 @@ function editGroupPrompt(id) { const g = getGroupById(id); if (g) openGroupModal
 async function deleteGroupPrompt(id) { const g = getGroupById(id); if (!g) return; if (!confirm(`确定删除分组「${g.name}」吗？\n书签不会被删除，只会移出分组。`)) return; try { await saveDeleteGroup(id); renderAll(); showToast('分组已删除'); } catch (e) { showToast('删除失败: ' + e.message); } }
 
 // === Bookmark Modal ===
-function openModal(title, bm) {
+function openModal(title, bm, prefillUrl, prefillTitle) {
   editingId = bm ? bm.id : null;
   document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalTitleInput').value = bm ? bm.title : '';
-  document.getElementById('modalUrlInput').value = bm ? bm.url : '';
+  document.getElementById('modalTitleInput').value = bm ? bm.title : (prefillTitle || '');
+  document.getElementById('modalUrlInput').value = bm ? bm.url : (prefillUrl || '');
   document.getElementById('modalIconInput').value = bm ? (bm.icon || '') : '';
   selectedColor = bm ? (bm.color || 'gradient1') : 'gradient1'; updateColorPicker();
   const select = document.getElementById('modalGroupSelect');
@@ -1056,6 +1096,27 @@ document.getElementById('resetBtn').addEventListener('click', async () => { if (
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
+// Bookmarklet
+(function setupBookmarklet() {
+  const SITE_URL = window.location.origin;
+  // Minified bookmarklet: grab current page url+title, redirect to bookmark app
+  const code = `javascript:(function(){var u=encodeURIComponent(location.href);var t=encodeURIComponent(document.title);location.href='${SITE_URL}/?addUrl='+u+'&addTitle='+t;})()`;
+  const link = document.getElementById('bmletLink');
+  link.href = code;
+  link.title = '拖拽到书签栏';
+  // Prevent click from navigating — only drag works
+  link.addEventListener('click', function(e) { e.preventDefault(); });
+})();
+document.getElementById('bmletBtn').addEventListener('click', () => {
+  document.getElementById('bmletPopup').classList.add('show');
+});
+document.getElementById('bmletClose').addEventListener('click', () => {
+  document.getElementById('bmletPopup').classList.remove('show');
+});
+document.getElementById('bmletPopup').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
+
 // Wallpaper events
 document.getElementById('wallpaperBtn').addEventListener('click', e => { e.stopPropagation(); toggleWallpaperPopup(); });
 document.getElementById('wpUpload').addEventListener('click', () => { document.getElementById('wallpaperFileInput').click(); toggleWallpaperPopup(); });
@@ -1104,12 +1165,29 @@ document.addEventListener('keydown', e => {
   loadWallpaper();
   await checkApiAvailable();
   if (needAuth) {
-    if (authToken) { try { await loadBookmarks(); hideLogin(); return; } catch (e) { showLogin(); return; } }
+    if (authToken) { try { await loadBookmarks(); hideLogin(); checkAutoAdd(); return; } catch (e) { showLogin(); return; } }
     showLogin(); return;
   }
   document.getElementById('logoutBtn').style.display = 'none';
   await loadBookmarks();
+  checkAutoAdd();
 })();
+
+function checkAutoAdd() {
+  const params = new URLSearchParams(window.location.search);
+  const addUrl = params.get('addUrl');
+  const addTitle = params.get('addTitle');
+  if (addUrl) {
+    openModal('添加书签', null, addUrl, addTitle || '');
+    // Trigger auto-fetch meta after modal is open
+    setTimeout(() => {
+      const ui = document.getElementById('modalUrlInput');
+      if (ui && ui.value) fetchWebsiteMeta();
+    }, 300);
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+}
 </script>
 </body>
 </html>
