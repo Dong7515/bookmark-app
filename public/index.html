@@ -896,15 +896,27 @@ function renderBookmarks() {
   const grid = document.getElementById('bookmarkGrid');
   const empty = document.getElementById('emptyState');
   const countEl = document.getElementById('bookmarkCount');
-  let filtered = selectedGroup ? bookmarks.filter(b => b.groupId === selectedGroup) : bookmarks;
-  if (filterQuery) { const q = filterQuery.toLowerCase(); filtered = filtered.filter(b => b.title.toLowerCase().includes(q) || b.url.toLowerCase().includes(q)); }
+  // Default: no group selected = show nothing unless searching
+  let filtered;
+  if (filterQuery) {
+    // Search globally across all bookmarks regardless of group selection
+    const q = filterQuery.toLowerCase();
+    filtered = bookmarks.filter(b => b.title.toLowerCase().includes(q) || b.url.toLowerCase().includes(q));
+  } else if (selectedGroup) {
+    filtered = bookmarks.filter(b => b.groupId === selectedGroup);
+  } else {
+    filtered = []; // No group, no search = empty
+  }
   const total = bookmarks.length;
-  countEl.textContent = `${filtered.length} / ${total} 个书签${useApi ? '' : ' (本地)'}`;
+  if (filterQuery) { countEl.textContent = `搜索: ${filtered.length} / ${total} 个书签${useApi ? '' : ' (本地)'}`; }
+  else if (selectedGroup) { countEl.textContent = `${filtered.length} / ${total} 个书签${useApi ? '' : ' (本地)'}`; }
+  else { countEl.textContent = '请选择分组'; }
 
   if (filtered.length === 0) {
     grid.innerHTML = ''; empty.style.display = 'block';
-    empty.querySelector('h2').textContent = selectedGroup ? '该分组暂无书签' : (filterQuery ? '未找到匹配的书签' : '还没有书签');
-    empty.querySelector('p').textContent = selectedGroup ? '点击「+ 添加书签」并选择此分组' : (filterQuery ? '试试其他关键词' : '点击「+ 添加书签」开始收藏');
+    if (filterQuery) { empty.querySelector('h2').textContent = '未找到匹配的书签'; empty.querySelector('p').textContent = '试试其他关键词'; }
+    else if (selectedGroup) { empty.querySelector('h2').textContent = '该分组暂无书签'; empty.querySelector('p').textContent = '点击「+ 添加书签」并选择此分组'; }
+    else { empty.querySelector('h2').textContent = '请选择一个分组'; empty.querySelector('p').textContent = '点击上方分组标签查看对应书签'; }
     return;
   }
   empty.style.display = 'none';
