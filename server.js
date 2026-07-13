@@ -267,6 +267,45 @@ app.post('/api/groups', authMiddleware, (req, res) => {
   }
 });
 
+// Bulk import: groups + bookmarks in one request
+app.post('/api/import', authMiddleware, (req, res) => {
+  try {
+    const { groups: inGroups, bookmarks: inBookmarks } = req.body;
+    if (!Array.isArray(inBookmarks)) {
+      return res.status(400).json({ success: false, error: '书签数据格式错误' });
+    }
+    const data = readData();
+    const idMap = {};
+    // Create groups, map old IDs to new
+    if (Array.isArray(inGroups)) {
+      for (const g of inGroups) {
+        const ng = { id: generateId(), name: g.name || '未命名', color: g.color || '#667eea' };
+        data.groups.push(ng);
+        idMap[g.id] = ng.id;
+      }
+    }
+    // Create bookmarks with remapped group IDs
+    let added = 0;
+    for (const bm of inBookmarks) {
+      if (!bm.title || !bm.url) continue;
+      const groupId = idMap[bm.groupId] || bm.groupId || '';
+      data.bookmarks.push({
+        id: generateId(),
+        title: bm.title,
+        url: bm.url,
+        color: bm.color || 'gradient1',
+        icon: bm.icon || '',
+        groupId
+      });
+      added++;
+    }
+    writeData(data);
+    res.json({ success: true, data: { groupsAdded: idMap.size || Object.keys(idMap).length, bookmarksAdded: added } });
+  } catch (e) {
+    res.status(500).json({ success: false, error: '导入失败: ' + e.message });
+  }
+});
+
 app.put('/api/groups/:id', authMiddleware, (req, res) => {
   try {
     const { id } = req.params;
