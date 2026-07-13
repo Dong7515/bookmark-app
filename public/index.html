@@ -207,15 +207,24 @@
   .group-tab.active { background: rgba(255,255,255,0.25); color: #fff; border-color: rgba(255,255,255,0.5); box-shadow: 0 2px 16px rgba(255,255,255,0.1); }
   .group-tab .tab-count { font-size: 11px; opacity: 0.6; background: rgba(255,255,255,0.12); padding: 1px 7px; border-radius: 10px; color: rgba(255,255,255,0.8); }
   .group-tab.active .tab-count { background: rgba(255,255,255,0.2); opacity: 0.9; }
-  .group-tab .tab-actions { display: none; margin-left: 2px; gap: 2px; align-items: center; }
-  .group-tab:hover .tab-actions { display: flex; }
-  .tab-action {
-    width: 20px; height: 20px; border-radius: 50%; border: none;
-    background: rgba(0,0,0,0.08); color: inherit; cursor: pointer;
-    font-size: 10px; display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
+  /* Long-press group menu */
+  .group-menu {
+    position: fixed; z-index: 1000;
+    background: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 14px; padding: 6px; min-width: 100px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    display: none; flex-direction: column; gap: 2px;
   }
-  .tab-action:hover { background: rgba(0,0,0,0.15); transform: scale(1.1); }
+  .group-menu-item {
+    padding: 10px 16px; border: none; border-radius: 10px;
+    background: transparent; font-size: 14px; cursor: pointer;
+    text-align: left; color: #1a1a2e; transition: background 0.15s;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .group-menu-item:hover { background: rgba(0,0,0,0.06); }
+  .group-menu-item.danger { color: #f43f5e; }
+  .group-menu-item.danger:hover { background: rgba(244,63,94,0.08); }
   .add-group-btn {
     width: 34px; height: 34px; border-radius: 50%;
     border: 1px dashed rgba(0,0,0,0.12); background: rgba(255,255,255,0.5);
@@ -505,6 +514,12 @@
     <p class="bmlet-tip">👆 用鼠标按住左边的 📌，拖到浏览器书签栏松开</p>
     <button class="bmlet-close" id="bmletClose">关闭</button>
   </div>
+</div>
+
+<!-- Group Long-press Menu -->
+<div class="group-menu" id="groupMenu">
+  <button class="group-menu-item" data-action="edit">&#9998; 编辑分组</button>
+  <button class="group-menu-item danger" data-action="delete">&#10005; 删除分组</button>
 </div>
 
 <!-- Context Menu -->
@@ -804,25 +819,43 @@ function getColorStyle(color) {
 
 function renderGroupTabs() {
   const container = document.getElementById('groupTabs');
-  const allCount = bookmarks.length;
-  let html = `<button class="group-tab ${selectedGroup === null ? 'active' : ''}" data-group="">全部<span class="tab-count">${allCount}</span></button>`;
+  let html = '';
   groups.forEach(g => {
     const count = bookmarks.filter(b => b.groupId === g.id).length;
     const active = selectedGroup === g.id;
     html += `<button class="group-tab ${active ? 'active' : ''}" data-group="${g.id}">
       ${escapeHtml(g.name)}<span class="tab-count">${count}</span>
-      <span class="tab-actions" onclick="event.stopPropagation()">
-        <button class="tab-action" onclick="editGroupPrompt('${g.id}')" title="编辑">&#9998;</button>
-        <button class="tab-action" onclick="deleteGroupPrompt('${g.id}')" title="删除">&#10005;</button>
-      </span>
     </button>`;
   });
-  html += `<button class="add-group-btn" id="addGroupBtn" title="添加分组">+</button>`;
+  html += `<button class="add-group-btn" id="addGroupBtn" title="新建分组">+</button>`;
   container.innerHTML = html;
+  // Group tab click: short click = filter, long press = edit/delete
+  let longPressTimer = null;
+  let longPressTriggered = false;
   container.querySelectorAll('.group-tab').forEach(tab => {
-    tab.addEventListener('click', () => { selectedGroup = tab.dataset.group || null; renderAll(); });
+    const groupId = tab.dataset.group;
+    const onStart = (e) => {
+      longPressTriggered = false;
+      longPressTimer = setTimeout(() => {
+        longPressTriggered = true;
+        showGroupMenu(e, groupId);
+      }, 600);
+    };
+    const onEnd = () => {
+      clearTimeout(longPressTimer);
+      if (!longPressTriggered) {
+        selectedGroup = (selectedGroup === groupId) ? null : groupId;
+        renderAll();
+      }
+    };
+    tab.addEventListener('mousedown', onStart);
+    tab.addEventListener('mouseup', onEnd);
+    tab.addEventListener('mouseleave', () => clearTimeout(longPressTimer));
+    tab.addEventListener('touchstart', onStart, { passive: true });
+    tab.addEventListener('touchend', onEnd);
+    tab.addEventListener('touchmove', () => { clearTimeout(longPressTimer); longPressTriggered = true; });
   });
-  document.getElementById('addGroupBtn').addEventListener('click', () => openGroupModal('添加分组', null));
+  document.getElementById('addGroupBtn').addEventListener('click', () => openGroupModal('新建分组', null));
 }
 
 function renderBookmarks() {
@@ -913,6 +946,27 @@ function openBookmark(event, id) { if (justDragged) { event.preventDefault(); re
 
 function showContextMenu(event, id) { event.preventDefault(); contextTargetId = id; const menu = document.getElementById('contextMenu'); menu.style.left = event.clientX + 'px'; menu.style.top = event.clientY + 'px'; menu.classList.remove('hidden'); }
 function hideContextMenu() { document.getElementById('contextMenu').classList.add('hidden'); contextTargetId = null; }
+
+// Long press group menu
+let groupMenuTarget = null;
+function showGroupMenu(e, groupId) {
+  groupMenuTarget = groupId;
+  const menu = document.getElementById('groupMenu');
+  const x = e.touches ? e.touches[0].clientX : e.clientX;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
+  menu.style.left = Math.min(x, window.innerWidth - 140) + 'px';
+  menu.style.top = Math.min(y, window.innerHeight - 100) + 'px';
+  menu.style.display = 'flex';
+}
+function hideGroupMenu() { document.getElementById('groupMenu').style.display = 'none'; groupMenuTarget = null; }
+document.getElementById('groupMenu').addEventListener('click', (e) => {
+  const action = e.target.closest('.group-menu-item')?.dataset.action;
+  if (!action || !groupMenuTarget) return;
+  hideGroupMenu();
+  if (action === 'edit') editGroupPrompt(groupMenuTarget);
+  if (action === 'delete') deleteGroupPrompt(groupMenuTarget);
+});
+document.addEventListener('click', (e) => { if (!e.target.closest('.group-menu') && !e.target.closest('.group-tab')) hideGroupMenu(); });
 
 function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 function showToast(msg) {
