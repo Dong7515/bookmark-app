@@ -873,17 +873,15 @@
   <div class="modal">
     <h3>添加常用工具</h3>
     <div class="form-group">
-      <label>名称</label>
-      <input id="quickToolName" type="text" placeholder="例如：百度" maxlength="20">
-    </div>
-    <div class="form-group">
       <label>网址</label>
-      <input id="quickToolUrl" type="text" placeholder="https://www.baidu.com" onblur="onQuickToolUrlBlur()">
-      <span class="favicon-preview" id="quickToolFaviconPreview" style="display:inline-flex;align-items:center;margin-top:6px;gap:6px;font-size:11px;color:rgba(255,255,255,0.4);">输入网址后自动识别网站图标</span>
+      <div class="url-row">
+        <input id="quickToolUrl" type="text" placeholder="例如：https://github.com">
+        <button class="fetch-btn" id="quickFetchMetaBtn" title="自动获取网站名称和图标">获取信息</button>
+      </div>
     </div>
     <div class="form-group">
-      <label>图标（可选，留空使用自动识别）</label>
-      <input id="quickToolIcon" type="text" placeholder="🔥 或任意 emoji / 文字" maxlength="4" value="">
+      <label>名称</label>
+      <input id="quickToolName" type="text" placeholder="自动获取或手动输入" maxlength="30">
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeQuickToolModal()">取消</button>
@@ -1344,24 +1342,23 @@ function formatHotValue(val) {
 }
 
 const DEFAULT_QUICK_TOOLS = [
-  { id: 'qt1', name: '豆包', desc: '字节旗下AI工具', url: 'https://www.doubao.com', icon: '💬', favicon: 'https://www.google.com/s2/favicons?domain=doubao.com&sz=64', color: '#4a7aff' },
-  { id: 'qt2', name: '文心一言', desc: '百度AI对话助手', url: 'https://yiyan.baidu.com', icon: '🔵', favicon: 'https://www.google.com/s2/favicons?domain=yiyan.baidu.com&sz=64', color: '#4285f4' },
-  { id: 'qt3', name: '通义千问', desc: '阿里大语言模型', url: 'https://tongyi.aliyun.com', icon: '🔷', favicon: 'https://www.google.com/s2/favicons?domain=tongyi.aliyun.com&sz=64', color: '#1677ff' },
-  { id: 'qt4', name: '智谱清言', desc: 'ChatGLM智能助手', url: 'https://chatglm.cn', icon: '⚡', favicon: 'https://www.google.com/s2/favicons?domain=chatglm.cn&sz=64', color: '#6c5ce7' },
-  { id: 'qt5', name: 'Kimi', desc: '月之暗面AI助手', url: 'https://kimi.moonshot.cn', icon: '🌙', favicon: 'https://www.google.com/s2/favicons?domain=kimi.moonshot.cn&sz=64', color: '#7c6ff7' },
-  { id: 'qt6', name: '讯飞星火', desc: '科大讯飞AI大模型', url: 'https://xinghuo.xfyun.cn', icon: '🔥', favicon: 'https://www.google.com/s2/favicons?domain=xfyun.cn&sz=64', color: '#ff6b6b' },
-  { id: 'qt7', name: '秘塔AI', desc: 'AI搜索引擎', url: 'https://metaso.cn', icon: '🔍', favicon: 'https://www.google.com/s2/favicons?domain=metaso.cn&sz=64', color: '#00b894' },
-  { id: 'qt8', name: '可灵AI', desc: 'AI图片和视频生成', url: 'https://klingai.com', icon: '🎨', favicon: 'https://www.google.com/s2/favicons?domain=klingai.com&sz=64', color: '#e17055' }
+  { id: 'qt1', name: '豆包', desc: '字节旗下AI工具', url: 'https://www.doubao.com', icon: 'https://www.google.com/s2/favicons?domain=doubao.com&sz=64', color: '#4a7aff' },
+  { id: 'qt2', name: '文心一言', desc: '百度AI对话助手', url: 'https://yiyan.baidu.com', icon: 'https://www.google.com/s2/favicons?domain=yiyan.baidu.com&sz=64', color: '#4285f4' },
+  { id: 'qt3', name: '通义千问', desc: '阿里大语言模型', url: 'https://tongyi.aliyun.com', icon: 'https://www.google.com/s2/favicons?domain=tongyi.aliyun.com&sz=64', color: '#1677ff' },
+  { id: 'qt4', name: '智谱清言', desc: 'ChatGLM智能助手', url: 'https://chatglm.cn', icon: 'https://www.google.com/s2/favicons?domain=chatglm.cn&sz=64', color: '#6c5ce7' },
+  { id: 'qt5', name: 'Kimi', desc: '月之暗面AI助手', url: 'https://kimi.moonshot.cn', icon: 'https://www.google.com/s2/favicons?domain=kimi.moonshot.cn&sz=64', color: '#7c6ff7' },
+  { id: 'qt6', name: '讯飞星火', desc: '科大讯飞AI大模型', url: 'https://xinghuo.xfyun.cn', icon: 'https://www.google.com/s2/favicons?domain=xfyun.cn&sz=64', color: '#ff6b6b' },
+  { id: 'qt7', name: '秘塔AI', desc: 'AI搜索引擎', url: 'https://metaso.cn', icon: 'https://www.google.com/s2/favicons?domain=metaso.cn&sz=64', color: '#00b894' },
+  { id: 'qt8', name: '可灵AI', desc: 'AI图片和视频生成', url: 'https://klingai.com', icon: 'https://www.google.com/s2/favicons?domain=klingai.com&sz=64', color: '#e17055' }
 ];
 function getQuickTools() {
   try { const raw = localStorage.getItem('quickTools'); if (raw) {
     const tools = JSON.parse(raw);
-    // 迁移：为没有 favicon 的旧数据自动补充 favicon
+    // 迁移：如果 icon 是 emoji（不以 http 开头），替换为 Google favicon
     let migrated = false;
     tools.forEach(t => {
-      if (!t.favicon && t.url) {
-        t.favicon = getFaviconFromUrl(t.url);
-        migrated = true;
+      if (t.icon && !/^https?:\/\//i.test(t.icon) && t.url) {
+        try { t.icon = getGoogleFavicon(t.url); migrated = true; } catch (e) {}
       }
     });
     if (migrated) saveQuickTools(tools);
@@ -1371,11 +1368,16 @@ function getQuickTools() {
 }
 function saveQuickTools(list) { localStorage.setItem('quickTools', JSON.stringify(list)); }
 
-function getToolFaviconHtml(t) {
-  // 如果有 favicon URL，显示网站真实图标；失败则回退到 emoji/文字
-  if (t.favicon && /^https?:\/\//i.test(t.favicon)) {
-    const fallback = escapeHtml(t.icon || t.name.charAt(0));
-    return `<img src="${escapeHtml(t.favicon)}" alt="" draggable="false" class="tool-favicon-img"
+function getGoogleFavicon(url) {
+  try { return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64`; }
+  catch (e) { return ''; }
+}
+
+function getToolIconHtml(t) {
+  // icon 是 URL 则显示图片，否则显示文字/emoji
+  if (t.icon && /^https?:\/\//i.test(t.icon)) {
+    const fallback = escapeHtml(t.name.charAt(0));
+    return `<img src="${escapeHtml(t.icon)}" alt="" draggable="false" class="tool-favicon-img"
       onerror="this.style.display='none';this.parentElement.textContent='${fallback}';this.parentElement.style.fontSize='20px';" crossorigin="anonymous">`;
   }
   return escapeHtml(t.icon || t.name.charAt(0));
@@ -1388,7 +1390,7 @@ function renderAITools() {
   grid.innerHTML = tools.map((t, idx) => `
     <a class="ai-tool-card" href="${escapeHtml(t.url)}" target="_blank">
       <button class="del-tool" onclick="deleteQuickTool(event, ${idx})" title="删除">×</button>
-      <div class="icon-wrap" style="background:${t.color}22;color:${t.color};">${getToolFaviconHtml(t)}</div>
+      <div class="icon-wrap" style="background:${t.color}22;color:${t.color};">${getToolIconHtml(t)}</div>
       <div class="info">
         <div class="name">${escapeHtml(t.name)}</div>
         <div class="desc">${escapeHtml(t.desc || '')}</div>
@@ -1411,47 +1413,53 @@ function deleteQuickTool(e, idx) {
 
 function openQuickToolModal() {
   document.getElementById('quickToolModalOverlay').style.display = 'flex';
-  document.getElementById('quickToolName').value = '';
   document.getElementById('quickToolUrl').value = '';
-  document.getElementById('quickToolIcon').value = '';
-  document.getElementById('quickToolFaviconPreview').innerHTML = '输入网址后自动识别网站图标';
-  document.getElementById('quickToolName').focus();
+  document.getElementById('quickToolName').value = '';
+  document.getElementById('quickToolUrl').focus();
 }
 function closeQuickToolModal() { document.getElementById('quickToolModalOverlay').style.display = 'none'; }
-function getFaviconFromUrl(url) {
+
+// 获取网站信息 — 和书签弹窗的"获取信息"一模一样
+async function fetchQuickToolMeta() {
+  const url = document.getElementById('quickToolUrl').value.trim();
+  if (!url) { showToast('请先输入网址'); return; }
+  const btn = document.getElementById('quickFetchMetaBtn');
+  btn.textContent = '获取中...'; btn.disabled = true; btn.classList.add('fetching');
   try {
-    const u = new URL(url);
-    return `https://www.google.com/s2/favicons?domain=${u.hostname}&sz=64`;
-  } catch (e) { return ''; }
+    if (useApi) {
+      const r = await apiCall(`/api/fetch-meta?url=${encodeURIComponent(url)}`);
+      if (r.success) {
+        const nameEl = document.getElementById('quickToolName');
+        if (!nameEl.value.trim() && r.title) nameEl.value = r.title;
+        const icon = r.icon || '';
+        // 将图标 URL 暂存在 data 属性中，确认时使用
+        document.getElementById('quickToolModalOverlay').dataset.fetchedIcon = icon;
+        showToast(r.title ? `已获取: ${r.title}` : '未找到标题');
+      }
+    } else {
+      showToast('离线模式，无法获取');
+    }
+  } catch (e) { showToast('获取失败: ' + e.message); }
+  finally { btn.textContent = '获取信息'; btn.disabled = false; btn.classList.remove('fetching'); }
 }
 
 function confirmAddQuickTool() {
   const name = document.getElementById('quickToolName').value.trim();
   const url = document.getElementById('quickToolUrl').value.trim();
-  const icon = document.getElementById('quickToolIcon').value.trim() || '🔥';
   if (!name || !url) { showToast('请填写名称和网址'); return; }
   let finalUrl = url;
   if (!/^https?:\/\//i.test(finalUrl)) finalUrl = 'https://' + finalUrl;
-  const favicon = getFaviconFromUrl(finalUrl);
+
+  // 优先使用获取到的真实 favicon，否则用 Google favicon 兜底
+  const fetchedIcon = document.getElementById('quickToolModalOverlay').dataset.fetchedIcon || '';
+  const icon = fetchedIcon || getGoogleFavicon(finalUrl);
+
   const tools = getQuickTools();
-  tools.push({ id: 'qt_' + Date.now(), name, desc: '', url: finalUrl, icon, favicon, color: '#667eea' });
+  tools.push({ id: 'qt_' + Date.now(), name, desc: '', url: finalUrl, icon, color: '#667eea' });
   saveQuickTools(tools);
   renderAITools();
   closeQuickToolModal();
   showToast('已添加');
-}
-
-// URL 输入框失焦时自动预览 favicon
-function onQuickToolUrlBlur() {
-  const url = document.getElementById('quickToolUrl').value.trim();
-  if (!url) return;
-  let finalUrl = url;
-  if (!/^https?:\/\//i.test(finalUrl)) finalUrl = 'https://' + finalUrl;
-  const favicon = getFaviconFromUrl(finalUrl);
-  if (favicon) {
-    const preview = document.getElementById('quickToolFaviconPreview');
-    preview.innerHTML = `<img src="${escapeHtml(favicon)}" alt="" style="width:24px;height:24px;object-fit:contain;" onerror="this.style.display='none';" crossorigin="anonymous">`;
-  }
 }
 
 // === Drag & Drop Reorder ===
@@ -1685,6 +1693,7 @@ document.getElementById('modalCancel').addEventListener('click', closeModal);
 document.getElementById('modalConfirm').addEventListener('click', addBookmark);
 document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 document.getElementById('fetchMetaBtn').addEventListener('click', fetchWebsiteMeta);
+document.getElementById('quickFetchMetaBtn').addEventListener('click', fetchQuickToolMeta);
 document.getElementById('modalUrlInput').addEventListener('blur', () => { const ti = document.getElementById('modalTitleInput'); const ui = document.getElementById('modalUrlInput'); if (!ti.value.trim() && ui.value.trim()) fetchWebsiteMeta(); });
 document.getElementById('groupModalCancel').addEventListener('click', closeGroupModal);
 document.getElementById('groupModalConfirm').addEventListener('click', confirmGroup);
