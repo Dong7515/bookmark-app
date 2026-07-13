@@ -483,10 +483,6 @@
   <header class="header">
     <div class="clock-row">
       <div class="clock" id="clock">00:00</div>
-      <div class="weather-widget" id="weatherWidget">
-        <span class="weather-icon" id="weatherIcon">☀️</span>
-        <span id="weatherTemp">--</span>
-      </div>
     </div>
     <div class="date-text" id="dateText"></div>
     <div class="greeting" id="greeting"></div>
@@ -754,27 +750,6 @@ async function saveDeleteBookmark(id) { if (useApi) await apiCall(`${API}/${id}`
 async function resetBookmarks() {
   if (useApi) { const r = await apiCall(`${API}/reset`, { method: 'POST' }); bookmarks = r.data; groups = r.groups || []; }
   else { bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b})); groups = [...DEFAULT_GROUPS]; selectedGroup = null; localSaveAll(); }
-}
-
-// === Weather ===
-async function fetchWeather() {
-  try {
-    const pos = await new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, () => reject('no-location'), { timeout: 5000 });
-    });
-    const { latitude, longitude } = pos.coords;
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code&timezone=auto`);
-    const data = await res.json();
-    const temp = Math.round(data.current.temperature_2m);
-    const code = data.current.weather_code;
-    const icons = { 0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'❄️',80:'🌦️',95:'⛈️' };
-    const icon = Object.entries(icons).find(([k]) => code <= parseInt(k))?.[1] || '🌤️';
-    document.getElementById('weatherIcon').textContent = icon;
-    document.getElementById('weatherTemp').textContent = temp + '°C';
-  } catch (e) {
-    document.getElementById('weatherIcon').textContent = '🌤️';
-    document.getElementById('weatherTemp').textContent = '--';
-  }
 }
 
 // === Render ===
@@ -1075,7 +1050,6 @@ document.addEventListener('keydown', e => {
 // === Init ===
 (async function init() {
   updateClock(); setInterval(updateClock, 10000);
-  fetchWeather();
   loadWallpaper();
   await checkApiAvailable();
   if (needAuth) {
