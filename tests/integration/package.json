@@ -1,0 +1,11 @@
+{
+  "name": "bookmark-app-integration-tests",
+  "version": "1.0.0",
+  "description": "集成测试 — WebSocket 连接与消息流转",
+  "scripts": {
+    "test": "node --test websocket.test.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
