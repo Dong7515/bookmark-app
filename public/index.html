@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的书签 - 个人起始页</title>
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #6b7280;
+    --border: #e5e7eb;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,0.1), 0 8px 28px rgba(0,0,0,0.06);
+    --primary: #6366f1;
+    --primary-light: #818cf8;
+    --danger: #ef4444;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  [data-theme="dark"] {
+    --bg: #0f0f1a;
+    --card-bg: #1a1a2e;
+    --text: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --border: #2d2d44;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-hover: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.06) 0%, transparent 50%),
+                      radial-gradient(ellipse at 50% 50%, rgba(14,165,233,0.04) 0%, transparent 60%);
+    transition: background var(--transition);
+  }
+  .container {
+    width: 100%;
+    max-width: 1100px;
+    padding: 32px 24px;
+  }
+  .header { text-align: center; margin-bottom: 40px; }
+  .clock {
+    font-size: 64px; font-weight: 300; letter-spacing: 2px;
+    color: var(--text); line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .date-text { font-size: 16px; color: var(--text-secondary); margin-top: 8px; }
+  .greeting { font-size: 22px; font-weight: 500; margin-top: 6px; color: var(--text); }
+  .search-section { margin-bottom: 36px; display: flex; justify-content: center; }
+  .search-wrapper { position: relative; width: 100%; max-width: 560px; }
+  .search-box {
+    width: 100%; height: 52px; padding: 0 52px 0 20px;
+    border: 2px solid var(--border); border-radius: 26px;
+    font-size: 16px; background: var(--card-bg); color: var(--text);
+    outline: none; transition: all var(--transition); box-shadow: var(--shadow);
+  }
+  .search-box:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+  .search-btn {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    background: var(--primary); color: #fff; border: none;
+    width: 38px; height: 38px; border-radius: 50%;
+    cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background var(--transition);
+  }
+  .search-btn:hover { background: var(--primary-light); }
+  .engine-switch { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+  .engine-btn {
+    padding: 4px 14px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--card-bg); color: var(--text-secondary);
+    font-size: 13px; cursor: pointer; transition: all var(--transition);
+  }
+  .engine-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .toolbar-actions { display: flex; gap: 10px; }
+  .btn {
+    padding: 8px 18px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card-bg); color: var(--text); font-size: 14px;
+    cursor: pointer; transition: all var(--transition);
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: var(--shadow); font-family: inherit;
+  }
+  .btn:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+  .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn-primary:hover { background: var(--primary-light); }
+  .theme-toggle {
+    border: 1px solid var(--border); background: var(--card-bg); color: var(--text);
+    cursor: pointer; font-size: 18px; width: 36px; height: 36px;
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition); box-shadow: var(--shadow);
+  }
+  .theme-toggle:hover { box-shadow: var(--shadow-hover); }
+  .bookmark-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px;
+  }
+  .bookmark-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 16px 16px;
+    cursor: pointer; transition: all var(--transition);
+    text-align: center; position: relative; box-shadow: var(--shadow);
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .bookmark-card:hover {
+    transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--primary-light);
+  }
+  .card-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff; overflow: hidden;
+  }
+  .card-icon img { width: 32px; height: 32px; }
+  .card-title {
+    font-size: 13px; font-weight: 500; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+  }
+  .card-url {
+    font-size: 11px; color: var(--text-secondary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+  }
+  .card-actions {
+    position: absolute; top: 6px; right: 6px;
+    display: flex; gap: 2px; opacity: 0; transition: opacity var(--transition);
+  }
+  .bookmark-card:hover .card-actions { opacity: 1; }
+  .card-action {
+    width: 26px; height: 26px; border-radius: 6px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    cursor: pointer; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary); transition: all var(--transition);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .card-action:hover { color: var(--danger); border-color: var(--danger); }
+  .card-action.edit:hover { color: var(--primary); border-color: var(--primary); }
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; animation: fadeIn 0.2s ease;
+  }
+  .modal {
+    background: var(--card-bg); border-radius: var(--radius);
+    padding: 28px; width: 90%; max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .modal h3 { font-size: 20px; margin-bottom: 20px; font-weight: 600; color: var(--text); }
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block; font-size: 13px; font-weight: 500;
+    margin-bottom: 6px; color: var(--text-secondary);
+  }
+  .form-group input {
+    width: 100%; height: 44px; padding: 0 14px;
+    border: 1px solid var(--border); border-radius: 10px;
+    font-size: 14px; background: var(--bg); color: var(--text);
+    outline: none; transition: border var(--transition); font-family: inherit;
+  }
+  .form-group input:focus { border-color: var(--primary); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+  .color-picker-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .color-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    cursor: pointer; border: 2px solid transparent; transition: all var(--transition);
+  }
+  .color-dot:hover { transform: scale(1.15); }
+  .color-dot.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+  .empty-state .icon { font-size: 56px; margin-bottom: 16px; opacity: 0.5; }
+  .empty-state h2 { font-size: 20px; margin-bottom: 8px; font-weight: 500; }
+  .empty-state p { font-size: 14px; margin-bottom: 20px; }
+  .footer { text-align: center; margin-top: 40px; color: var(--text-secondary); font-size: 12px; opacity: 0.6; }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1f2937; color: #fff; padding: 10px 24px;
+    border-radius: 10px; font-size: 14px; z-index: 200;
+    animation: toastIn 0.3s ease;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  .loading-spinner {
+    display: inline-block; width: 20px; height: 20px;
+    border: 2px solid var(--border); border-top-color: var(--primary);
+    border-radius: 50%; animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <div class="clock" id="clock">00:00</div>
+    <div class="date-text" id="dateText"></div>
+    <div class="greeting" id="greeting"></div>
+  </header>
+
+  <div class="search-section">
+    <div class="search-wrapper">
+      <input class="search-box" id="searchInput" type="text" placeholder="搜索书签或输入关键词搜索..." autocomplete="off">
+      <button class="search-btn" id="searchBtn" title="搜索">&#128269;</button>
+    </div>
+  </div>
+  <div class="engine-switch">
+    <button class="engine-btn active" data-engine="google">Google</button>
+    <button class="engine-btn" data-engine="baidu">百度</button>
+    <button class="engine-btn" data-engine="bing">Bing</button>
+    <button class="engine-btn" data-engine="bookmark">书签</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-actions">
+      <button class="btn btn-primary" id="addBookmarkBtn">+ 添加书签</button>
+      <button class="btn" id="resetBtn">恢复默认</button>
+      <button class="btn" id="exportBtn" title="导出为 JSON 备份">导出</button>
+      <button class="btn" id="importBtn" title="从 JSON 文件导入">导入</button>
+      <input type="file" id="importFile" accept=".json" style="display:none;">
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="font-size:13px;color:var(--text-secondary);" id="bookmarkCount">加载中...</span>
+      <button class="theme-toggle" id="themeToggle" title="切换主题">&#9728;&#65039;</button>
+    </div>
+  </div>
+
+  <div class="bookmark-grid" id="bookmarkGrid"></div>
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="icon">&#128209;</div>
+    <h2>还没有书签</h2>
+    <p>点击上方「+ 添加书签」开始收藏你常用的网址吧</p>
+  </div>
+  <div class="footer">WorkBuddy 在线书签 - 数据云端存储，多设备同步</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" style="display:none;">
+  <div class="modal">
+    <h3 id="modalTitle">添加书签</h3>
+    <div class="form-group">
+      <label>网站名称</label>
+      <input id="modalTitleInput" type="text" placeholder="如：GitHub" maxlength="30">
+    </div>
+    <div class="form-group">
+      <label>网址</label>
+      <input id="modalUrlInput" type="text" placeholder="如：https://github.com">
+    </div>
+    <div class="form-group">
+      <label>图标颜色 / 自定义图标URL</label>
+      <div class="color-picker-row">
+        <span class="color-dot selected" data-color="gradient1" style="background:linear-gradient(135deg,#667eea,#764ba2)"></span>
+        <span class="color-dot" data-color="gradient2" style="background:linear-gradient(135deg,#f093fb,#f5576c)"></span>
+        <span class="color-dot" data-color="gradient3" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"></span>
+        <span class="color-dot" data-color="gradient4" style="background:linear-gradient(135deg,#43e97b,#38f9d7)"></span>
+        <span class="color-dot" data-color="gradient5" style="background:linear-gradient(135deg,#fa709a,#fee140)"></span>
+        <span class="color-dot" data-color="gradient6" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)"></span>
+        <span class="color-dot" data-color="gradient7" style="background:linear-gradient(135deg,#ffecd2,#fcb69f)"></span>
+        <span class="color-dot" data-color="gradient8" style="background:linear-gradient(135deg,#667eea,#667eea)"></span>
+      </div>
+    </div>
+    <div class="form-group">
+      <input id="modalIconInput" type="text" placeholder="或者粘贴自定义图标URL（可选）">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="modalCancel">取消</button>
+      <button class="btn btn-primary" id="modalConfirm">确认</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// === State ===
+const DEFAULT_BOOKMARKS = [
+  { id: '1', title: 'GitHub', url: 'https://github.com', color: 'gradient8' },
+  { id: '2', title: '谷歌', url: 'https://www.google.com', color: 'gradient3' },
+  { id: '3', title: '百度', url: 'https://www.baidu.com', color: 'gradient4' },
+  { id: '4', title: 'B站', url: 'https://www.bilibili.com', color: 'gradient2' },
+  { id: '5', title: '知乎', url: 'https://www.zhihu.com', color: 'gradient3' },
+  { id: '6', title: '掘金', url: 'https://juejin.cn', color: 'gradient1' },
+  { id: '7', title: '微信公众平台', url: 'https://mp.weixin.qq.com', color: 'gradient6' },
+  { id: '8', title: 'YouTube', url: 'https://www.youtube.com', color: 'gradient2' },
+  { id: '9', title: 'Stack Overflow', url: 'https://stackoverflow.com', color: 'gradient5' },
+  { id: '10', title: '语雀', url: 'https://www.yuque.com', color: 'gradient6' },
+  { id: '11', title: '飞书', url: 'https://www.feishu.cn', color: 'gradient3' },
+  { id: '12', title: 'V2EX', url: 'https://www.v2ex.com', color: 'gradient8' },
+];
+
+let bookmarks = [];
+let editingId = null;
+let currentEngine = 'google';
+let selectedColor = 'gradient1';
+let useApi = false; // true if server API is reachable
+
+function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+// === Storage: API-first, localStorage fallback ===
+const API = '/api/bookmarks';
+const LS_KEY = 'wb_bookmarks';
+
+async function apiFetch(url, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+  try {
+    const res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      ...options,
+    });
+    clearTimeout(timeout);
+    const data = await res.json();
+    if (!data.success && !res.ok) throw new Error(data.error || '请求失败');
+    return data;
+  } catch (e) {
+    clearTimeout(timeout);
+    throw e;
+  }
+}
+
+// Check if server is reachable
+async function checkApiAvailable() {
+  try {
+    const res = await fetch(API, { method: 'GET', signal: AbortSignal.timeout(2000) });
+    const data = await res.json();
+    useApi = data.success === true;
+  } catch { useApi = false; }
+}
+
+async function loadBookmarks() {
+  try {
+    const result = await apiFetch(API);
+    bookmarks = result.data;
+  } catch (e) {
+    // Fallback to localStorage
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) { try { bookmarks = JSON.parse(raw); } catch { bookmarks = []; } }
+    if (!bookmarks || bookmarks.length === 0) {
+      bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b}));
+      localStorage.setItem(LS_KEY, JSON.stringify(bookmarks));
+    }
+  }
+  renderBookmarks();
+}
+
+function localSave() { localStorage.setItem(LS_KEY, JSON.stringify(bookmarks)); }
+
+async function saveAddBookmark(title, url, color, icon) {
+  if (useApi) {
+    const result = await apiFetch(API, { method: 'POST', body: JSON.stringify({ title, url, color, icon }) });
+    bookmarks.push(result.data);
+    return result;
+  }
+  const bm = { id: generateId(), title, url, color: color || 'gradient1', icon: icon || '' };
+  bookmarks.push(bm);
+  localSave();
+  return { data: bm };
+}
+
+async function saveUpdateBookmark(id, title, url, color, icon) {
+  if (useApi) {
+    const result = await apiFetch(`${API}/${id}`, { method: 'PUT', body: JSON.stringify({ title, url, color, icon }) });
+    const idx = bookmarks.findIndex(b => b.id === id);
+    if (idx !== -1) bookmarks[idx] = result.data;
+    return result;
+  }
+  const idx = bookmarks.findIndex(b => b.id === id);
+  if (idx !== -1) {
+    bookmarks[idx] = { ...bookmarks[idx], title, url, color, icon };
+    localSave();
+  }
+  return { data: bookmarks[idx] };
+}
+
+async function saveDeleteBookmark(id) {
+  if (useApi) {
+    await apiFetch(`${API}/${id}`, { method: 'DELETE' });
+  }
+  bookmarks = bookmarks.filter(b => b.id !== id);
+  localSave();
+}
+
+async function resetBookmarks() {
+  if (useApi) {
+    const result = await apiFetch(`${API}/reset`, { method: 'POST' });
+    bookmarks = result.data;
+    return;
+  }
+  bookmarks = DEFAULT_BOOKMARKS.map(b => ({...b}));
+  localSave();
+}
+
+// === Theme (localStorage, per-device) ===
+function loadTheme() {
+  const theme = localStorage.getItem('wb_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeIcon(theme);
+}
+
+function saveTheme(theme) {
+  localStorage.setItem('wb_theme', theme);
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeIcon(theme);
+}
+
+function updateThemeIcon(theme) {
+  document.getElementById('themeToggle').innerHTML = theme === 'dark' ? '&#127769;' : '&#9728;&#65039;';
+}
+
+// === Render ===
+function getIconHtml(bm) {
+  if (bm.icon && bm.icon.startsWith('http')) {
+    return `<img src="${bm.icon}" alt="" onerror="this.style.display='none';this.parentElement.textContent='${bm.title.charAt(0).toUpperCase()}';" crossorigin="anonymous">`;
+  }
+  return bm.title.charAt(0).toUpperCase();
+}
+
+function getColorStyle(color) {
+  const gradients = {
+    gradient1: 'linear-gradient(135deg, #667eea, #764ba2)',
+    gradient2: 'linear-gradient(135deg, #f093fb, #f5576c)',
+    gradient3: 'linear-gradient(135deg, #4facfe, #00f2fe)',
+    gradient4: 'linear-gradient(135deg, #43e97b, #38f9d7)',
+    gradient5: 'linear-gradient(135deg, #fa709a, #fee140)',
+    gradient6: 'linear-gradient(135deg, #a18cd1, #fbc2eb)',
+    gradient7: 'linear-gradient(135deg, #ffecd2, #fcb69f)',
+    gradient8: 'linear-gradient(135deg, #667eea, #667eea)',
+  };
+  return gradients[color] || gradients.gradient8;
+}
+
+function renderBookmarks() {
+  const grid = document.getElementById('bookmarkGrid');
+  const empty = document.getElementById('emptyState');
+  const countEl = document.getElementById('bookmarkCount');
+  countEl.textContent = `${bookmarks.length} 个书签`;
+
+  if (bookmarks.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = bookmarks.map(bm => `
+    <div class="bookmark-card" data-id="${bm.id}" onclick="openBookmark(event, '${bm.id}')">
+      <div class="card-icon" style="background:${getColorStyle(bm.color)};">${getIconHtml(bm)}</div>
+      <span class="card-title">${escapeHtml(bm.title)}</span>
+      <span class="card-url">${escapeHtml(bm.url.replace(/^https?:\/\//, ''))}</span>
+      <div class="card-actions">
+        <button class="card-action edit" onclick="event.stopPropagation();editBookmark('${bm.id}')" title="编辑">&#9998;</button>
+        <button class="card-action" onclick="event.stopPropagation();deleteBookmark('${bm.id}')" title="删除">&#10005;</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openBookmark(event, id) {
+  if (event.target.closest('.card-action')) return;
+  const bm = bookmarks.find(b => b.id === id);
+  if (bm) {
+    let url = bm.url;
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    window.open(url, '_blank');
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+// === Modal ===
+function openModal(title, bm) {
+  editingId = bm ? bm.id : null;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalTitleInput').value = bm ? bm.title : '';
+  document.getElementById('modalUrlInput').value = bm ? bm.url : '';
+  document.getElementById('modalIconInput').value = bm ? (bm.icon || '') : '';
+  selectedColor = bm ? (bm.color || 'gradient1') : 'gradient1';
+  updateColorPicker();
+  document.getElementById('modalOverlay').style.display = 'flex';
+  document.getElementById('modalTitleInput').focus();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').style.display = 'none';
+  editingId = null;
+}
+
+function updateColorPicker() {
+  document.querySelectorAll('.color-dot').forEach(dot => {
+    dot.classList.toggle('selected', dot.dataset.color === selectedColor);
+  });
+}
+
+async function addBookmark() {
+  const title = document.getElementById('modalTitleInput').value.trim();
+  let url = document.getElementById('modalUrlInput').value.trim();
+  const icon = document.getElementById('modalIconInput').value.trim();
+  if (!title || !url) { showToast('请填写名称和网址'); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  try {
+    if (editingId) {
+      await saveUpdateBookmark(editingId, title, url, selectedColor, icon);
+      showToast('书签已更新');
+    } else {
+      await saveAddBookmark(title, url, selectedColor, icon);
+      showToast('书签已添加');
+    }
+    renderBookmarks();
+    closeModal();
+  } catch (e) {
+    showToast('操作失败: ' + e.message);
+  }
+}
+
+function editBookmark(id) {
+  const bm = bookmarks.find(b => b.id === id);
+  if (bm) openModal('编辑书签', bm);
+}
+
+async function deleteBookmark(id) {
+  if (!confirm('确定要删除这个书签吗？')) return;
+  try {
+    await saveDeleteBookmark(id);
+    renderBookmarks();
+    showToast('书签已删除');
+  } catch (e) {
+    showToast('删除失败: ' + e.message);
+  }
+}
+
+// === Search ===
+function doSearch(query) {
+  if (currentEngine === 'bookmark') {
+    const q = query.toLowerCase();
+    bookmarks.forEach(bm => {
+      const card = document.querySelector(`.bookmark-card[data-id="${bm.id}"]`);
+      if (card) {
+        card.style.display = (bm.title.toLowerCase().includes(q) || bm.url.toLowerCase().includes(q)) ? '' : 'none';
+      }
+    });
+    if (!query) renderBookmarks();
+    return;
+  }
+  const engines = {
+    google: 'https://www.google.com/search?q=',
+    baidu: 'https://www.baidu.com/s?wd=',
+    bing: 'https://www.bing.com/search?q=',
+  };
+  window.open(engines[currentEngine] + encodeURIComponent(query), '_blank');
+}
+
+// === Clock ===
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+  document.getElementById('dateText').textContent =
+    `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
+
+  const h = now.getHours();
+  const greetings = [
+    [6, '夜深了，早点休息'], [9, '早上好，新的一天开始了'],
+    [12, '上午好，精力充沛'], [14, '中午好，记得吃午饭'],
+    [18, '下午好，继续加油'], [22, '晚上好，放松一下'],
+  ];
+  const g = greetings.find(([t]) => h < t);
+  document.getElementById('greeting').textContent = g ? g[1] : '夜深了，早点休息';
+}
+
+// === Export / Import ===
+function exportBookmarks() {
+  try {
+    const blob = new Blob([JSON.stringify(bookmarks, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `bookmarks-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    showToast('导出成功');
+  } catch (e) { showToast('导出失败'); }
+}
+
+async function importBookmarks(file) {
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (!Array.isArray(data)) throw new Error('格式不正确');
+
+    if (useApi) {
+      for (const item of data) {
+        await apiFetch(API, {
+          method: 'POST',
+          body: JSON.stringify({
+            title: item.title, url: item.url,
+            color: item.color || 'gradient1', icon: item.icon || '',
+          }),
+        });
+      }
+      await loadBookmarks();
+    } else {
+      for (const item of data) {
+        bookmarks.push({
+          id: generateId(), title: item.title, url: item.url,
+          color: item.color || 'gradient1', icon: item.icon || '',
+        });
+      }
+      localSave();
+      renderBookmarks();
+    }
+    showToast(`成功导入 ${data.length} 个书签`);
+  } catch (e) { showToast('导入失败: ' + e.message); }
+}
+
+// === Events ===
+document.getElementById('addBookmarkBtn').addEventListener('click', () => openModal('添加书签', null));
+document.getElementById('modalCancel').addEventListener('click', closeModal);
+document.getElementById('modalConfirm').addEventListener('click', addBookmark);
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.getElementById('exportBtn').addEventListener('click', exportBookmarks);
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', (e) => {
+  if (e.target.files[0]) importBookmarks(e.target.files[0]);
+  e.target.value = '';
+});
+
+document.querySelectorAll('.color-dot').forEach(dot => {
+  dot.addEventListener('click', () => { selectedColor = dot.dataset.color; updateColorPicker(); });
+});
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  saveTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+document.querySelectorAll('.engine-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.engine-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentEngine = btn.dataset.engine;
+    document.getElementById('searchInput').placeholder =
+      currentEngine === 'bookmark' ? '搜索本地书签...' : '输入关键词搜索...';
+    if (currentEngine !== 'bookmark') renderBookmarks();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { const q = e.target.value.trim(); if (q) doSearch(q); }
+  if (currentEngine === 'bookmark') {
+    const q = e.target.value.trim();
+    if (!q) renderBookmarks();
+    else {
+      const ql = q.toLowerCase();
+      document.querySelectorAll('.bookmark-card').forEach(card => {
+        const bm = bookmarks.find(b => b.id === card.dataset.id);
+        if (bm) card.style.display = (bm.title.toLowerCase().includes(ql) || bm.url.toLowerCase().includes(ql)) ? '' : 'none';
+      });
+    }
+  }
+});
+
+document.getElementById('searchBtn').addEventListener('click', () => {
+  const q = document.getElementById('searchInput').value.trim();
+  if (q) doSearch(q);
+});
+
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  if (!confirm('确定恢复默认书签吗？所有数据将被替换。')) return;
+  try {
+    await resetBookmarks();
+    renderBookmarks();
+    showToast('已恢复默认书签');
+  } catch (e) {
+    showToast('重置失败: ' + e.message);
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+// === Init ===
+(async function init() {
+  loadTheme();
+  await checkApiAvailable();
+  await loadBookmarks();
+  updateClock();
+  setInterval(updateClock, 10000);
+  if (!useApi) {
+    document.getElementById('bookmarkCount').textContent += ' (本地存储)';
+  }
+})();
+</script>
+</body>
+</html>

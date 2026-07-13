@@ -1,0 +1,74 @@
+[
+  {
+    "id": "1",
+    "title": "GitHub",
+    "url": "https://github.com",
+    "color": "gradient8"
+  },
+  {
+    "id": "2",
+    "title": "谷歌",
+    "url": "https://www.google.com",
+    "color": "gradient3"
+  },
+  {
+    "id": "3",
+    "title": "百度",
+    "url": "https://www.baidu.com",
+    "color": "gradient4"
+  },
+  {
+    "id": "4",
+    "title": "B站",
+    "url": "https://www.bilibili.com",
+    "color": "gradient2"
+  },
+  {
+    "id": "5",
+    "title": "知乎",
+    "url": "https://www.zhihu.com",
+    "color": "gradient3"
+  },
+  {
+    "id": "6",
+    "title": "掘金",
+    "url": "https://juejin.cn",
+    "color": "gradient1"
+  },
+  {
+    "id": "7",
+    "title": "微信公众平台",
+    "url": "https://mp.weixin.qq.com",
+    "color": "gradient6"
+  },
+  {
+    "id": "8",
+    "title": "YouTube",
+    "url": "https://www.youtube.com",
+    "color": "gradient2"
+  },
+  {
+    "id": "9",
+    "title": "Stack Overflow",
+    "url": "https://stackoverflow.com",
+    "color": "gradient5"
+  },
+  {
+    "id": "10",
+    "title": "语雀",
+    "url": "https://www.yuque.com",
+    "color": "gradient6"
+  },
+  {
+    "id": "11",
+    "title": "飞书",
+    "url": "https://www.feishu.cn",
+    "color": "gradient3"
+  },
+  {
+    "id": "12",
+    "title": "V2EX",
+    "url": "https://www.v2ex.com",
+    "color": "gradient8"
+  }
+]
