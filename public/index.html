@@ -62,6 +62,52 @@
     background-size: 60px 60px;
   }
 
+  /* ====== Custom Wallpaper ====== */
+  .bg-wallpaper {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
+    background-size: cover; background-position: center; background-repeat: no-repeat;
+    display: none;
+  }
+  .bg-wallpaper.active { display: block; }
+  .bg-wallpaper.active ~ .bg-layer .bg-orb { opacity: 0.08; }
+  .bg-wallpaper.active ~ .bg-layer .bg-grid { opacity: 0.5; }
+  .wallpaper-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15,17,27,0.45); z-index: -1;
+    display: none;
+  }
+  .bg-wallpaper.active ~ .wallpaper-overlay { display: block; }
+
+  /* Wallpaper picker popup */
+  .wallpaper-popup {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: rgba(22,26,40,0.98); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 8px; min-width: 200px;
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+    z-index: 50; display: none;
+    animation: fadeIn 0.15s ease;
+  }
+  .wallpaper-popup.show { display: block; }
+  .wallpaper-item {
+    padding: 10px 16px; border-radius: 10px; cursor: pointer;
+    font-size: 13px; color: rgba(255,255,255,0.7); transition: all 0.15s;
+    display: flex; align-items: center; gap: 10px; font-weight: 500;
+  }
+  .wallpaper-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .wallpaper-item.danger:hover { background: rgba(244,63,94,0.15); color: #f43f5e; }
+  .wallpaper-url-input {
+    padding: 8px 12px; margin: 4px 6px 6px;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+    background: rgba(255,255,255,0.04); color: #fff; font-size: 13px;
+    outline: none; width: calc(100% - 12px); font-family: inherit;
+    transition: border var(--transition);
+    display: none;
+  }
+  .wallpaper-url-input.show { display: block; }
+  .wallpaper-url-input:focus { border-color: rgba(124,111,247,0.4); }
+  .toolbar-right-wrap { position: relative; display: flex; gap: 8px; align-items: center; }
+
   .container { width: 100%; max-width: 1280px; padding: 60px 28px 80px; margin: 0 auto; position: relative; z-index: 1; }
 
   /* ====== Header ====== */
@@ -393,6 +439,8 @@
 </head>
 <body>
 
+<div class="bg-wallpaper" id="bgWallpaper"></div>
+<div class="wallpaper-overlay"></div>
 <div class="bg-layer">
   <div class="bg-grid"></div>
   <div class="bg-orb"></div>
@@ -453,9 +501,17 @@
       <button class="btn" id="importBtn" title="从 JSON 文件导入">导入</button>
       <input type="file" id="importFile" accept=".json" style="display:none;">
     </div>
-    <div class="toolbar-right">
+    <div class="toolbar-right-wrap">
       <span style="font-size:12px;color:rgba(255,255,255,0.3);" id="bookmarkCount">加载中...</span>
+      <button class="icon-btn" id="wallpaperBtn" title="更换壁纸">&#127912;</button>
       <button class="icon-btn danger" id="logoutBtn" title="锁定">&#128274;</button>
+      <div class="wallpaper-popup" id="wallpaperPopup">
+        <div class="wallpaper-item" id="wpUpload">&#128247; 选择本地图片</div>
+        <div class="wallpaper-item" id="wpUrl">&#128279; 使用图片链接</div>
+        <input type="text" class="wallpaper-url-input" id="wpUrlInput" placeholder="粘贴图片链接后按回车...">
+        <div class="wallpaper-item danger hidden" id="wpClear">&#10005; 恢复默认背景</div>
+      </div>
+      <input type="file" id="wallpaperFileInput" accept="image/*" style="display:none;">
     </div>
   </div>
 
@@ -888,6 +944,34 @@ async function importBookmarks(file) {
   } catch (e) { showToast('导入失败: ' + e.message); }
 }
 
+// === Wallpaper ===
+const WP_KEY = 'wb_wallpaper';
+function setWallpaper(dataUrl) {
+  localStorage.setItem(WP_KEY, dataUrl);
+  const el = document.getElementById('bgWallpaper');
+  el.style.backgroundImage = `url(${dataUrl})`;
+  el.classList.add('active');
+  document.getElementById('wpClear').classList.remove('hidden');
+}
+function clearWallpaper() {
+  localStorage.removeItem(WP_KEY);
+  document.getElementById('bgWallpaper').classList.remove('active');
+  document.getElementById('bgWallpaper').style.backgroundImage = '';
+  document.getElementById('wpClear').classList.add('hidden');
+  showToast('已恢复默认背景');
+}
+function loadWallpaper() {
+  const dataUrl = localStorage.getItem(WP_KEY);
+  if (dataUrl) {
+    document.getElementById('bgWallpaper').style.backgroundImage = `url(${dataUrl})`;
+    document.getElementById('bgWallpaper').classList.add('active');
+    document.getElementById('wpClear').classList.remove('hidden');
+  }
+}
+function toggleWallpaperPopup() {
+  document.getElementById('wallpaperPopup').classList.toggle('show');
+}
+
 // === Events ===
 document.getElementById('addBookmarkBtn').addEventListener('click', () => openModal('添加书签', null));
 document.getElementById('modalCancel').addEventListener('click', closeModal);
@@ -935,6 +1019,43 @@ document.getElementById('resetBtn').addEventListener('click', async () => { if (
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
+// Wallpaper events
+document.getElementById('wallpaperBtn').addEventListener('click', e => { e.stopPropagation(); toggleWallpaperPopup(); });
+document.getElementById('wpUpload').addEventListener('click', () => { document.getElementById('wallpaperFileInput').click(); toggleWallpaperPopup(); });
+document.getElementById('wallpaperFileInput').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { setWallpaper(reader.result); showToast('壁纸已更新'); };
+  reader.onerror = () => showToast('图片读取失败');
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+document.getElementById('wpUrl').addEventListener('click', () => {
+  document.getElementById('wpUrlInput').classList.toggle('show');
+  if (document.getElementById('wpUrlInput').classList.contains('show')) setTimeout(() => document.getElementById('wpUrlInput').focus(), 100);
+});
+document.getElementById('wpUrlInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const url = e.target.value.trim(); if (!url) return;
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
+      setWallpaper(canvas.toDataURL('image/jpeg', 0.85));
+      showToast('壁纸已更新');
+      toggleWallpaperPopup(); document.getElementById('wpUrlInput').value = ''; document.getElementById('wpUrlInput').classList.remove('show');
+    };
+    img.onerror = () => { showToast('图片链接无效，请检查后重试'); };
+    img.src = url;
+  }
+});
+document.getElementById('wpClear').addEventListener('click', () => { clearWallpaper(); toggleWallpaperPopup(); });
+document.addEventListener('click', e => {
+  if (!e.target.closest('#wallpaperPopup') && !e.target.closest('#wallpaperBtn')) {
+    document.getElementById('wallpaperPopup').classList.remove('show');
+  }
+});
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { hideContextMenu(); if (document.getElementById('groupModalOverlay').style.display === 'flex') closeGroupModal(); else closeModal(); }
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); document.getElementById('searchInput').focus(); }
@@ -944,6 +1065,7 @@ document.addEventListener('keydown', e => {
 (async function init() {
   updateClock(); setInterval(updateClock, 10000);
   fetchWeather();
+  loadWallpaper();
   await checkApiAvailable();
   if (needAuth) {
     if (authToken) { try { await loadBookmarks(); hideLogin(); return; } catch (e) { showLogin(); return; } }
