@@ -418,6 +418,7 @@
   }
   .bookmark-card:hover .card-icon { transform: scale(1.08); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
   .card-icon img { width: 40px; height: 40px; object-fit: contain; }
+  .card-icon.no-bg { background: none !important; box-shadow: none !important; }
   .card-title { font-size: 14px; font-weight: 500; color: #1a1a2e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; letter-spacing: 0.3px; }
   .card-group-tag {
     font-size: 11px; padding: 4px 12px; border-radius: 12px;
@@ -1165,7 +1166,7 @@ function renderBookmarks() {
     const group = getGroupById(bm.groupId);
     const groupTag = group ? `<span class="card-group-tag" style="background:${group.color}44;color:${group.color}">${escapeHtml(group.name)}</span>` : '';
     return `<div class="bookmark-card" data-id="${bm.id}" draggable="true" onclick="openBookmark(event,'${bm.id}')" oncontextmenu="showContextMenu(event,'${bm.id}')">
-      <div class="card-icon" style="background:${getColorStyle(bm.color)};">${getIconHtml(bm)}</div>
+      <div class="card-icon${bm.icon && bm.icon.startsWith('http') ? ' no-bg' : ''}" style="background:${getColorStyle(bm.color)};">${getIconHtml(bm)}</div>
       <span class="card-title">${escapeHtml(bm.title)}</span>${groupTag}
       <div class="card-actions">
         <button class="card-action edit" onclick="event.stopPropagation();editBookmark('${bm.id}')" title="编辑">&#9998;</button>
