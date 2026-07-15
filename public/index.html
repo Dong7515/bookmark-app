@@ -419,6 +419,7 @@
   .bookmark-card:hover .card-icon { transform: scale(1.08); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
   .card-icon img { width: 40px; height: 40px; object-fit: contain; }
   .card-icon.no-bg { background: none !important; box-shadow: none !important; }
+  .card-icon.has-fallback { background: var(--fallback-bg, linear-gradient(135deg,#667eea,#764ba2)); display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;font-weight:600; }
   .card-title { font-size: 14px; font-weight: 500; color: #1a1a2e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; letter-spacing: 0.3px; }
   .card-group-tag {
     font-size: 11px; padding: 4px 12px; border-radius: 12px;
@@ -955,7 +956,13 @@ async function saveDeleteBookmark(id) { if (useApi) await apiCall(`${API}/${id}`
 // === Render ===
 function renderAll() { renderGroupTabs(); renderBookmarks(); }
 function getIconHtml(bm) {
-  if (bm.icon && bm.icon.startsWith('http')) return `<img src="${bm.icon}" alt="" draggable="false" onerror="this.style.display='none';this.parentElement.textContent='${bm.title.charAt(0).toUpperCase()}';" crossorigin="anonymous">`;
+  if (bm.icon && bm.icon.startsWith('http')) {
+    const letter = bm.title.charAt(0).toUpperCase();
+    return `<img src="${escapeHtml(bm.icon)}" alt="${letter}" draggable="false"
+      referrerpolicy="no-referrer" loading="lazy"
+      onerror="var p=this.parentElement;if(p){p.classList.add('has-fallback');p.textContent='${letter}';}"
+      style="width:40px;height:40px;object-fit:contain;">`;
+  }
   return bm.title.charAt(0).toUpperCase();
 }
 function getColorStyle(color) {
@@ -1413,18 +1420,39 @@ async function fetchWebsiteMeta() {
   const btn = document.getElementById('fetchMetaBtn'); btn.textContent = '获取中...'; btn.disabled = true; btn.classList.add('fetching');
   try {
     if (useApi) {
-      const r = await apiCall(`/api/fetch-meta?url=${encodeURIComponent(url)}`);
-      if (r.success) {
-        const ti = document.getElementById('modalTitleInput');
-        if (!ti.value.trim() && r.title) ti.value = r.title;
-        const icons = r.icons || (r.icon ? [r.icon] : []);
-        if (icons.length > 0) {
-          renderIconPicker(icons);
-          const ii = document.getElementById('modalIconInput');
-          if (!ii.value.trim()) ii.value = icons[0];
+      let title = '';
+      let icons = [];
+      try {
+        const r = await apiCall(`/api/fetch-meta?url=${encodeURIComponent(url)}`);
+        if (r.success) {
+          const ti = document.getElementById('modalTitleInput');
+          if (!ti.value.trim() && r.title) ti.value = r.title;
+          title = r.title || '';
+          icons = r.icons || [];
         }
-        showToast(r.title ? `已获取: ${r.title}` : '未找到标题');
+      } catch (e) {
+        console.warn('API fetch-meta failed:', e.message);
+        // API failed - build local fallback icons
       }
+      // Always show icon picker (even if API failed)
+      if (icons.length === 0) {
+        try {
+          const u = new URL(/^https?:\/\//i.test(url) ? url : 'https://' + url);
+          const d = u.hostname;
+          icons = [
+            `https://www.google.com/s2/favicons?domain=${d}&sz=64`,
+            `https://duckduckgo.com/ip3/${d}.ico`,
+            `https://favicon.im/${d}.png`,
+            `https://${d}/favicon.ico`,
+          ];
+        } catch (_) { /* invalid url */ }
+      }
+      if (icons.length > 0) {
+        renderIconPicker(icons);
+        const ii = document.getElementById('modalIconInput');
+        if (!ii.value.trim()) ii.value = icons[0];
+      }
+      showToast(title ? `已获取: ${title}` : '已获取头像');
     }
   } catch (e) { showToast('获取失败: ' + e.message); }
   finally { btn.textContent = '获取信息'; btn.disabled = false; btn.classList.remove('fetching'); }
