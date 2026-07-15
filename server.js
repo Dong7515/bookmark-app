@@ -432,17 +432,48 @@ function handleResponse(resp, res, domain, fallbackIcon) {
     // Extract <title>
     const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
     const title = titleMatch ? titleMatch[1].trim() : '';
-    // Extract favicon from <link> tags
-    const iconMatch = html.match(/<link[^>]+rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i)
-                   || html.match(/<link[^>]+href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i);
-    let icon = '';
-    if (iconMatch) {
-      const href = iconMatch[1];
-      icon = href.startsWith('http') ? href : (href.startsWith('//') ? 'https:' + href : 'https://' + domain + (href.startsWith('/') ? '' : '/') + href);
-    } else {
-      icon = fallbackIcon;
+
+    // Collect all candidate icons
+    const icons = [];
+    const seen = new Set();
+    const addIcon = (href) => {
+      if (!href) return;
+      let full = href;
+      if (!href.startsWith('http')) {
+        if (href.startsWith('//')) full = 'https:' + href;
+        else full = 'https://' + domain + (href.startsWith('/') ? '' : '/') + href;
+      }
+      if (!seen.has(full)) { seen.add(full); icons.push(full); }
+    };
+
+    // <link rel="icon">, shortcut icon, apple-touch-icon (all occurrences)
+    const linkRegex = /<link\s[^>]*>/gi;
+    let m;
+    while ((m = linkRegex.exec(html)) !== null) {
+      const tag = m[0];
+      const relMatch = tag.match(/rel\s*=\s*["']([^"']+)["']/i);
+      const hrefMatch = tag.match(/href\s*=\s*["']([^"']+)["']/i);
+      if (relMatch && hrefMatch) {
+        const rel = relMatch[1].toLowerCase();
+        if (rel.includes('icon') || rel.includes('apple-touch')) {
+          addIcon(hrefMatch[1]);
+        }
+      }
     }
-    res.json({ success: true, title, icon });
+
+    // <meta property="og:image">
+    const ogMatch = html.match(/<meta\s[^>]*property\s*=\s*["']og:image["'][^>]*content\s*=\s*["']([^"']+)["']/i)
+                   || html.match(/<meta\s[^>]*content\s*=\s*["']([^"']+)["'][^>]*property\s*=\s*["']og:image["']/i);
+    if (ogMatch) addIcon(ogMatch[1]);
+
+    // Root favicon.ico
+    addIcon('https://' + domain + '/favicon.ico');
+
+    // Google favicon fallback (always last)
+    icons.push(fallbackIcon);
+
+    const icon = icons[0] || fallbackIcon;
+    res.json({ success: true, title, icon, icons });
   });
   resp.on('error', () => sendFallback(res, domain, fallbackIcon));
 }

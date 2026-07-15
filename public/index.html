@@ -545,6 +545,16 @@
   }
   .color-dot:hover { transform: scale(1.18); }
   .color-dot.selected { border-color: #1a1a2e; box-shadow: 0 0 0 4px rgba(102,126,234,0.2); }
+  .icon-thumb {
+    width: 44px; height: 44px; border-radius: 12px; overflow: hidden;
+    cursor: pointer; border: 3px solid transparent; transition: all var(--transition);
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.6); position: relative;
+  }
+  .icon-thumb:hover { transform: scale(1.1); border-color: rgba(124,111,247,0.3); }
+  .icon-thumb.selected { border-color: #7c6ff7; box-shadow: 0 0 0 3px rgba(124,111,247,0.15); }
+  .icon-thumb img { width: 32px; height: 32px; object-fit: contain; }
+  .icon-thumb .icon-fallback { font-size: 18px; font-weight: 700; color: rgba(0,0,0,0.3); }
 
   /* ====== States ====== */
   .empty-state { text-align: center; padding: 80px 20px; color: rgba(0,0,0,0.3); }
@@ -755,6 +765,10 @@
     </div>
     <div class="form-group">
       <input id="modalIconInput" type="text" placeholder="自定义图标 URL（可选）">
+    </div>
+    <div class="form-group" id="iconPickerGroup" style="display:none;">
+      <label>选择头像</label>
+      <div id="iconPicker" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
     </div>
     <div class="modal-actions">
       <button class="btn" id="modalCancel">取消</button>
@@ -1358,6 +1372,18 @@ function openModal(title, bm, prefillUrl, prefillTitle) {
   document.getElementById('modalUrlInput').value = bm ? bm.url : (prefillUrl || '');
   document.getElementById('modalIconInput').value = bm ? (bm.icon || '') : '';
   selectedColor = bm ? (bm.color || 'gradient1') : 'gradient1'; updateColorPicker();
+  const iconPickerGroup = document.getElementById('iconPickerGroup');
+  const iconPicker = document.getElementById('iconPicker');
+  if (bm && bm.icon && bm.icon.startsWith('http')) {
+    iconPicker.innerHTML = `<div class="icon-thumb selected" data-src="${escapeHtml(bm.icon)}" title="当前图标">
+      <img src="${escapeHtml(bm.icon)}" alt="" draggable="false"
+        onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'icon-fallback\\'>?</span>';">
+    </div>`;
+    iconPickerGroup.style.display = 'block';
+  } else {
+    iconPickerGroup.style.display = 'none';
+    iconPicker.innerHTML = '';
+  }
   const select = document.getElementById('modalGroupSelect');
   select.innerHTML = '<option value="">无分组</option>' + groups.map(g => `<option value="${g.id}" ${bm && bm.groupId === g.id ? 'selected' : ''}>${escapeHtml(g.name)}</option>`).join('');
   document.getElementById('modalOverlay').style.display = 'flex';
@@ -1387,10 +1413,42 @@ async function fetchWebsiteMeta() {
   try {
     if (useApi) {
       const r = await apiCall(`/api/fetch-meta?url=${encodeURIComponent(url)}`);
-      if (r.success) { const ti = document.getElementById('modalTitleInput'); if (!ti.value.trim() && r.title) ti.value = r.title; if (r.icon) { const ii = document.getElementById('modalIconInput'); if (!ii.value.trim()) ii.value = r.icon; } showToast(r.title ? `已获取: ${r.title}` : '未找到标题'); }
+      if (r.success) {
+        const ti = document.getElementById('modalTitleInput');
+        if (!ti.value.trim() && r.title) ti.value = r.title;
+        const icons = r.icons || (r.icon ? [r.icon] : []);
+        if (icons.length > 0) {
+          renderIconPicker(icons);
+          const ii = document.getElementById('modalIconInput');
+          if (!ii.value.trim()) ii.value = icons[0];
+        }
+        showToast(r.title ? `已获取: ${r.title}` : '未找到标题');
+      }
     }
   } catch (e) { showToast('获取失败: ' + e.message); }
   finally { btn.textContent = '获取信息'; btn.disabled = false; btn.classList.remove('fetching'); }
+}
+
+function renderIconPicker(icons) {
+  const picker = document.getElementById('iconPicker');
+  const group = document.getElementById('iconPickerGroup');
+  const input = document.getElementById('modalIconInput');
+  const current = input.value.trim();
+  picker.innerHTML = icons.map((src, i) => {
+    const selected = (i === 0 && !current) || src === current ? ' selected' : '';
+    return `<div class="icon-thumb${selected}" data-src="${escapeHtml(src)}" title="${escapeHtml(src)}">
+      <img src="${escapeHtml(src)}" alt="" draggable="false"
+        onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\'icon-fallback\\'>?</span>';">
+    </div>`;
+  }).join('');
+  group.style.display = 'block';
+  picker.querySelectorAll('.icon-thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      picker.querySelectorAll('.icon-thumb').forEach(t => t.classList.remove('selected'));
+      thumb.classList.add('selected');
+      input.value = thumb.dataset.src;
+    });
+  });
 }
 
 function editBookmark(id) { const bm = bookmarks.find(b => b.id === id); if (bm) openModal('编辑书签', bm); }
