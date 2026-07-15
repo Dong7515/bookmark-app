@@ -378,108 +378,127 @@ app.put('/api/groups/reorder', authMiddleware, (req, res) => {
 });
 
 // === Protected: Fetch website meta (title + favicon) ===
-app.get('/api/fetch-meta', authMiddleware, (req, res) => {
+app.get('/api/fetch-meta', authMiddleware, async (req, res) => {
   try {
     const url = req.query.url;
     if (!url) return res.status(400).json({ success: false, error: '缺少 url 参数' });
 
     const fullUrl = /^https?:\/\//i.test(url) ? url : 'https://' + url;
     const urlObj = new URL(fullUrl);
-    const proto = urlObj.protocol === 'https:' ? require('https') : require('http');
     const domain = urlObj.hostname;
 
-    // Google favicon fallback
-    const fallbackIcon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+    // Build candidate icons from favicon services (always available & fast)
+    const icons = [];
+    const seen = new Set();
+    const addIcon = (src) => { if (src && !seen.has(src)) { seen.add(src); icons.push(src); } };
 
-    const fetchOptions = {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml',
-      },
-      timeout: 5000,
-    };
+    // Multiple favicon sources - these are CDN-based and very fast
+    addIcon(`https://www.google.com/s2/favicons?domain=${domain}&sz=64`);
+    addIcon(`https://duckduckgo.com/ip3/${domain}.ico`);
+    addIcon(`https://favicon.im/${domain}.png`);
 
-    proto.get(fullUrl, fetchOptions, (resp) => {
-      // Follow redirects (max 3)
-      if ([301, 302, 303, 307, 308].includes(resp.statusCode)) {
-        const redirect = resp.headers.location;
-        if (redirect) {
-          const redirectUrl = redirect.startsWith('http') ? redirect : urlObj.origin + redirect;
-          proto.get(redirectUrl, { ...fetchOptions, timeout: 5000 }, (resp2) => {
-            handleResponse(resp2, res, domain, fallbackIcon);
-          }).on('error', () => sendFallback(res, domain, fallbackIcon))
-           .on('timeout', function() { this.destroy(); sendFallback(res, domain, fallbackIcon); });
-          return;
-        }
-      }
-      handleResponse(resp, res, domain, fallbackIcon);
-    }).on('error', () => sendFallback(res, domain, fallbackIcon))
-      .on('timeout', function() { this.destroy(); sendFallback(res, domain, fallbackIcon); });
+    // Root favicon.ico
+    addIcon(`https://${domain}/favicon.ico`);
+
+    let title = '';
+
+    // Try to fetch page HTML for title + real favicons (with generous timeout)
+    try {
+      title = await fetchPageTitleAndIcons(urlObj, domain, seen, icons);
+    } catch (e) {
+      console.log(`fetch-meta: page fetch failed (${e.message}), using fallback`);
+      // Still return success with whatever we have
+    }
+
+    res.json({
+      success: true,
+      title,
+      icon: icons[0] || '',
+      icons,
+    });
   } catch (e) {
-    res.status(400).json({ success: false, error: 'URL 格式不正确' });
+    res.status(400).json({ success: false, error: e.message || '获取失败' });
   }
 });
 
-function handleResponse(resp, res, domain, fallbackIcon) {
-  const chunks = [];
-  resp.on('data', chunk => {
-    chunks.push(chunk);
-    // Limit content size
-    if (chunks.reduce((s, c) => s + c.length, 0) > 500000) resp.destroy();
-  });
-  resp.on('end', () => {
-    const html = Buffer.concat(chunks).toString('utf-8');
-    // Extract <title>
-    const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-    const title = titleMatch ? titleMatch[1].trim() : '';
+// Fetch page HTML to extract title and real icon links
+function fetchPageTitleAndIcons(urlObj, domain, seen, icons) {
+  return new Promise((resolve, reject) => {
+    const proto = urlObj.protocol === 'https:' ? require('https') : require('http');
+    const fullUrl = urlObj.toString();
 
-    // Collect all candidate icons
-    const icons = [];
-    const seen = new Set();
-    const addIcon = (href) => {
-      if (!href) return;
-      let full = href;
-      if (!href.startsWith('http')) {
-        if (href.startsWith('//')) full = 'https:' + href;
-        else full = 'https://' + domain + (href.startsWith('/') ? '' : '/') + href;
-      }
-      if (!seen.has(full)) { seen.add(full); icons.push(full); }
+    const opts = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Encoding': 'identity',  // no gzip to avoid decompress issues
+      },
+      timeout: 12000,
     };
 
-    // <link rel="icon">, shortcut icon, apple-touch-icon (all occurrences)
-    const linkRegex = /<link\s[^>]*>/gi;
-    let m;
-    while ((m = linkRegex.exec(html)) !== null) {
-      const tag = m[0];
-      const relMatch = tag.match(/rel\s*=\s*["']([^"']+)["']/i);
-      const hrefMatch = tag.match(/href\s*=\s*["']([^"']+)["']/i);
-      if (relMatch && hrefMatch) {
-        const rel = relMatch[1].toLowerCase();
-        if (rel.includes('icon') || rel.includes('apple-touch')) {
-          addIcon(hrefMatch[1]);
+    let redirects = 0;
+
+    function doFetch(fetchUrl, protoRef) {
+      protoRef.get(fetchUrl, opts, (resp) => {
+        // Follow redirects (max 2)
+        if ([301, 302, 303, 307, 308].includes(resp.statusCode)) {
+          const loc = resp.headers.location;
+          if (loc && redirects < 2) {
+            redirects++;
+            resp.resume(); // consume response to avoid memory leak
+            const nextUrl = loc.startsWith('http') ? loc : urlObj.origin + loc;
+            doFetch(nextUrl, loc.startsWith('https:') ? require('https') : require('http'));
+            return;
+          }
         }
-      }
+        if (resp.statusCode >= 400) {
+          resp.resume();
+          reject(new Error(`HTTP ${resp.statusCode}`));
+          return;
+        }
+
+        const chunks = [];
+        resp.on('data', chunk => {
+          chunks.push(chunk);
+          if (chunks.reduce((s, c) => s + c.length, 0) > 300000) { resp.destroy(); reject(new Error('too large')); }
+        });
+        resp.on('end', () => {
+          try {
+            const html = Buffer.concat(chunks).toString('utf-8');
+            const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+            const title = titleMatch ? titleMatch[1].trim() : '';
+
+            // Extract icon links from <link> tags
+            const linkRegex = /<link\s[^>]*>/gi;
+            let m;
+            while ((m = linkRegex.exec(html)) !== null) {
+              const tag = m[0];
+              const relMatch = tag.match(/rel\s*=\s*["']([^"']+)["']/i);
+              const hrefMatch = tag.match(/href\s*=\s*["']([^"']+)["']/i);
+              if (relMatch && hrefMatch) {
+                const rel = relMatch[1].toLowerCase();
+                if (rel.includes('icon') || rel.includes('apple-touch')) {
+                  let href = hrefMatch[1];
+                  let full = href;
+                  if (!href.startsWith('http')) {
+                    if (href.startsWith('//')) full = 'https:' + href;
+                    else full = 'https://' + domain + (href.startsWith('/') ? '' : '/') + href;
+                  }
+                  if (!seen.has(full)) { seen.add(full); icons.unshift(full); } // insert at front (real icons first)
+                }
+              }
+            }
+
+            resolve(title);
+          } catch (e) { reject(e); }
+        });
+        resp.on('error', (err) => reject(err));
+      }).on('error', (err) => reject(err))
+        .on('timeout', function() { this.destroy(); reject(new Error('请求超时')); });
     }
 
-    // <meta property="og:image">
-    const ogMatch = html.match(/<meta\s[^>]*property\s*=\s*["']og:image["'][^>]*content\s*=\s*["']([^"']+)["']/i)
-                   || html.match(/<meta\s[^>]*content\s*=\s*["']([^"']+)["'][^>]*property\s*=\s*["']og:image["']/i);
-    if (ogMatch) addIcon(ogMatch[1]);
-
-    // Root favicon.ico
-    addIcon('https://' + domain + '/favicon.ico');
-
-    // Google favicon fallback (always last)
-    icons.push(fallbackIcon);
-
-    const icon = icons[0] || fallbackIcon;
-    res.json({ success: true, title, icon, icons });
+    doFetch(fullUrl, proto);
   });
-  resp.on('error', () => sendFallback(res, domain, fallbackIcon));
-}
-
-function sendFallback(res, domain, fallbackIcon) {
-  res.json({ success: true, title: '', icon: fallbackIcon });
 }
 
 async function startServer(listenPort) {
