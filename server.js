@@ -13,31 +13,55 @@ const PASSWORD = process.env.BOOKMARK_PASSWORD || '7515';
 
 const DATA_FILE = path.join(__dirname, 'data', 'bookmarks.json');
 
-// === Cloud Data Storage (GitHub Gist) ===
-// Data persists in a private GitHub Gist so it survives Render container rebuilds
-const GIST_ID = process.env.GIST_ID || '';
+// === Cloud Data Storage (GitHub Repo, data branch) ===
+// Data persists in a file on a dedicated 'data' branch so it survives Render
+// container rebuilds. Writing to a non-production branch does NOT trigger a
+// redeploy, so bookmark changes stay cheap.
+const REPO = process.env.BOOKMARK_REPO || 'Dong7515/bookmark-app';
+const DATA_BRANCH = process.env.BOOKMARK_DATA_BRANCH || 'data';
+const DATA_PATH = 'data/bookmarks.json';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
-const USE_GIST = !!(GIST_ID && GITHUB_TOKEN);
+const USE_CLOUD = !!(GITHUB_TOKEN && REPO);
 let cachedData = null;
 let syncTimer = null;
 
-async function loadFromGist() {
-  const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-  });
-  if (!res.ok) throw new Error(`Gist API ${res.status}`);
-  const gist = await res.json();
-  const content = JSON.parse(gist.files['bookmarks.json'].content);
-  return content;
+const ghHeaders = {
+  'Authorization': `Bearer ${GITHUB_TOKEN}`,
+  'Accept': 'application/vnd.github.v3+json',
+  'Content-Type': 'application/json'
+};
+
+async function loadFromRepo() {
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${DATA_PATH}?ref=${DATA_BRANCH}`, { headers: ghHeaders });
+  if (res.status === 404) return null; // file not created yet
+  if (!res.ok) throw new Error(`Repo API ${res.status}`);
+  const file = await res.json();
+  const content = Buffer.from(file.content, file.encoding || 'base64').toString('utf-8');
+  return JSON.parse(content);
 }
 
-async function syncToGist(data) {
-  const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-    method: 'PATCH',
-    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ files: { 'bookmarks.json': { content: JSON.stringify(data, null, 2) } } })
+async function saveToRepo(data) {
+  // Get current sha (needed for update)
+  let sha;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${DATA_PATH}?ref=${DATA_BRANCH}`, { headers: ghHeaders });
+    if (r.ok) sha = (await r.json()).sha;
+  } catch (e) { /* ignore */ }
+  const body = {
+    message: 'Update bookmarks (auto)',
+    content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
+    branch: DATA_BRANCH,
+  };
+  if (sha) body.sha = sha;
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${DATA_PATH}`, {
+    method: 'PUT',
+    headers: ghHeaders,
+    body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`Gist sync ${res.status}`);
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Repo save ${res.status}: ${t.slice(0, 200)}`);
+  }
 }
 
 // === Session tokens (in-memory, cleared on restart) ===
@@ -143,11 +167,11 @@ function writeData(data) {
     fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
   } catch (e) { /* ignore local file errors */ }
-  // Sync to Gist (debounced 1s, non-blocking)
-  if (USE_GIST) {
+  // Sync to GitHub repo data branch (debounced 1s, non-blocking)
+  if (USE_CLOUD) {
     if (syncTimer) clearTimeout(syncTimer);
     syncTimer = setTimeout(() => {
-      syncToGist(cachedData).catch(e => console.error('Gist sync failed:', e.message));
+      saveToRepo(cachedData).catch(e => console.error('Repo sync failed:', e.message));
     }, 1000);
   }
 }
@@ -502,12 +526,12 @@ function fetchPageTitleAndIcons(urlObj, domain, seen, icons) {
 }
 
 async function startServer(listenPort) {
-  if (USE_GIST) {
+  if (USE_CLOUD) {
     try {
-      cachedData = await loadFromGist();
-      console.log('Data loaded from GitHub Gist');
+      cachedData = await loadFromRepo();
+      console.log('Data loaded from GitHub repo (data branch)');
     } catch (e) {
-      console.error('Failed to load from Gist, using local file:', e.message);
+      console.error('Failed to load from repo, using local file:', e.message);
     }
   }
   const server = http.createServer(app);
@@ -528,7 +552,7 @@ async function startServer(listenPort) {
       const addr = server.address();
       console.log(`Bookmark server running at http://localhost:${addr.port}`);
       console.log(`Auth: ${PASSWORD ? 'enabled' : 'disabled'}`);
-      console.log(`Storage: ${USE_GIST ? 'GitHub Gist (persistent)' : 'Local file (ephemeral)'}`);
+      console.log(`Storage: ${USE_CLOUD ? 'GitHub Repo data branch (persistent)' : 'Local file (ephemeral)'}`);
       resolve({ server, wss, port: addr.port });
     });
     server.once('error', reject);
