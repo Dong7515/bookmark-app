@@ -1,22 +1,316 @@
 {
   "bookmarks": [
-    { "id": "1", "title": "GitHub", "url": "https://github.com", "color": "gradient8", "groupId": "g1" },
-    { "id": "2", "title": "谷歌", "url": "https://www.google.com", "color": "gradient3", "groupId": "g4" },
-    { "id": "3", "title": "百度", "url": "https://www.baidu.com", "color": "gradient4", "groupId": "g4" },
-    { "id": "4", "title": "B站", "url": "https://www.bilibili.com", "color": "gradient2", "groupId": "g2" },
-    { "id": "5", "title": "知乎", "url": "https://www.zhihu.com", "color": "gradient3", "groupId": "g2" },
-    { "id": "6", "title": "掘金", "url": "https://juejin.cn", "color": "gradient1", "groupId": "g1" },
-    { "id": "7", "title": "微信公众平台", "url": "https://mp.weixin.qq.com", "color": "gradient6", "groupId": "g4" },
-    { "id": "8", "title": "YouTube", "url": "https://www.youtube.com", "color": "gradient2", "groupId": "g3" },
-    { "id": "9", "title": "Stack Overflow", "url": "https://stackoverflow.com", "color": "gradient5", "groupId": "g1" },
-    { "id": "10", "title": "语雀", "url": "https://www.yuque.com", "color": "gradient6", "groupId": "g3" },
-    { "id": "11", "title": "飞书", "url": "https://www.feishu.cn", "color": "gradient3", "groupId": "g4" },
-    { "id": "12", "title": "V2EX", "url": "https://www.v2ex.com", "color": "gradient8", "groupId": "g2" }
+    {
+      "id": "1",
+      "title": "GitHub",
+      "url": "https://github.com",
+      "color": "gradient8",
+      "groupId": "mriuiayggnon5e",
+      "icon": ""
+    },
+    {
+      "id": "2",
+      "title": "谷歌",
+      "url": "https://www.google.com",
+      "color": "gradient3",
+      "groupId": "mriuiayggnon5e",
+      "icon": ""
+    },
+    {
+      "id": "3",
+      "title": "百度",
+      "url": "https://www.baidu.com",
+      "color": "gradient4",
+      "groupId": ""
+    },
+    {
+      "id": "4",
+      "title": "B站",
+      "url": "https://www.bilibili.com",
+      "color": "gradient2",
+      "groupId": ""
+    },
+    {
+      "id": "5",
+      "title": "知乎",
+      "url": "https://www.zhihu.com",
+      "color": "gradient3",
+      "groupId": ""
+    },
+    {
+      "id": "6",
+      "title": "掘金",
+      "url": "https://juejin.cn",
+      "color": "gradient1",
+      "groupId": "mriuiayggnon5e",
+      "icon": ""
+    },
+    {
+      "id": "7",
+      "title": "微信公众平台",
+      "url": "https://mp.weixin.qq.com",
+      "color": "gradient6",
+      "groupId": ""
+    },
+    {
+      "id": "8",
+      "title": "YouTube",
+      "url": "https://www.youtube.com",
+      "color": "gradient2",
+      "groupId": "mriuiayggnon5e",
+      "icon": ""
+    },
+    {
+      "id": "9",
+      "title": "Stack Overflow",
+      "url": "https://stackoverflow.com",
+      "color": "gradient5",
+      "groupId": "mriuiayggnon5e",
+      "icon": ""
+    },
+    {
+      "id": "10",
+      "title": "语雀",
+      "url": "https://www.yuque.com",
+      "color": "gradient6",
+      "groupId": "mriuiayggnon5e",
+      "icon": ""
+    },
+    {
+      "id": "11",
+      "title": "飞书",
+      "url": "https://www.feishu.cn",
+      "color": "gradient3",
+      "groupId": ""
+    },
+    {
+      "id": "12",
+      "title": "V2EX",
+      "url": "https://www.v2ex.com",
+      "color": "gradient8",
+      "groupId": "mriuiayggnon5e",
+      "icon": ""
+    },
+    {
+      "id": "mritnkqamxs1oa",
+      "title": "在线网址",
+      "url": "https://dashboard.render.com/web/srv-d9a4igvavr4c73cmmjm0/settings",
+      "color": "gradient1",
+      "icon": "https://dashboard.render.com/favicon-light.png",
+      "groupId": "mriuiayggnon5e"
+    },
+    {
+      "id": "mritplrisfqxqw",
+      "title": "闲鱼 - 闲不住？上闲鱼！",
+      "url": "https://www.goofish.com/",
+      "color": "gradient1",
+      "icon": "https://img.alicdn.com/tfs/TB19WObTNv1gK0jSZFFXXb0sXXa-144-144.png",
+      "groupId": "mritoffjmrwqo7"
+    },
+    {
+      "id": "mritpzlgcj2nzj",
+      "title": "阴阳师藏宝阁_阴阳师交易平台",
+      "url": "https://yys.cbg.163.com/cgi/mweb/",
+      "color": "gradient1",
+      "icon": "https://yys.cbg.163.com/favicon.ico",
+      "groupId": "mritoffjmrwqo7"
+    },
+    {
+      "id": "mrittbyu97li2i",
+      "title": "风极空-藏宝阁",
+      "url": "http://cbg.fengjikong.com/history/records",
+      "color": "gradient1",
+      "icon": "https://www.google.com/s2/favicons?domain=cbg.fengjikong.com&sz=64",
+      "groupId": "mritoffjmrwqo7"
+    },
+    {
+      "id": "mriuhw9a1klv2p",
+      "title": "视频号助手",
+      "url": "https://channels.weixin.qq.com/platform/private_msg",
+      "color": "gradient1",
+      "icon": "https://res.wx.qq.com/t/wx_fed/finder/helper/finder-helper-web/res/favicon-v2.ico",
+      "groupId": "mrito8f9bxlj9m"
+    },
+    {
+      "id": "mriuwhdblb15yg",
+      "title": "式神录 · 阴阳师账号对比",
+      "url": "https://yanqr.vip/#/",
+      "color": "gradient1",
+      "icon": "https://yanqr.vip/favicon.svg",
+      "groupId": "mritoffjmrwqo7"
+    },
+    {
+      "id": "mriuxc2hama2zw",
+      "title": "痒痒鼠魔方",
+      "url": "http://yyshub.top/#/load/fetch",
+      "color": "gradient1",
+      "icon": "https://yyshub.top/favicon.ico",
+      "groupId": "mritoffjmrwqo7"
+    },
+    {
+      "id": "mrix8ajrsjoh3w",
+      "title": "Showpaw — 海外影视网盘资源搜索 · 美剧 英剧 电影 一键找资源",
+      "url": "https://www.showpaw.xyz/",
+      "color": "gradient1",
+      "icon": "https://www.showpaw.xyz/icon.png?icon.0dnnqs_.4t_.c.png?dpl=dpl_8EaA6iG57crbFML4wQr8m6Y7Mxi2",
+      "groupId": "mrix295i4zx3rs"
+    },
+    {
+      "id": "mrixgnev7zo9v6",
+      "title": "公众号",
+      "url": "https://mp.weixin.qq.com/cgi-bin/home?t=home/index&token=2143617331&lang=zh_CN",
+      "color": "gradient1",
+      "icon": "https://res.wx.qq.com/a/wx_fed/assets/res/OTE0YTAw.png",
+      "groupId": "mrito8f9bxlj9m"
+    },
+    {
+      "id": "mrixpn9a8k2sin",
+      "title": "夸克网盘",
+      "url": "https://pan.quark.cn/list#/list/all",
+      "color": "gradient1",
+      "icon": "https://image.quark.cn/s/uae/g/3o/broccoli/resource/202602/f6439020-13b4-11f1-9342-3944993de2f6.png",
+      "groupId": "mrix295i4zx3rs"
+    },
+    {
+      "id": "mriywbkuuogkrj",
+      "title": "小红书 - 你的生活兴趣社区",
+      "url": "https://www.xiaohongshu.com/explore",
+      "color": "gradient1",
+      "icon": "",
+      "groupId": "mriuiayggnon5e"
+    },
+    {
+      "id": "mriz4tv895s7hd",
+      "title": "稿定设计-在线设计平台_海报设计_图片设计_视频编辑_设计协作",
+      "url": "https://www.gaoding.com/",
+      "color": "gradient1",
+      "icon": "https://www.gaoding.com/favicon.ico",
+      "groupId": "mrito8f9bxlj9m"
+    },
+    {
+      "id": "mriz62ukuco9q1",
+      "title": "即刻",
+      "url": "https://web.okjike.com/explore",
+      "color": "gradient1",
+      "icon": "https://web.okjike.com/favicon-32x32.png",
+      "groupId": "mriuiayggnon5e"
+    },
+    {
+      "id": "mrizt6hqqk4qum",
+      "title": "百度翻译_领先的AI大模型翻译_支持文本/文档/图片翻译",
+      "url": "https://fanyi.baidu.com/mtpe-individual/transText?ext_channel=Aldtype&lang=en2zh&query=We%20don%27t%20have%20the%20item.#/",
+      "color": "gradient1",
+      "icon": "https://fanyi.baidu.com/favicon.ico",
+      "groupId": "mrizprruwo5uf4"
+    },
+    {
+      "id": "mrizz2quaof786",
+      "title": "微博 – 随时随地发现新鲜事",
+      "url": "https://weibo.com/",
+      "color": "gradient1",
+      "icon": "https://www.google.com/s2/favicons?domain=weibo.com&sz=64",
+      "groupId": "mriuiayggnon5e"
+    },
+    {
+      "id": "mrj16gzl48a87d",
+      "title": "addog.vip | 广告人的网址导航 | 品牌/策划/营销/创意/文案",
+      "url": "https://www.addog.vip/#hot10",
+      "color": "gradient1",
+      "icon": "",
+      "groupId": "mriuiayggnon5e"
+    },
+    {
+      "id": "mrk3s9508qekx7",
+      "title": "飞牛私有云fnOS",
+      "url": "http://192.168.10.240:5666/",
+      "color": "gradient1",
+      "icon": "https://favicon.im/192.168.10.240.png",
+      "groupId": "mrito8f9bxlj9m"
+    },
+    {
+      "id": "mrk9n97z64ecod",
+      "title": "抖音创作者中心",
+      "url": "https://creator.douyin.com/creator-micro/home",
+      "color": "gradient1",
+      "icon": "https://lf3-static.bytednsdoc.com/obj/eden-cn/yvahlyj_upfbvk_zlp/ljhwZthlaukjlkulzlp/pc_creator/favicon_v2_7145ff0.ico",
+      "groupId": "mrito8f9bxlj9m"
+    },
+    {
+      "id": "mrlfkj5wsl56c5",
+      "title": "凡科小程序",
+      "url": "https://i.fkw.com/?_ta=0",
+      "color": "gradient1",
+      "icon": "https://i.fkw.com/favicon.ico",
+      "groupId": "mrito8f9bxlj9m"
+    },
+    {
+      "id": "mrlg0v2l9398m8",
+      "title": "Telegram Web",
+      "url": "https://web.telegram.org/k/#@jisou",
+      "color": "gradient1",
+      "icon": "https://web.telegram.org/favicon.ico",
+      "groupId": "mrlfzr8645rduz"
+    },
+    {
+      "id": "mrn8mqkujtwnpu",
+      "title": "Web Apps by 123apps - 编辑、转换、创建",
+      "url": "https://123apps.com/cn/",
+      "color": "gradient1",
+      "icon": "https://123apps.com/static/i/v3/favicon.svg",
+      "groupId": "mrito8f9bxlj9m"
+    },
+    {
+      "id": "mrrfbsknto6iwh",
+      "title": "迅雷电影天堂_高清迅雷电影下载网站",
+      "url": "https://www.xl720.com/",
+      "color": "gradient1",
+      "icon": "https://www.xl720.com/favicon.ico",
+      "groupId": "mrix295i4zx3rs"
+    },
+    {
+      "id": "mrrfriahmcx8oo",
+      "title": "BT影视_4k高清电影BT下载_蓝光迅雷电影下载_最新电视剧下载",
+      "url": "https://www.btbtla.com/",
+      "color": "gradient1",
+      "icon": "https://www.btbtla.com/assets/image/favicon.png",
+      "groupId": "mrix295i4zx3rs"
+    }
   ],
   "groups": [
-    { "id": "g1", "name": "开发工具", "color": "#667eea" },
-    { "id": "g2", "name": "社交媒体", "color": "#f5576c" },
-    { "id": "g3", "name": "学习资源", "color": "#43e97b" },
-    { "id": "g4", "name": "常用工具", "color": "#4facfe" }
+    {
+      "id": "mrito8f9bxlj9m",
+      "name": "两手硬",
+      "color": "#7c6ff7"
+    },
+    {
+      "id": "mritoffjmrwqo7",
+      "name": "阴阳师",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "mriuiayggnon5e",
+      "name": "好用的工具",
+      "color": "#7c6ff7"
+    },
+    {
+      "id": "mrix295i4zx3rs",
+      "name": "影视资源",
+      "color": "#7c6ff7"
+    },
+    {
+      "id": "mrizprruwo5uf4",
+      "name": "shopee",
+      "color": "#7c6ff7"
+    },
+    {
+      "id": "mrj1460glrw53f",
+      "name": "设计参考",
+      "color": "#7c6ff7"
+    },
+    {
+      "id": "mrlfzr8645rduz",
+      "name": "外网网址",
+      "color": "#f5576c"
+    }
   ]
 }
