@@ -298,6 +298,14 @@
       "color": "gradient1",
       "icon": "https://duckduckgo.com/ip3/zlibrary.me.ico",
       "groupId": ""
+    },
+    {
+      "id": "ms8aq2ncu11mbu",
+      "title": "Zlibrary发布页",
+      "url": "https://zlibrary.me/",
+      "color": "gradient1",
+      "icon": "https://duckduckgo.com/ip3/zlibrary.me.ico",
+      "groupId": "mrlfzr8645rduz"
     }
   ],
   "groups": [
