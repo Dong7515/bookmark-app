@@ -386,6 +386,14 @@
       "color": "gradient1",
       "icon": "https://lf3-ad-platform.byteadverts.com/obj/ad-platform/lamp_fe_main/favicon-16x16.png",
       "groupId": "mrito8f9bxlj9m"
+    },
+    {
+      "id": "mv7g8b3rh0iktw",
+      "title": "巨量本地推",
+      "url": "https://localads.chengzijianzhan.cn/lamp/pc/cdp_promotion/promote-manage/ad?advid=1860867801889804&from=%2Flamp%2Fpc%2Fhome",
+      "color": "gradient1",
+      "icon": "https://lf3-ad-platform.byteadverts.com/obj/ad-platform/lamp_fe_main/favicon-16x16.png",
+      "groupId": "mv7g5xmwpubl60"
     }
   ],
   "groups": [
