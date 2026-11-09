@@ -426,6 +426,14 @@
       "color": "gradient1",
       "icon": "https://lf3-ad-platform.byteadverts.com/obj/ad-platform/lamp_fe_main/favicon-16x16.png",
       "groupId": "mv7g5xmwpubl60"
+    },
+    {
+      "id": "mw8z36glkjbi70",
+      "title": "Shopee卖家中心137",
+      "url": "https://seller.shopee.cn/?cnsc_shop_id=1054503529",
+      "color": "gradient1",
+      "icon": "https://deo.shopeesz.com/shopee/shopee-seller-live-sg/mmf_portal_seller_root_dir/shopee/favicon.ico",
+      "groupId": "mrizprruwo5uf4"
     }
   ],
   "groups": [
