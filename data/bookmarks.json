@@ -450,6 +450,14 @@
       "color": "gradient1",
       "icon": "https://www.google.com/s2/favicons?domain=c3030.shopeex.cn&sz=64",
       "groupId": "mrizprruwo5uf4"
+    },
+    {
+      "id": "mw8zfpiqe81vip",
+      "title": "收藏商品-个人中心",
+      "url": "https://www.vvic.com/user/favorite.html?currentPage=1&lang=cn&currency=CNY",
+      "color": "gradient1",
+      "icon": "https://main.vvic.com/favicons/favicon.ico",
+      "groupId": "mrizprruwo5uf4"
     }
   ],
   "groups": [
